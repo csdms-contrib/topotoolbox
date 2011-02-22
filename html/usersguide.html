@@ -1,0 +1,392 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>User Guide to TopoToolbox</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2010-09-14"><meta name="m-file" content="usersguide"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>User Guide to TopoToolbox</h1><!--introduction--><p>TopoToolbox provides a set of Matlab functions that support the analysis of relief and flow pathways in digital elevation models. The major aim of TopoToolbox is to offer helpful analytical GIS utilities in a non-GIS environment in order to support the simultaneous application of GIS-specific and other quantitative methods.</p><p>TopoToolbox is written in the Matlab language and requires the Image Processing Toolbox for various functions.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">About the User Guide</a></li><li><a href="#2">Loading data</a></li><li><a href="#4">Fill sinks</a></li><li><a href="#5">Topographic derivates</a></li><li><a href="#9">Flow direction and flow accumulation</a></li><li><a href="#15">Functions based on the flow direction matrix</a></li><li><a href="#18">Export output</a></li><li><a href="#19">Reference</a></li><li><a href="#20">History</a></li></ul></div><h2>About the User Guide<a name="1"></a></h2><p>This user guide is intended as a basic introduction to the TopoToolbox. It won't give a comprehensive overview on the functions available but serves a documentation for a sample session.</p><h2>Loading data<a name="2"></a></h2><p>TopoToolbox supports data export from the ESRI ascii grid format with the function <tt>rasterread</tt>. In case your data is in a different format refer to the Matlab functions <tt>dlmread</tt> or <tt>imread</tt>.</p><p>Here we use the example Digital Elevation Model (DEM)</p><pre class="codeinput">[dem,X,Y] = rasterread(<span class="string">'exampleDEM.txt'</span>);
+surf(X,Y,dem);
+axis <span class="string">image</span>;
+shading <span class="string">interp</span>;
+camlight
+</pre><img vspace="5" hspace="5" src="usersguide_01.png" alt=""> <p>Some values you will need for calling some of the functions are cellsize and the matrix dimensions of the DEM.</p><pre class="codeinput">cs  = abs(Y(2)-Y(1));
+siz = size(dem);
+</pre><h2>Fill sinks<a name="4"></a></h2><p>Often DEMs feature erroneous topographic depressions that should be filled prior to flow path computation. You can obtain this by using the function <tt>fillsinks</tt>.</p><pre class="codeinput">dem = fillsinks(dem);
+</pre><h2>Topographic derivates<a name="5"></a></h2><p>TopoToolbox includes various functions to calculate topographic derivates.</p><pre class="codeinput">H = hillshade(X,Y,dem,315,60);
+G = gradient8(dem,cs);
+[prof,plan] = curvature(dem,cs);
+
+imagesc(X(1,:),Y(:,2),H);
+axis <span class="string">image</span>;
+axis <span class="string">xy</span>
+colormap(gray)
+title(<span class="string">'Hillshading'</span>)
+drawnow
+</pre><img vspace="5" hspace="5" src="usersguide_02.png" alt=""> <pre class="codeinput">colormap(<span class="string">'default'</span>)
+imageschs(X,Y,dem,G);
+colorbar
+title(<span class="string">'Slope'</span>)
+drawnow
+</pre><img vspace="5" hspace="5" src="usersguide_03.png" alt=""> <pre class="codeinput">imageschs(X,Y,dem,prof);
+colorbar
+title(<span class="string">'Profile curvature'</span>)
+drawnow
+</pre><img vspace="5" hspace="5" src="usersguide_04.png" alt=""> <pre class="codeinput">colormap(<span class="string">'default'</span>)
+imageschs(X,Y,dem,plan);
+colorbar
+title(<span class="string">'Planform curvature'</span>)
+drawnow
+</pre><img vspace="5" hspace="5" src="usersguide_05.png" alt=""> <h2>Flow direction and flow accumulation<a name="9"></a></h2><p>The flow direction algorithm is the heart of TopoToolbox and various functions require the flow direction matrix as input arguments.</p><p>Calculate the single flow direction matrix</p><pre class="codeinput">Ms = flowdir(X,Y,dem,<span class="string">'type'</span>,<span class="string">'single'</span>);
+spy(Ms)
+title(<span class="string">'Sparsity pattern of the single flow direction matrix'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_06.png" alt=""> <p>and determine the flow accumulation (upslope area).</p><pre class="codeinput">As = flowacc(Ms,siz);
+imagesc(X(1,:),Y(:,2),As);
+axis <span class="string">image</span>
+axis <span class="string">xy</span>
+colorbar
+title(<span class="string">'Flow accumulation based on single flow direction matrix'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_07.png" alt=""> <p>For some applications the single flow direction algorithm may return too concentrated flow patterns. Dispersion of flow patterns can be analysed with the multiple flow direction algorithm.</p><pre class="codeinput">Mm = flowdir(X,Y,dem,<span class="string">'type'</span>,<span class="string">'multi'</span>);
+spy(Mm)
+title(<span class="string">'Sparsity pattern of the multiple flow direction matrix'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_08.png" alt=""> <p>Calculate the upslope area based on the multiple flow direction matrix. Plotting the logarithm of the upslope area usually gives a good impression of the spatial flow patterns.</p><pre class="codeinput">Am = flowacc(Mm,siz);
+imagesc(X(1,:),Y(:,2),log(Am));
+axis <span class="string">image</span>
+axis <span class="string">xy</span>
+colorbar
+title(<span class="string">'Logarithm of flow accumulation based on multiple flow direction matrix'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_09.png" alt=""> <p>TopoToolbox offers several functions for flow direction matrix computation. <tt>flowdir</tt> is suited for all kind of variations of flow direction types and is very flexible. However, its application is limited to relatively small sized DEMs (around 600x600 elements). For huge DEM matrices the derivation of the multiple flow direction matrix may not even be possible due to memory constraints. Compare the memory requirements of the single and multiple flow direction matrix compared to the DEM.</p><pre class="codeinput">whos(<span class="string">'dem'</span>,<span class="string">'Ms'</span>,<span class="string">'Mm'</span>)
+</pre><pre class="codeoutput">  Name          Size                 Bytes  Class     Attributes
+
+  Mm        17640x17640            1254168  double    sparse    
+  Ms        17640x17640             422584  double    sparse    
+  dem         180x98                141120  double              
+
+</pre><p>While the single flow direction matrix requires roughly twice as much memory than the DEM, the multiple flow direction matrix needs 5 to 7 times the amount (depending on the mean number of downstream cells to each cell).</p><p>TopoToolbox has two functions that deals with this memory problem. <tt>flowdir_single</tt> is particularly designed for single flow direction matrix computation and is very memory efficient. <tt>flowacc_lm</tt> uses an iterative procedure to calculate the upslope area based on multiple flow direction, but it does not return the flow direction matrix. In case you are not sure what to use, refer to the function <tt>ezflowacc</tt>.</p><h2>Functions based on the flow direction matrix<a name="15"></a></h2><p>Various functions (<tt>dependencemap</tt>, <tt>flowdistance</tt>, <tt>flowdistanceds</tt>, <tt>influencemap</tt>, <tt>streamorder</tt>, ...) require the single flow direction matrix as input and in this section it is shown how these functions are applied.</p><p>First, let's calculate the drainage basins of the DEM. This can be done using the function <tt>drainagebasins</tt>. You may want to shuffle the colors so that the drainage basins can be more easily distinguished in a plot (<tt>shufflelabel</tt>). In addition, let's denote the area of each basin in the map.</p><pre class="codeinput">DB = drainagebasins(Ms,siz);
+nrDB = numel(unique(DB)); <span class="comment">% nr of drainage basins</span>
+
+STATS = regionprops(DB,<span class="string">'PixelIdxList'</span>,<span class="string">'Area'</span>,<span class="string">'Centroid'</span>);
+
+imageschs(X,Y,dem,shufflelabel(DB));
+
+hold <span class="string">on</span>
+<span class="keyword">for</span> run = 1:nrDB;
+    text(X(1,round(STATS(run).Centroid(1))),Y(round(STATS(run).Centroid(2)),1),<span class="keyword">...</span>
+         num2str(round(STATS(run).Area * cs)));
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="usersguide_10.png" alt=""> <p>It may also be interesting to know the distance from each point in the DEM to the nearest downslope channel. You can calculate this with <tt>flowdistance</tt>. First, let's define a channel matrix. Here we use a rather arbitrary value of a specific contributing area of 100 necessary to form concentrated flow.</p><pre class="codeinput">CHANNEL = As&gt;100;
+
+D = flowdistance(Ms,X,Y,dem,CHANNEL);
+imagesc(X(1,:),Y(:,1),D);
+axis <span class="string">image</span>;
+axis <span class="string">xy</span>
+title(<span class="string">'flow path distance [m] to channel'</span>)
+colorbar
+</pre><img vspace="5" hspace="5" src="usersguide_11.png" alt=""> <p>You can also use this function to calculate a hydrograph of a specific basin delineated in the previous example. The assumptions of this hydrograph are very basic: Equal flow velocities in each hillslope cell and instantaneous transfer in channels.</p><pre class="codeinput">[ignore,ixbasin] = max([STATS.Area]);
+
+d = D(DB==ixbasin &amp; ~CHANNEL);
+hist(d,30);
+xlabel(<span class="string">'time*velocity'</span>)
+ylabel(<span class="string">'discharge'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_12.png" alt=""> <h2>Export output<a name="18"></a></h2><p>At the end of a session you may want to export the generated matrices to a different format, so that you can use them for e.g. a map layout. TopoToolbox provides the function <tt>rasterwrite</tt>, which exports a georeferenced (X,Y) matrix to an ESRI ascii grid. You can import this matrix with ArcGIS using ArcToolbox/Conversion Tools. Other functions that might be helpful are <tt>imwrite</tt> and <tt>dlmwrite</tt>.</p><h2>Reference<a name="19"></a></h2><p>Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of Matlab functions for topographic analysis. Environmental Modelling &amp; Software, 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]</p><h2>History<a name="20"></a></h2><p>This user guide was updated last: April 7., 2010.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+%% User Guide to TopoToolbox
+%
+% TopoToolbox provides a set of Matlab functions that support the analysis
+% of relief and flow pathways in digital elevation models. The major 
+% aim of TopoToolbox is to offer helpful analytical GIS utilities in a 
+% non-GIS environment in order to support the simultaneous application
+% of GIS-specific and other quantitative methods.
+%
+% TopoToolbox is written in the Matlab language and requires the Image
+% Processing Toolbox for various functions.
+%
+%% About the User Guide
+%
+% This user guide is intended as a basic introduction to the TopoToolbox.
+% It won't give a comprehensive overview on the functions available but 
+% serves a documentation for a sample session.
+%
+%% Loading data
+%
+% TopoToolbox supports data export from the ESRI ascii grid format with the
+% function |rasterread|. In case your data is in a different format refer
+% to the Matlab functions |dlmread| or |imread|. 
+%
+% Here we use the example Digital Elevation Model (DEM)
+
+[dem,X,Y] = rasterread('exampleDEM.txt');
+surf(X,Y,dem); 
+axis image; 
+shading interp; 
+camlight
+
+%%
+% Some values you will need for calling some of the functions are cellsize 
+% and the matrix dimensions of the DEM.
+
+cs  = abs(Y(2)-Y(1));
+siz = size(dem);
+
+
+%% Fill sinks
+%
+% Often DEMs feature erroneous topographic depressions that should be
+% filled prior to flow path computation. You can obtain this by using the
+% function |fillsinks|. 
+
+dem = fillsinks(dem);
+
+%% Topographic derivates
+%
+% TopoToolbox includes various functions to calculate topographic
+% derivates. 
+H = hillshade(X,Y,dem,315,60);
+G = gradient8(dem,cs);
+[prof,plan] = curvature(dem,cs);
+
+imagesc(X(1,:),Y(:,2),H); 
+axis image; 
+axis xy
+colormap(gray)
+title('Hillshading')
+drawnow
+
+%%
+colormap('default')
+imageschs(X,Y,dem,G);
+colorbar
+title('Slope')
+drawnow
+
+%%
+imageschs(X,Y,dem,prof);
+colorbar
+title('Profile curvature')
+drawnow
+
+%%
+colormap('default')
+imageschs(X,Y,dem,plan);
+colorbar
+title('Planform curvature')
+drawnow
+
+
+%% Flow direction and flow accumulation
+%
+% The flow direction algorithm is the heart of TopoToolbox and various 
+% functions require the flow direction matrix as input arguments.
+%
+% Calculate the single flow direction matrix
+
+Ms = flowdir(X,Y,dem,'type','single');
+spy(Ms)
+title('Sparsity pattern of the single flow direction matrix')
+
+%% 
+% and determine the flow accumulation (upslope area).
+
+As = flowacc(Ms,siz);
+imagesc(X(1,:),Y(:,2),As);
+axis image
+axis xy
+colorbar
+title('Flow accumulation based on single flow direction matrix')
+
+%%
+% For some applications the single flow direction algorithm may return too
+% concentrated flow patterns. Dispersion of flow patterns can be analysed
+% with the multiple flow direction algorithm.
+
+Mm = flowdir(X,Y,dem,'type','multi');
+spy(Mm)
+title('Sparsity pattern of the multiple flow direction matrix')
+
+%%
+% Calculate the upslope area based on the multiple flow direction matrix.
+% Plotting the logarithm of the upslope area usually gives a good
+% impression of the spatial flow patterns.
+
+Am = flowacc(Mm,siz);
+imagesc(X(1,:),Y(:,2),log(Am));
+axis image
+axis xy
+colorbar
+title('Logarithm of flow accumulation based on multiple flow direction matrix')
+
+%%
+% TopoToolbox offers several functions for flow direction matrix
+% computation. |flowdir| is suited for all kind of variations of flow
+% direction types and is very flexible. However, its application is limited
+% to relatively small sized DEMs (around 600x600 elements). For huge DEM
+% matrices the derivation of the multiple flow direction matrix may not
+% even be possible due to memory constraints. Compare the memory
+% requirements of the single and multiple flow direction matrix compared to
+% the DEM.
+
+whos('dem','Ms','Mm')
+
+%%
+% While the single flow direction matrix requires roughly twice as much
+% memory than the DEM, the multiple flow direction matrix needs 5 to 7
+% times the amount (depending on the mean number of downstream cells to 
+% each cell). 
+%
+% TopoToolbox has two functions that deals with this memory problem.
+% |flowdir_single| is particularly designed for single flow direction
+% matrix computation and is very memory efficient. |flowacc_lm| uses an 
+% iterative procedure to calculate the upslope area based on multiple flow  
+% direction, but it does not return the flow direction matrix. In case you 
+% are not sure what to use, refer to the function |ezflowacc|.
+
+%% Functions based on the flow direction matrix
+%
+% Various functions (|dependencemap|, |flowdistance|, |flowdistanceds|, 
+% |influencemap|, |streamorder|, ...) require the single flow direction 
+% matrix as input and in this section it is shown how these functions are 
+% applied.
+%
+% First, let's calculate the drainage basins of the DEM. This can be done
+% using the function |drainagebasins|. You may want to shuffle the colors
+% so that the drainage basins can be more easily distinguished in a plot
+% (|shufflelabel|). In addition, let's denote the area of each basin in the 
+% map. 
+
+DB = drainagebasins(Ms,siz);
+nrDB = numel(unique(DB)); % nr of drainage basins
+
+STATS = regionprops(DB,'PixelIdxList','Area','Centroid');
+
+imageschs(X,Y,dem,shufflelabel(DB));
+
+hold on
+for run = 1:nrDB;
+    text(X(1,round(STATS(run).Centroid(1))),Y(round(STATS(run).Centroid(2)),1),...
+         num2str(round(STATS(run).Area * cs)));
+end
+hold off
+
+%%
+% It may also be interesting to know the distance from each point in the
+% DEM to the nearest downslope channel. You can calculate this with 
+% |flowdistance|. First, let's define a channel matrix. Here we use a
+% rather arbitrary value of a specific contributing area of 100 necessary
+% to form concentrated flow.
+
+CHANNEL = As>100;
+
+D = flowdistance(Ms,X,Y,dem,CHANNEL);
+imagesc(X(1,:),Y(:,1),D);
+axis image;
+axis xy
+title('flow path distance [m] to channel')
+colorbar
+
+%%
+% You can also use this function to calculate a hydrograph of a specific
+% basin delineated in the previous example. The assumptions of this
+% hydrograph are very basic: Equal flow velocities in each hillslope cell 
+% and instantaneous transfer in channels. 
+
+[ignore,ixbasin] = max([STATS.Area]);
+
+d = D(DB==ixbasin & ~CHANNEL);
+hist(d,30);
+xlabel('time*velocity')
+ylabel('discharge')
+
+%% Export output
+%
+% At the end of a session you may want to export the generated matrices to
+% a different format, so that you can use them for e.g. a map layout. 
+% TopoToolbox provides the function |rasterwrite|, which exports a 
+% georeferenced (X,Y) matrix to an ESRI ascii grid. You can import this 
+% matrix with ArcGIS using ArcToolbox/Conversion Tools. Other functions
+% that might be helpful are |imwrite| and |dlmwrite|.
+
+
+%% Reference
+%
+% Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of Matlab
+% functions for topographic analysis. Environmental Modelling & Software,
+% 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
+
+%% History
+%
+% This user guide was updated last: April 7., 2010.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
