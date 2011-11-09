@@ -1,6 +1,6 @@
 function [IXgn,d] = adjustgauges(IXg,I,plotit)
 
-% snap gauges or pour point to stream raster
+% snap gauges or pour points to stream raster
 %
 % Syntax
 %
@@ -9,6 +9,11 @@ function [IXgn,d] = adjustgauges(IXg,I,plotit)
 %
 % Description
 %
+%     Sometimes gauge locations are not precisely associated with 
+%     streams derived from a digital elevation model. One method may
+%     be to manually adjust their location to a derived stream raster.
+%     adjustgauges does this automatically by finding identifying the
+%     shortest distance to a stream. 
 %
 % Input
 %
@@ -32,7 +37,7 @@ function [IXgn,d] = adjustgauges(IXg,I,plotit)
 %     IX = [13869 12470 17026 6071];
 %     IXn = adjustgauges(IX,W,true);
 %
-% See also: COORD2IND
+% See also: COORD2IND, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 10. July, 2009

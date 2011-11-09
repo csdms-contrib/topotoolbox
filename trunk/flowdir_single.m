@@ -22,10 +22,11 @@ function [M,W0] = flowdir_single(DEM,varargin)
 %
 % propertyname     propertyvalues
 %
-%     'routeflats'      'route' (default), 'cross' or 'none' decides upon 
-%                       the method applied to route over flats/plateaus.
+%     'routeflats'      choose method to route over flats/plateaus.
 %                       'route' uses the function routeflats
 %                       'cross' uses the function crossflats
+%                       'geodesic' uses routegeodesic (requires Matlab
+%                       2011b or higher)
 %                       'none' does not apply any routing through flats
 %     'edges'           decide on how to handle flow on grid edges. 
 %                       'closed' (default) forces all water to remain on 
@@ -62,23 +63,30 @@ function [M,W0] = flowdir_single(DEM,varargin)
 % General variables
 % cellsize
 d      = 1; 
-% diagonal distance
-dd     = hypot(d,d);
+
 siz    = size(DEM);
 nrc    = numel(DEM);
 IXc    = reshape((1:nrc)',siz);
-B = true(siz);
-B(2:end-1,2:end-1) = false;
-
-% lower the outer rim of the dem to ensure flow to the edges 
-DEM(B) = DEM(B)-1e-4; % arbitrary!!!
-DEM    = padarray(DEM,[1 1],NaN);
 
 % check input using PARSEARGS
-params.routeflats  = {'route','cross','none'};
+params.routeflats  = {'route','cross','geodesic','none'};
 params.edges       = {'closed','open'};
+params.diagonal    = {'hypot','cs'};
 params = parseargs(params,varargin{:});
 
+% diagonal distance
+switch lower(params.diagonal)
+    case 'hypot'
+    dd = hypot(d,d);
+    case 'cs'
+        dd = d;
+end
+
+% lower the outer rim of the dem to ensure flow towards the edges 
+B = true(siz);
+B(2:end-1,2:end-1) = false;
+DEM(B) = DEM(B)-1e-4; % arbitrary!!!
+DEM    = padarray(DEM,[1 1],NaN);
 
 % anonymous functions for neighborhood operations
 neighfun = cell(8,2);
@@ -150,6 +158,8 @@ switch params.routeflats
             W0t(icf) = W0;
             W0  = W0t;
         end
+    case 'geodesic'
+        [icf,icn] = routegeodesic(DEM,'single');
     case 'none'
 end
 

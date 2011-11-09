@@ -1,10 +1,11 @@
-function ASP = aspect(X,Y,dem)
+function [ASP,ASPc] = aspect(X,Y,dem)
 
 % derive aspect from a digital elevation model
 %
 % Syntax
 %
 %     ASP = aspect(X,Y,dem)
+%     [ASP,ASPc] = aspect(X,Y,dem)
 %
 % Description
 %
@@ -21,6 +22,7 @@ function ASP = aspect(X,Y,dem)
 % Output
 % 
 %     ASP       Aspect in degrees (clockwise from north)
+%     ASPc      Aspect classified according to Gomez-Plaza (2001)
 %
 % Example
 %
@@ -28,6 +30,11 @@ function ASP = aspect(X,Y,dem)
 %     ASP = aspect(X,Y,dem);
 %     surf(X,Y,dem,ASP)
 %
+% References
+%
+%     Gómez-Plaza, A.; Martínez-Mena, M.; Albaladejo, J. & Castillo, V. M.
+%     (2001): Factors regulating spatial distribution of soil water content
+%     in small semiarid catchments. Journal of Hydrology, 253, 211 - 226.
 %
 % See also: gradient8
 %
@@ -52,3 +59,17 @@ ASP = ASP/pi * 180 + 180;
 if flagflip
     ASP = flipud(ASP);
 end
+
+if nargout == 2;
+    aspedges = (0:45:360)';
+    aspclass = [1 3 5 7 8 6 4 2];
+    [~,bin] = histc(ASP(:),aspedges);
+    bin     = reshape(bin,size(dem));
+    ASPc    = zeros(size(dem));
+    ASPc(bin>0) = aspclass(bin(bin>0));
+
+end
+    
+    
+    
+    

@@ -1,6 +1,6 @@
 function M = multiremfracs(M,cutoff)
 
-% remove small fractions in a multiple flow direction matrix
+% remove drainage fractions in a multiple flow direction matrix
 %
 % Syntax
 %
@@ -16,7 +16,7 @@ function M = multiremfracs(M,cutoff)
 % Input
 %
 %     M         multiple flow direction matrix
-%     cutoff    cutoff value (scalar). cutoff must have range ]0 .5[
+%     cutoff    cutoff value (scalar). cutoff must have range ]0 .125[
 % 
 % Output
 %   
@@ -52,9 +52,15 @@ function M = multiremfracs(M,cutoff)
 %     caxis([0 2])
 %     title('influence map with reduced multiple flow direction matrix')
 %
-% 
-% See also: FLOWDIR
 %
+% References:
+%
+% Gruber, S., Huggel, C., Pike, R. 2009: Modelling mass movements and
+% landslide susceptibility. In: Geomorphometry. Concepts, Software and
+% Applications, Hengl, T., Reuter, H.I. (eds.), Elsevier, pp.527-550. 
+%
+%
+% See also: FLOWDIR
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 15. March, 2009
@@ -63,7 +69,7 @@ function M = multiremfracs(M,cutoff)
 % parse input data
 p = inputParser; 
 addRequired(p, 'cutoff', ...
-   @(x)validateattributes(x, {'numeric'}, {'scalar','>',0,'<',0.5}, 'multiremfracs','cutoff',2)); 
+   @(x)validateattributes(x, {'numeric'}, {'scalar','>',0,'<',0.125}, 'multiremfracs','cutoff',2)); 
 parse(p,cutoff)
 
 

@@ -49,9 +49,9 @@ siz = size(X);
 
 
 if nargin >= 4;
-    M = M^px;
+    M   = M^px;
     nrc = numel(X);
-    M = spdiags(spfun(@(x) 1./x,sum(M,2)),0,nrc,nrc) * M;
+    M   = spdiags(spfun(@(x) 1./x,sum(M,2)),0,nrc,nrc) * M;
 end
 
 % identify sink pixels and pixels on edge
@@ -59,8 +59,8 @@ I = reshape(sum(M,2) == 0,siz);
 V = reshape(M*Y(:),siz)-Y;
 U = reshape(M*X(:),siz)-X;
 
-U(I) = 0;
-V(I) = 0;
+U(I) = nan;
+V(I) = nan;
 
 if nargin == 5;
     U = U.*W;

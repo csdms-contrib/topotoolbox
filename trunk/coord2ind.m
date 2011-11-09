@@ -42,6 +42,18 @@ function [IX,ixcoord,res] = coord2ind(X,Y,x,y)
 % Date: 15. March, 2009
 
 
+if nargin == 0;
+    % get X and Y
+    h = findobj(gcf,'type','image');
+    M = size(get(h,'CData'), 1);
+    N = size(get(h,'CData'), 2);
+    
+    [X,Y] = meshgrid(1:N,1:M);
+    [x,y] = getpts;
+
+elseif nargin == 2;
+    [x,y] = getpts;
+end
 
 % force column vectors
 x = x(:);

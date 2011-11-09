@@ -43,7 +43,7 @@ function N = flowconvergence(M,siz)
 
 
 
-error(nargchk(1, 1, nargin));
+error(nargchk(2, 2, nargin));
 
 N = full(sum(M,1));
 N = reshape(N,siz);
