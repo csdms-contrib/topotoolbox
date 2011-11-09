@@ -1,0 +1,265 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>User Guide to TopoToolbox - Processing flats</title><meta name="generator" content="MATLAB 7.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-11-01"><meta name="DC.source" content="usersguide_2_flats.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>User Guide to TopoToolbox - Processing flats</h1><!--introduction--><p>Flat areas are challenging when calculating flow directions in a DEM since flow directions cannot be derived from a simple neighborhood search. Thus, different techniques exist to process flats and some of them are implemented in TopoToolbox.</p><p>Note that you should have Matlab R2011b to run this demo.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Identify flats</a></li><li><a href="#4">Three methods to process flats</a></li><li><a href="#5">Crossflats</a></li><li><a href="#7">Routeflats</a></li><li><a href="#8">Routegeodesic</a></li><li><a href="#9">Compare the three</a></li><li><a href="#11">History</a></li></ul></div><h2>Identify flats<a name="1"></a></h2><p>Hydrological conditioning is usually applied to preprocessing a DEM. The most common technique is sink filling (<tt>fillsinks</tt>) to remove spurious pits. Sink filling, in turn creates flats.</p><p>Let's first load the Baranja Hill model</p><pre class="codeinput">load <span class="string">baranja_hill</span>
+surf(X,Y,dem);
+exaggerate(gca,1);
+shading <span class="string">interp</span>; camlight
+<span class="comment">% for zooming</span>
+extent = {[6551884,6553799.03205128],[5072228.94341349,5074170.03032261]};
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_01.png" alt=""> <p>The first step is to fill all sinks. We can calculate the fill depth by subtracting the filled DEM from the original DEM.</p><pre class="codeinput">demf = fillsinks(dem);
+DZ   = demf-dem;
+imageschs(X,Y,dem,DZ);
+colorbar
+title(<span class="string">'sink depth [m]'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_02.png" alt=""> <p>We can also create a mask that indicates flat pixels using the function <tt>identifyflats</tt>. You can see that there are various flat areas with different extents. Some of them are single pixels only, others comprise large contiguous areas. As long as flats are not regional minima, each flat should have one or several sills pixels, e.g. pixels adjacent to flats with a downward neighbor.</p><pre class="codeinput">[FLATS,SILLS]    = identifyflats(demf);
+imageschs(X,Y,dem,FLATS+2*SILLS);
+title(<span class="string">'flat areas (1) and sills (2)'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_03.png" alt=""> <h2>Three methods to process flats<a name="4"></a></h2><p>There a three methods implemented in TopoToolbox to process flats.</p><div><ol><li><tt>crossflats</tt></li><li><tt>routeflats</tt></li><li><tt>routegeodesic</tt></li></ol></div><p>All of them are called from within <tt>flowdir</tt> or <tt>flowdir_single</tt>.</p><h2>Crossflats<a name="5"></a></h2><p><tt>crossflats</tt> is the most basic way to process flats. Basically, it doesn't even try to assign flow directions to flat pixels, but it just establishes flow connectivity between pixels entering flats and sill pixels.</p><pre class="codeinput">Mc = flowdir(X,Y,demf,<span class="string">'routeflats'</span>,<span class="string">'cross'</span>,<span class="string">'type'</span>,<span class="string">'single'</span>);
+imageschs(X,Y,dem);
+hold <span class="string">on</span>
+gplot(Mc,[X(:) Y(:)],<span class="string">'k'</span>);
+hold <span class="string">off</span>
+setextent(extent)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_04.png" alt=""> <p>While this is a fast method to route through flats, it may not be suited for many applications and visualizations.</p><h2>Routeflats<a name="7"></a></h2><p><tt>routeflats</tt> uses a recursive upstream processing to establish flow paths through flats. The algorithm starts at sill pixels and then finds its way upstream. The advantage of the algorithm is its speed. It is reasonably fast and would be even faster, if it was implemented as MEX-file. Its major disadantage is, that it doesn't process flats that are connected to the edge of the DEM.</p><pre class="codeinput">Mr = flowdir(X,Y,demf,<span class="string">'routeflats'</span>,<span class="string">'route'</span>,<span class="string">'type'</span>,<span class="string">'single'</span>);
+imageschs(X,Y,dem);
+hold <span class="string">on</span>
+gplot(Mr,[X(:) Y(:)],<span class="string">'k'</span>);
+hold <span class="string">off</span>
+setextent(extent)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_05.png" alt=""> <h2>Routegeodesic<a name="8"></a></h2><p>The most elegant way to route through flats is implemented in <tt>routegeodesic</tt>. The algorithm uses an auxiliary topography in flats based on least cost paths where the costs are calculated from the complemented distance transform. This generates flow paths that run along the centerline of sinks and produces the best looking and probably most realistic flow path representation through flat areas.</p><pre class="codeinput">Mg = flowdir(X,Y,demf,<span class="string">'routeflats'</span>,<span class="string">'geodesic'</span>,<span class="string">'type'</span>,<span class="string">'single'</span>);
+imageschs(X,Y,dem);
+hold <span class="string">on</span>
+gplot(Mg,[X(:) Y(:)],<span class="string">'k'</span>);
+hold <span class="string">off</span>
+setextent(extent)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_06.png" alt=""> <h2>Compare the three<a name="9"></a></h2><p>Now let's visually compare the three algorithms using flow accumulation.</p><pre class="codeinput">Ac = flowacc(Mc,size(dem));
+Ar = flowacc(Mr,size(dem));
+Ag = flowacc(Mg,size(dem));
+
+figure
+surf(X,Y,dem,log(Ac));
+exaggerate(gca,1);
+shading <span class="string">interp</span>; camlight
+title(<span class="string">'crossflats'</span>)
+
+figure
+surf(X,Y,dem,log(Ar));
+exaggerate(gca,1);
+shading <span class="string">interp</span>; camlight
+title(<span class="string">'routeflats'</span>)
+
+figure
+surf(X,Y,dem,log(Ag));
+exaggerate(gca,1);
+shading <span class="string">interp</span>; camlight
+title(<span class="string">'routegeodesic'</span>)
+</pre><img vspace="5" hspace="5" src="usersguide_2_flats_07.png" alt=""> <img vspace="5" hspace="5" src="usersguide_2_flats_08.png" alt=""> <img vspace="5" hspace="5" src="usersguide_2_flats_09.png" alt=""> <pre class="codeinput">close <span class="string">all</span>
+</pre><h2>History<a name="11"></a></h2><p>This user guide was updated last: November 1, 2011.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.13<br></p></div><!--
+##### SOURCE BEGIN #####
+%% User Guide to TopoToolbox - Processing flats
+%
+% Flat areas are challenging when calculating flow directions in a DEM
+% since flow directions cannot be derived from a simple neighborhood
+% search. Thus, different techniques exist to process flats and some of
+% them are implemented in TopoToolbox.
+%
+% Note that you should have Matlab R2011b to run this demo.
+
+%% Identify flats
+% 
+% Hydrological conditioning is usually applied to preprocessing a DEM. The
+% most common technique is sink filling (|fillsinks|) to remove spurious
+% pits. Sink filling, in turn creates flats.
+%
+% Let's first load the Baranja Hill model
+
+load baranja_hill
+surf(X,Y,dem);
+exaggerate(gca,1);
+shading interp; camlight
+% for zooming
+extent = {[6551884,6553799.03205128],[5072228.94341349,5074170.03032261]};
+
+%%
+% The first step is to fill all sinks. We can calculate the fill depth by
+% subtracting the filled DEM from the original DEM.
+demf = fillsinks(dem);
+DZ   = demf-dem;
+imageschs(X,Y,dem,DZ);
+colorbar
+title('sink depth [m]')
+
+%%
+% We can also create a mask that indicates flat pixels using the function
+% |identifyflats|. You can see that there are various flat areas with 
+% different extents. Some of them are single pixels only, others comprise 
+% large contiguous areas. As long as flats are not regional minima, each
+% flat should have one or several sills pixels, e.g. pixels adjacent to
+% flats with a downward neighbor.
+[FLATS,SILLS]    = identifyflats(demf);
+imageschs(X,Y,dem,FLATS+2*SILLS);
+title('flat areas (1) and sills (2)')
+
+%% Three methods to process flats
+%
+% There a three methods implemented in TopoToolbox to process flats.
+%
+% # |crossflats|
+% # |routeflats|
+% # |routegeodesic|
+%
+% All of them are called from within |flowdir| or |flowdir_single|.
+
+%% Crossflats
+%
+% |crossflats| is the most basic way to process flats. Basically, it
+% doesn't even try to assign flow directions to flat pixels, but it just 
+% establishes flow connectivity between pixels entering flats and sill
+% pixels. 
+
+Mc = flowdir(X,Y,demf,'routeflats','cross','type','single');
+imageschs(X,Y,dem);
+hold on
+gplot(Mc,[X(:) Y(:)],'k');
+hold off
+setextent(extent)
+
+%% 
+% While this is a fast method to route through flats, it may not be suited
+% for many applications and visualizations.
+
+%% Routeflats
+%
+% |routeflats| uses a recursive upstream processing to establish flow paths
+% through flats. The algorithm starts at sill pixels and then finds its way
+% upstream. The advantage of the algorithm is its speed. It is reasonably
+% fast and would be even faster, if it was implemented as MEX-file.
+% Its major disadantage is, that it doesn't process flats that are
+% connected to the edge of the DEM.
+
+Mr = flowdir(X,Y,demf,'routeflats','route','type','single');
+imageschs(X,Y,dem);
+hold on
+gplot(Mr,[X(:) Y(:)],'k');
+hold off
+setextent(extent)
+
+%% Routegeodesic
+%
+% The most elegant way to route through flats is implemented in
+% |routegeodesic|. The algorithm uses an auxiliary topography in flats
+% based on least cost paths where the costs are calculated from the
+% complemented distance transform. This generates flow paths that run along
+% the centerline of sinks and produces the best looking and probably most
+% realistic flow path representation through flat areas.
+%
+
+Mg = flowdir(X,Y,demf,'routeflats','geodesic','type','single');
+imageschs(X,Y,dem);
+hold on
+gplot(Mg,[X(:) Y(:)],'k');
+hold off
+setextent(extent)
+
+%% Compare the three
+%
+% Now let's visually compare the three algorithms using flow accumulation.
+
+Ac = flowacc(Mc,size(dem));
+Ar = flowacc(Mr,size(dem));
+Ag = flowacc(Mg,size(dem));
+
+figure
+surf(X,Y,dem,log(Ac));
+exaggerate(gca,1);
+shading interp; camlight
+title('crossflats')
+
+figure
+surf(X,Y,dem,log(Ar));
+exaggerate(gca,1);
+shading interp; camlight
+title('routeflats')
+
+figure
+surf(X,Y,dem,log(Ag));
+exaggerate(gca,1);
+shading interp; camlight
+title('routegeodesic')
+
+
+%%
+close all
+
+%% History
+%
+% This user guide was updated last: November 1, 2011.
+
+
+
+
+##### SOURCE END #####
+--></body></html>
