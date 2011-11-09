@@ -53,7 +53,27 @@ following enhances:
 
 ** Version History
 
-V1.05 --- 
+V1.06 --- 11. November 2011
+- new function: acv
+- new function: cropmat
+- new function: dbentropy
+- new function: deminpaint
+- new function: exaggerate
+- new function: label2poly
+- new function: routegeodesic (as optimal method for routing through flats and 
+  pits). Requires Matlab 2011b and will be made the default routing algorithm
+  in future releases.
+- new function: upslopesidelength
+- new function: upslopestats
+- new function: getextent and setextent
+- function enhancements: rasterread and rasterwrite. 
+- function enhancements: roughness
+- new users guide on processing flat areas
+- the baranja_hill.mat dataset was added. It was obtained from 
+  here: http://geomorphometry.org/content/baranja-hill
+
+
+V1.05 --- 15. September 2010
 - some of the functions now employ the function validateattributes to check
   input arguments. Note that this might return a warning on older versions than
   2009a.

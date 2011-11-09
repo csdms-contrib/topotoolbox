@@ -13,7 +13,7 @@ function [D,L] = flowdistance(M,X,Y,dem,ix)
 %
 %     flowdistance computes the flow path length from all cells to the
 %     catchment outlet or specified cells. The computed distance is the
-%     euclidean 2D or 3D distance along the flowpath indicated in the 
+%     euclidean 2D or 3D distance along the flowpath represented by the 
 %     single flow direction matrix M. Note that for correct distances 
 %     the units of the coordinate matrices and the elevation model must
 %     be the same. The second output of flowdistance contains the linear
@@ -96,14 +96,20 @@ function [D,L] = flowdistance(M,X,Y,dem,ix)
 % Date: 5. February, 2010
 
 
-error(nargchk(3, 5, nargin))
+error(nargchk(2, 5, nargin))
 
 
 siz = size(X);
 nrc = numel(X);
 
 % check input arguments
-if nargin == 3;
+if nargin == 2;
+    siz = X;
+    nrc = prod(siz);
+    flag3d = false;
+    flagix = false;
+    
+elseif nargin == 3;
     flagix = false;
     flag3d = false;
 else
@@ -117,18 +123,20 @@ end
     
     
 % do the matrices have same size
-if ~flag3d
-    if ~isequal(siz,size(Y))
-        error('TopoToolbox:incorrectinput',...
-              'X and Y must have same size')
-    end
-else
-    if ~isequal(siz,size(Y),size(dem))
-        error('TopoToolbox:incorrectinput',...
-              'X, Y and dem must have same size')
+if nargin > 2;
+    
+    if ~flag3d
+        if ~isequal(siz,size(Y))
+            error('TopoToolbox:incorrectinput',...
+                'X and Y must have same size')
+        end
+    else
+        if ~isequal(siz,size(Y),size(dem))
+            error('TopoToolbox:incorrectinput',...
+                'X, Y and dem must have same size')
+        end
     end
 end
-
 % does the flow direction matrix correspond to the DEM
 if nrc~=size(M,1) || nrc~=size(M,2);
     error('TopoToolbox:incorrectinput',...
@@ -164,17 +172,21 @@ if flagix
 end
 M = spones(M);
 
-% get linear indices of flow connectivity
-[ic,icd] = find(M);
-% calculate distance between nodes
-f = hypot(X(ic)-X(icd),Y(ic)-Y(icd));
-if flag3d
-    f = hypot(f,dem(ic)-dem(icd));
+if nargin > 2;
+    % get linear indices of flow connectivity
+    [ic,icd] = find(M);
+    % calculate distance between nodes
+    f = hypot(X(ic)-X(icd),Y(ic)-Y(icd));
+    if flag3d
+        f = hypot(f,dem(ic)-dem(icd));
+    end
+    
+    %
+    B     = zeros(nrc,1);
+    B(ic) = f;
+else
+    B = ones(nrc,1);
 end
-
-% 
-B     = zeros(nrc,1);
-B(ic) = f;
 
 D = (speye(nrc)-M)\B;
 D = reshape(D,siz);

@@ -1,4 +1,4 @@
-function varargout = imageschs(X,Y,dem,A,exagg,B)
+function varargout = imageschs(X,Y,dem,A,exagg,boundaries)
 
 % display image with hillshading
 %
@@ -67,12 +67,68 @@ H = hillshade(X,Y,dem,[],[],exagg);
 
 % check axis
 
+clf('reset')
 h = gca; %('DataAspectRatio',[1 1 1]);
+cla(h,'reset')
 
-g = image('Parent',h,...
+
+I       = isnan(A) | isinf(A);
+naninf  = any(I(:));
+if naninf
+    indexed = true;
+else
+    indexed = false;
+end
+
+if indexed;
+    A_min   = min(A(~I(:)));
+    A_max   = max(A(~I(:)));
+    A_range = A_max-A_min;
+    if A_range == 0;
+        A_range = 1;
+    end
+    
+    nrA     = 256 - double(naninf);
+    B       = (A-A_min)/A_range;
+    B       = B*nrA + naninf;
+    
+    if naninf
+        B(I) = 0;
+        B       = uint8(B);
+        colormap([0 0 0; jet(nrA)]);
+    else
+        B       = uint8(B);
+        clear I
+        colormap(jet(nrA))
+    end
+        
+    
+    g = image('Parent',h,...
+          'XData',X(1,:),'YData',Y(:,1),'Cdata',B,...
+          'CdataMapping','direct',...
+          'AlphaData',H);
+    cbar_axes = colorbar;
+    axis(cbar_axes,[0 1 1 nrA]);
+    cbar_labels = get(cbar_axes,'Yticklabel');
+    cbar_labels = str2num(cbar_labels); %#ok<ST2NM>
+    cbar_labels = (cbar_labels/(nrA - double(naninf)) * A_range)+A_min;
+    set(cbar_axes,'Yticklabel',cbar_labels);
+    
+    box on;
+    
+    
+else
+    g = image('Parent',h,...
           'XData',X(1,:),'YData',Y(:,1),'Cdata',+A,...
           'CdataMapping','scaled',...
-          'AlphaData',H);
+          'AlphaData',H,...
+          'Clipping','on');
+    box on
+    
+    if islogical(A);
+        colormap([0 0 0; 1 0 0]);
+    end
+end
     
 axis image;
 axis xy;
@@ -81,21 +137,13 @@ if ~ishold(h)
     hold off
 end
 
-% g = image(X(1,:),Y(:,1),+A);
-% axis image;
-% axis xy;
-
-% set(g,'AlphaData',H);
-
-
-
 if nargin == 6;
     x = X(1,:);
-    y = Y(:,1);
+    y = flipud(Y(:,1));
     hold on
-    for k = 1:length(B)
-        boundary = B{k};
-        plot(x(boundary(:,2)), y(boundary(:,1)), 'w', 'LineWidth', 2)
+    for k = 1:length(boundaries)
+        boundary = boundaries{k};
+        plot(x(boundary(:,2)), y(boundary(:,1)), 'k', 'LineWidth', 1)
     end
     hold off
 end

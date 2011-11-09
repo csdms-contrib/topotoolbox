@@ -11,9 +11,9 @@ function [dem,X,Y,header] = rasterread(file)
 % Description
 %
 %     read ASCII raster exported from ESRI ArcGIS. 'file' is a string 
-%     indicating location and name of the file, e.g. 'srtm.txt'. If no
-%     input arguments are supplied, rasterread opens a dialog box for
-%     retrieving the file.
+%     indicating location and name of the file, e.g. 'srtm.txt'. When
+%     called with no input arguments or a folder path, rasterread opens a
+%     dialog box for retrieving the file.
 % 
 %     the header must contain following rows (in arbitrary order)
 %     _________________________
@@ -34,20 +34,42 @@ function [dem,X,Y,header] = rasterread(file)
 % See also: RASTERWRITE, DLMREAD, DLMWRITE
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 15. March, 2009
+% Date: 25 November, 2010
 
 
 
 % read header data
 
 if nargin == 0;
+    
+    filedialogbox = true;
+    file = [];
+    
+elseif nargin == 1;
+    
+    % check if only a folder is supplied
+    if exist(file,'dir')==7 || isempty(file);
+        filedialogbox = true;
+    else
+        filedialogbox = false;
+        if exist(file,'file') ~= 2
+            error('file or folder does not exist')
+            
+        end
+    end
+    
+end
+    
+if filedialogbox
     FilterSpec  = {'*.txt';'*.asc'};
     DialogTitle = 'Select ESRI ASCII grid';
-    [FileName,PathName] = uigetfile(FilterSpec,DialogTitle);
+    [FileName,PathName] = uigetfile(FilterSpec,DialogTitle,file);
+    
     if FileName == 0;
-        X = []; Y = []; dem = []; header = [];
-        return;
+        error('TopoToolbox:incorrectinput',...
+              'no file was selected')
     end
+    
     file = [PathName FileName];
 end
 
@@ -105,4 +127,15 @@ x = header.xllcorner+(0.5*header.cellsize):...
 [X,Y] = meshgrid(x,y);
 end
 
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
 

@@ -26,4 +26,4 @@ function tf = ismulti(M)
 % Date: 16. April, 2010
 
 
-tf = any(full(sum(M~=0,2)>1));
+tf = any(full(sum(spones(M)~=0,2)>1));

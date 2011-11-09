@@ -1,6 +1,6 @@
 function dems = demsmooth(dem,ws,varargin)
 
-% mean filter a digital elevation model with a kernel 
+% moving average filter for digital elevation models 
 %
 % Syntax
 %
@@ -12,7 +12,7 @@ function dems = demsmooth(dem,ws,varargin)
 %     scalar that defines the edge length of a square kernel or a two 
 %     element vector defining the size of the kernel (e.g. ws = [3 5]).
 %
-%     wfilter handles NaNs using a nearest neighbor interpolation
+%     demsmooth handles NaNs using a nearest neighbor interpolation
 %
 % Input
 %
@@ -37,7 +37,7 @@ function dems = demsmooth(dem,ws,varargin)
 % See also: CONV2, FILTER2, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 15. March, 2009
+% Date: 6. July, 2011
 
 
 % ..............................................
@@ -66,7 +66,7 @@ if flagnan;
     % do a nearest neighbor interpolation and extrapolation
     dem     = padarray(dem,padsize,nan);
     inanpad = isnan(dem);
-    [L,L]   = bwdist(~inanpad);
+    [L,L]   = bwdist(~inanpad); %#ok<ASGLU>
     dem     = dem(L);
 else
     % if no nans use the usual padarray function with the replicate option
@@ -80,12 +80,12 @@ end
 W = ones(ws);
 
 % IDW filter (see Neson and Jones 1995)
-if any(mod(ws,2) == 0)    
-    W = false(ws);
-    W(ceil(ws(1)/2),ceil(ws(1)/2)) = true;
-    W = bwdist(W);
-    W(ceil(ws(1)/2),ceil(ws(1)/2)) = 1;
-end
+% if any(mod(ws,2) == 0)    
+%     W = false(ws);
+%     W(ceil(ws(1)/2),ceil(ws(1)/2)) = true;
+%     W = bwdist(W);
+%     W(ceil(ws(1)/2),ceil(ws(1)/2)) = 1;
+% end
 
 
 dems = conv2(dem,W./sum(W(:)),'same');

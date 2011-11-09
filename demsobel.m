@@ -18,18 +18,13 @@ function dems = demsobel(dem,type)
 %
 % Output
 %
-%     dems      smoothed digital elevation model
+%     dems      filtered digital elevation model
 %
 % Example
 %     
-%     % highlight ridges and valleys by substracting
-%     % the original digital elevation model from
-%     % the smoothed one.
-%
 %     load exampleDEM
-%     dems = demsmooth(dem,11);
-%     surf(X,Y,dem,dems-dem); 
-%     title('highlight ridges and valleys')
+%     dems = demsobel(dem);
+%     surf(X,Y,dem,dems)
 % 
 % See also: CONV2, FILTER2, BWDIST
 %
@@ -47,7 +42,7 @@ else
     error('wrong number of inputs')
 end
 
-
+dem = double(dem);
 
 % ..............................................
 % are there any nans?

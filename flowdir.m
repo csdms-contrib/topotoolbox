@@ -43,10 +43,11 @@ function [M,W0] = flowdir(X,Y,dem,varargin)
 %                       'random': totally random flow to downward neighbors
 %                       'randomized': deterministic flow with noise
 % 
-%     'routeflats'      'route' (default), 'cross' or 'none' decides upon 
-%                       the method applied to route over flats/plateaus.
+%     'routeflats'      choose method to route over flats/plateaus.
 %                       'route' uses the function routeflats
 %                       'cross' uses the function crossflats
+%                       'geodesic' uses routegeodesic (requires Matlab
+%                       2011b or higher)
 %                       'none' does not apply any routing through flats
 % 
 %     'edges'           decide on how to handle flow on grid edges. 
@@ -76,7 +77,7 @@ function [M,W0] = flowdir(X,Y,dem,varargin)
 % Required m-files
 % ixneighbors 
 %
-% See also: EZFLOWACC, FLOWDIR_SINGLE, FLOWACC_LM
+% See also: EZFLOWACC, FLOWDIR_SINGLE, FLOWACC_LM, ROUTEGEODESIC
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
@@ -104,7 +105,7 @@ params.mode        = {'default','randomized','random'};
 params.W0          = ones(siz);
 params.fillsinks   = false;
 params.exponent    = 1.1;
-params.routeflats  = {'route','cross','none'};
+params.routeflats  = {'route','cross','geodesic','none'};
 params.edges       = {'closed','open'};
 params = parseargs(params,varargin{:});
 
@@ -119,20 +120,19 @@ end
 
 % calculate maximum slope and slope direction
 % find neighbors of cells
-[ic1,icd1] = ixneighbors(dem);
-e = (dem(ic1)-dem(icd1))./hypot(X(ic1)-X(icd1),Y(ic1)-Y(icd1));
-
+[ic,icd] = ixneighbors(dem);
+e = (dem(ic)-dem(icd))./hypot(X(ic)-X(icd),Y(ic)-Y(icd));
 
 switch params.edges
     case 'open';   
-        edgecorrection = histc(ic1,(1:nrc)')./8;
+        edgecorrection = histc(ic,(1:nrc)')./8;
 end
 
 e = max(e,0);
 
 % *********************************************************************
 % flow direction matrix
-M = sparse(ic1,icd1,e,nrc,nrc);
+M = sparse(ic,icd,e,nrc,nrc);
 
 
 % *********************************************************************
@@ -154,7 +154,10 @@ switch params.routeflats
         else
             [icf,icn,W0] = crossflats(dem,params.type);
         end
-        M = sparse(icf,icn,1,nrc,nrc)+M;  
+        M = sparse(icf,icn,1,nrc,nrc)+M;
+    case 'geodesic'
+        [icf,icn] = routegeodesic(dem,params.type);
+        M = sparse(icf,icn,1,nrc,nrc)+M;
     case 'none'
 end
 
@@ -182,7 +185,7 @@ switch params.type
         M = sparse(IX1,IX2,1,nrc,nrc);
     otherwise
         if params.exponent ~= 1;
-            M = M.^params.exponent;
+            M = spfun(@(x) x.^params.exponent,M);
         end
 end
 

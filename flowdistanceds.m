@@ -70,6 +70,8 @@ elseif nargin == 4;
         algo = 'one';
         ix   = dem;
         flag3d = false;
+    elseif isempty(dem)
+        error('the fourth argument must be scalar or the dem matrix')
     else
         algo = 'all';
         flag3d = true;    
@@ -170,13 +172,13 @@ switch algo
         
         % Calculation of Slope Length
         [ic,icd]   = find(M);
-        [dummy,ix] = sort(D(ic),'descend');
+        [~,ix] = sort(D(ic),'descend');
         
         clear dummy
         
         ic          = ic(ix);
         icd         = icd(ix);
-        [icdd,icdd] = ismember(icd,ic);
+        [~,icdd] = ismember(icd,ic);
         
         
         % initialize length-slope

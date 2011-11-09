@@ -43,8 +43,7 @@ function A = flowacc(M,W0,RR)
 %     A = flowacc(M,size(dem));
 %     surf(X,Y,dem,log(A)) 
 %
-%
-% See also: FLOWDIR, CROSSFLATS
+% See also: FLOWDIR, CROSSFLATS, UPSLOPESTATS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 15. March, 2009

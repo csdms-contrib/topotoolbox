@@ -1,4 +1,5 @@
-% TopoToolbox - a set of Matlab functions for topographic analysis
+% TopoToolbox
+% Version 1.06 (R2010a) 05-December-2010
 %
 % TopoToolbox provides a set of Matlab functions that support the analysis
 % of relief and flow pathways in digital elevation models. The major 
@@ -18,25 +19,31 @@
 %   rasterread      - read/import ESRI ASCII grid
 %   rasterwrite     - write/export data to ESRI ASCII file
 %
-% Digital Elevation Model correction/manipulation
+% Digital Elevation Model correction/manipulation/filtering
 %
+%   acv             - anisotropic coefficient of variation (ACV)
 %   crossflats      - cross flats of a digital elevation model
-%   demsmooth       - mean wilter a digital elevation model with a kernel
+%   deminpaint      - interpolate missing values in a raster
+%   demsmooth       - moving average filter for digital elevation models
 %   demsobel        - edge detection using sobel filter 
 %   fillsinks       - fill/remove pits, sinks or topographic depressions
 %   routeflats      - route through flats of a digital elevation model
+%   routegeodesic   - use least cost path to route through flats 
 %
 % Terrain primary and secondary attributes
 %
 %   aspect          - aspect from a digital elevation model in degrees
 %   curvature       - 8-connected neighborhood curvature of a digital 
 %                     elevation model 
+%   dbentropy       - entropy of drainage basin delineation
 %   dependencemap   - drainage area for specific locations in a digital 
 %                     elevation model
 %   drainagebasins  - segment a digital elevation model in drain basins/
 %                     catchments
 %   drainagedensity - calculate drainage density of individual drainage
 %                     basins
+%   entropy         - entropy of a DEM based on the multiple flow direction
+%                     matrix
 %   ezflowacc       - easy to use flow accumulation algorithm for Digital 
 %                     Elevation Models
 %   flowacc         - calculate flow accumulation/upslope area from flow 
@@ -60,6 +67,8 @@
 %                     matrix
 %   streamorder     - calculate Strahler Stream Order from flow direction 
 %                     matrix
+%   upslopestats    - upslope statistics of a variable based on the flow 
+%                     direction matrix
 %
 % Terrain indices
 %
@@ -81,16 +90,26 @@
 %
 % Other tools
 %
+%   adjustgauges    - snap gauges or pour points to stream raster
 %   coord2ind       - convert xy coordinates to linear index
+%   cropmat         - crop a subset of arrays with axis-aligned minimum
+%                     bounding box
+%   exaggerate      - elevation exaggeration in a 3D surface plot
 %   hypscurve       - plot hypsometric curve of a digital elevation model
 %   ixneighbors     - neighbor indexing in a matrix
 %   ismulti         - determine whether matrix is a multiple flow direction
 %                     matrix
+%   label2poly      - plot region outlines with polyline
 %   M2UV            - calculate horizontal, directional components from
 %                     flow direction matrix
 %   postprocflats   - postprocess flat terrain for visualization purpose
 %   shufflelabel    - shufflelabel randomly relabels a label matrix
-%   usersguide      - introductory script to the toolbox
+%   upslopesidelength - calculate the upslope side length and connectivity
+%
+% Documentation
+%   usersguide_1_intro      - introductory script to the toolbox
+%   usersguide_2_flats      - introduction to different flat processing
+%                             algorithms
 %
 %
 %   ---------------------------------------------------------------------

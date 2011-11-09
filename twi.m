@@ -70,22 +70,56 @@ switch lower(type)
     case 'saga'
         
         beta = atan(G);
+        Gb   = ((1/15).^(beta.*exp(15.^beta)));
         
-        iter = true;
+        SCA = SCA./Gb;
+        I   = imregionalmax(SCA);
+        marker = -inf(size(I));
+        marker(I) = SCA(I);
+        SCA    = imreconstruct(marker,SCA);
+        SCA    = SCA.*(Gb);
         
-        counter = 1;
-        while iter && counter <= inf;
-            SCAmax   = imdilate(SCA,ones(3)).*((1/15).^(beta.*exp(15.^beta)));
-            I        = SCA < SCAmax;
-            if any(I(:))
-                SCA(I)   = SCAmax(I);
-                iter     = true;
-                counter  = counter+1;
-            else
-                iter     = false;
-                
-            end
-        end
+%         I      = SCAmax > SCA;
+%         SCA(I) = SCAmax(I);
+%         SCA(~I) = SCA(~I)./Gb(~I);
+%         
+%         I = imregionalmax(SCAmax);
+%         
+%         marker = -inf(size(I));
+%         marker(I) = SCAmax(I);
+%         
+%         SCA    = imreconstruct(marker,SCA);
+%         SCA    = SCA.*(Gb.^2);
+        
+%         SCAmax = SCA.*((1/15).^(beta.*exp(15.^beta)));
+%         I      = SCAmax>SCA;
+%         SCA(I) = SCAmax(I);
+%         
+%         
+%         
+%         I = imregionalmax(SCAmax);
+%         
+%         marker = -inf(size(I));
+%         marker(I) = SCAmax(I);
+%         
+%         SCA    = imreconstruct(marker,SCA);
+        
+%         
+%         iter = true;
+%         
+%         counter = 1;
+%         while iter && counter <= inf;
+%             SCAmax   = imdilate(SCA,ones(3)).*((1/15).^(beta.*exp(15.^beta)));
+%             I        = SCA < SCAmax;
+%             if any(I(:))
+%                 SCA(I)   = SCAmax(I);
+%                 iter     = true;
+%                 counter  = counter+1;
+%             else
+%                 iter     = false;
+%                 
+%             end
+%         end
 
 
         WI = log(SCA./G);
