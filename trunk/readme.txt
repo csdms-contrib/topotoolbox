@@ -10,17 +10,18 @@ aim of TopoToolbox is to offer helpful analytical GIS utilities in a
 non-GIS environment in order to support the simultaneous application
 of GIS-specific and other quantitative methods.
 
-If you have any questions or remarks, please contact the author:
+If you have any questions or remarks, please contact the authors:
 
 Wolfgang Schwanghart
-w.schwanghart[at]unibas.ch
-http://www.physiogeo.unibas.ch/
+w.schwanghart[at]geo.uni-potsdam.de
 
+Dirk Scherler
+scherler[at]caltech.edu
 
 ** Requirements
 
-TopoToolbox is plat-form independent but requires
-*Matlab* and the *Image Processing Toolbox*
+TopoToolbox is plat-form independent and requires
+Matlab 2011b or higher and the Image Processing Toolbox.
 
 ** References
 
@@ -32,26 +33,39 @@ functions for topographic analysis. Environmental Modelling & Software,
 ** Getting started
 
 Before working with TopoToolbox the functions need to be on the search 
-path of Matlab. Achieve this by calling following line in the Matlab
-command window.
+path of Matlab. Enter following code into the command line:
 
-addpath C:\path\to\wherever\you\installed\this\TopoToolbox
+addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
+addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\tools_and_more
+addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
 
 You may than either look at the user's guide to get an idea of how the 
 toolbox works or you may run some of the many examples in the help block
 of each function (help function). 
 
-** Future versions
+** Known issues
 
-Future versions should contain some major addons. So far, I expect 
-following enhances:
-- V2 should include one or several GUIs. I am not experienced in GUI
-  programming. If someone is interested...
-- V3 should contain major performance improvements. In particular I am
-  thinking of the implementation of functions such as routeflats, 
-  slopelength, gradient8 or flowacc_lm as MEX-functions.
+- preprocessapp may have some unexpected behavior here and then...
+
+
 
 ** Version History
+V2.0
+- new functions STREAMobj/intersect, STREAMobj/union
+- new interactive tools in STREAMobj/modify
+- new interactive tool GRIDobj/measure
+
+
+
+V2.0beta ---
+- V2.0 introduces an object oriented approach towards grid representation, flow direction, stream 
+networks and swath objects. The performance of various, inparticular flow related, functions was 
+increased. Mex-files have been written to increase the speed of some functions and are delivered as 
+64bit Windows binaries. They have been compiled on Windows 7 with an Intel processor, so they should be 
+compiled before using them, if your system differs. However, compiling is not mandatory, since m 
+versions are available, too, which are a little slower. Please refer to the Contents.m file for a 
+complete list of functions.
+
 
 V1.06 --- 11. November 2011
 - new function: acv
@@ -134,3 +148,4 @@ V1.01 --- 16. September 2009
 V1.0 --- 15. March 2009 
 - release
 
+# This is my README
