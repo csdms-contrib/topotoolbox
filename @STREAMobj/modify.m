@@ -93,7 +93,7 @@ function S = modify(S,varargin)
 narginchk(3,3)
 
 % Parse Inputs
-p = InputParser;         
+p = inputParser;         
 p.FunctionName = 'modify';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 
