@@ -68,7 +68,7 @@ function h = plotdz(S,DEM,varargin)
 nrnodes = numel(S.x);
 
 % check input
-p = InputParser;         
+p = inputParser;         
 p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);

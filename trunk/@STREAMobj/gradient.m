@@ -54,7 +54,7 @@ function s = gradient(S,DEM,varargin)
 narginchk(2,inf)
 
 % Parse Inputs
-p = InputParser;         
+p = inputParser;         
 p.FunctionName = 'gradient';
 
 validunits = {'tangent' 'degree' 'radian' 'percent' 'sine'};

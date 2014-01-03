@@ -58,7 +58,7 @@ function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 
 
 % Parse Inputs
-p = InputParser;         
+p = inputParser;         
 p.FunctionName = 'snap2stream';
 
 snaptomethods = {'all','confluence','outlet','channelhead'};
