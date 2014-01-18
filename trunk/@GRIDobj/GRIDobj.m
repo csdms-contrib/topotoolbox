@@ -226,7 +226,12 @@ classdef GRIDobj
                         else
                             cl = varargin{2};
                         end
-                        DEM.Z = zeros(DEM.size,cl);
+                        
+                        if strcmp(cl,'logical')
+                            DEM.Z = false(DEM.size);
+                        else
+                            DEM.Z = zeros(DEM.size,cl);
+                        end
                         DEM.name = '';
                             
                         return
