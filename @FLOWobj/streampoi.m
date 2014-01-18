@@ -87,7 +87,7 @@ switch type
 end
 
 
-switch outformat
+switch lower(outformat)
     case 'gridobj'
         %% Prepare Output
         % write output to GRIDobj
