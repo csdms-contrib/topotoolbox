@@ -48,8 +48,12 @@ of each function (help function).
 - preprocessapp may have some unexpected behavior here and then...
 
 
-
 ** Version History
+V2.0.1
+- removed bug in GRIDobj
+- removed bug with case-sensitivity in some functions
+- removed bug with internal drainage option in FLOWobj
+
 V2.0
 - new functions STREAMobj/intersect, STREAMobj/union
 - new interactive tools in STREAMobj/modify
