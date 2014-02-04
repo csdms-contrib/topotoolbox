@@ -25,7 +25,9 @@ function varargout = identifyflats(DEM)
 %                where true cells indicate flat terrain (GRIDobj). 
 %     SILLS      instance of GRIDobj that contains logical matrix 
 %                where true cells indicate sill locations (GRIDobj).
-%     CLOSEDBASINS instance of GRIDobj that contains the closed basins.
+%     CLOSEDBASINS instance of GRIDobj that contains the lowest 
+%                locations in closed basins as logical grid.
+%                
 %
 %
 % 
@@ -93,8 +95,13 @@ end
 if nargout >= 3
     varargout{3} = DEM;
     varargout{3}.Z = imregionalmin(dem);
+    
     if flag_nans;
+        varargout{3}.Z = varargout{3}.Z | log_nans;
+        varargout{3}.Z = imclearborder(varargout{3}.Z);
         varargout{3}.Z(log_nans) = false;
+    else
+        varargout{3}.Z = imclearborder(varargout{3}.Z);
     end
     varargout{3}.name = 'closed basins';
 end
