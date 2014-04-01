@@ -1,4 +1,7 @@
 function DEM = sqrt(DEM)
 
-
-DEM.Z = sqrt(DEM.Z);
+if isinteger(DEM.Z) || islogical(DEM.Z);
+    DEM.Z = sqrt(single(DEM.Z));
+else
+    DEM.Z = sqrt(DEM.Z);
+end
