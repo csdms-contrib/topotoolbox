@@ -15,7 +15,9 @@ function OUT = streampoi(S,type,outformat)
 % Input arguments
 %   
 %     FD          stream network (class: STREAMobj)
-%     type        'channelheads' (default), 'confluences' or 'outlets'
+%     type        'channelheads' (default), 'confluences', 'bconfluences' 
+%                 or 'outlets'. bconfluences returns the stream pixels that 
+%                 are located immediately upstream to confluences.
 %     outformat   'xy': nx2 coordinate matrix with x and y coordinates of 
 %                       n points (default)
 %                 'ix': nx1 vector with linear indices into an instance of
@@ -42,7 +44,7 @@ if nargin == 1;
     type = 'channelheads';
     outformat = 'xy';
 else 
-    type = validatestring(type,{'channelheads','confluences','outlets'},'streampoi','type',2);
+    type = validatestring(type,{'channelheads','confluences','bconfluences','outlets'},'streampoi','type',2);
     if nargin > 2
         outformat = validatestring(outformat,{'xy','ix','logical'},'streampoi','outformat',3);
     else       
@@ -65,6 +67,11 @@ switch type
     case 'confluences'
         
         V = sum(M,1)'>1;
+        
+    case 'bconfluences'
+        
+        V = sum(M,1)'>1;
+        V = any(M(:,V),2);
 
     case 'outlets'
 
