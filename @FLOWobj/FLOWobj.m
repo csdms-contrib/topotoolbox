@@ -31,27 +31,27 @@ classdef FLOWobj
 %
 %  Applicable only, if calculated from GRIDobj
 %
-%     'preprocess'   {'fill'}, 'carve', 'none'
+%     'preprocess' --  {'fill'}, 'carve', 'none'
 %            set DEM preprocessing that determines flow behavior in
 %            topographic depressions and flat areas 
-%     'sinks'  logical matrix same size as dem
+%     'sinks' -- logical matrix same size as dem
 %            true values in sinks are treated as sinks in the digital
 %            elevation model and are not filled or carved, if the
 %            preprocessing option fill or carve are chosen.
-%     'internaldrainage' {false} or true
+%     'internaldrainage' -- {false} or true
 %            set this parameter value to true if flow directions should be
 %            derived in the lowest, flat regions of internal drainage 
 %            basins. By default, this parameter is set to false since this
 %            information is usually not required and flow paths will stop
 %            when entering flat, internally drained sections.
-%     'cweight'   scalar {1}
+%     'cweight' --  scalar {1}
 %            adjust cost matrix if preprocessing option 'carve' has been
 %            chosen. 
-%     'verbose'   {false},true
+%     'verbose' --  {false},true
 %            verbose output in the command window to track computational
 %            progress. Particularly interesting when working with very
 %            large matrices.
-%     'mex'   {'false'},true
+%     'mex' --  {'false'},true
 %            controls if the mex routines should be called. If true, the mex
 %            functions (see function compilemexfiles) must be available on
 %            the search path. Using mex functions can increase the speed at
@@ -59,13 +59,17 @@ classdef FLOWobj
 %
 % Applicable only, if calculated from flow direction matrix M
 %
-%     'cellsize' {1}
+%     'cellsize' -- {1}
 %            cellsize in x and y direction (scalar double) 
-%     'size'   (1x2 array, e.g. size(dem))
+%     'size' --  (1x2 array, e.g. size(dem))
 %            the size of the DEM of which the flow direction matrix was 
-%            derived from. Only applicable when function called with flow 
-%            direction matrix.
-%     'refmat' referencing matrix as derived from GRIDobj property refmat
+%            derived from. 
+%     'refmat' -- referencing matrix as derived from GRIDobj property refmat
+%     'algorithm' -- {'dmperm'} or 'tsort' 
+%            determine the algorithm to perform a topological sorting
+%            of the vertices of the directed graph in matrix M (this option
+%            is left here mainly for evaluation purposes of different 
+%            algorithms).
 %
 % Output
 %
@@ -114,13 +118,14 @@ methods
             p = inputParser;
             p.FunctionName = 'FLOWobj';
             expectedPreProcess = {'none','fill','carve'};
+            expectedAlgorithms = {'dmperm', 'tsort'};
 
             addRequired(p,'DEM',@(x) issparse(x) || isa(x,'GRIDobj'));
             
             addParamValue(p,'size',[],@(x) isempty(x) || numel(x)==2);
             addParamValue(p,'cellsize',1,@(x) isscalar(x));
             addParamValue(p,'refmat',[]);
-            addParamValue(p,'preprocess','none',@(x) any(validatestring(x,expectedPreProcess)));
+            addParamValue(p,'preprocess','none',@(x) ischar(validatestring(x,expectedPreProcess)));
             addParamValue(p,'tweight',2,@(x) isscalar(x));
             addParamValue(p,'cweight',1,@isnumeric);
             addParamValue(p,'sinks',[],@(x) isa(x,'GRIDobj'));
@@ -129,6 +134,7 @@ methods
             addParamValue(p,'weights',[]);
             addParamValue(p,'internaldrainage',false,@(x) isscalar(x) && islogical(x));
             addParamValue(p,'mex',false,@(x) isscalar(x) && islogical(x));
+            addParamValue(p,'algorithm','dmperm',@(x) ischar(validatestring(x,expectedAlgorithms)));
 
             parse(p,DEM,varargin{:});
 
@@ -143,6 +149,7 @@ methods
             streams    = p.Results.streams;
             weights    = p.Results.weights;
             mexx       = p.Results.mex;
+            algo       = validatestring(p.Results.algorithm,expectedAlgorithms);
             
             % % % %
             if mexx
@@ -182,19 +189,40 @@ methods
                     fprintf('       The size of the DEM was determined to be [%d %d].\n \n',...
                         FD.size(1),FD.size(2));
                 end
+                
+                % topologically sort M and generate list of ordered
+                % vertex links
 
-                mtf = ismulti(M);
+                mtf = any(sum(spones(M),2)>1);
 
-                if mtf
-                    [FD.ix,FD.ixc,FD.fraction] = tsort(M);
-                    FD.type = 'multi';
-                else
-                    [FD.ix,FD.ixc] = tsort(M);
-                    FD.type = 'single';
+                switch algo
+                    case 'tsort'                  
+                        if mtf
+                            [FD.ix,FD.ixc,FD.fraction] = tsort(M);
+                            FD.type = 'multi';
+                        else
+                            [FD.ix,FD.ixc] = tsort(M);
+                            FD.type = 'single';
+                        end
+                        
+                    case 'dmperm'
+                        [p,~] = dmperm(speye(size(M))-M);
+                        if mtf
+                            [FD.ix,FD.ixc,FD.fraction] = find(M(p,p));
+                            FD.type = 'multi';
+                        else
+                            [FD.ix,FD.ixc] = find(M(p,p));
+                            FD.type = 'single';
+                        end
+                        p = p(:);
+                        FD.ixc = p(FD.ixc);
+                        FD.ix  = p(FD.ix);
+                        
                 end
                 
                 FD.ix = uint32(FD.ix);
                 FD.ixc = uint32(FD.ixc);
+
                 
                 
 
@@ -259,6 +287,8 @@ methods
                     % elegant and good looking, but may produce several
                     % internal sills and requires much computation
                     % 2. randomly pick one pixel in each sink
+                    %
+                    % Here we choose the first one
                     STATS   = regionprops(IntBasin.Z,'PixelIdxList');
                     for r = 1:numel(STATS);
                         I(STATS(r).PixelIdxList(1)) = false;

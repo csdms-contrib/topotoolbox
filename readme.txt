@@ -49,6 +49,25 @@ of each function (help function).
 
 
 ** Version History
+
+trunk version
+- better performance of FLOWobj when converting from flow direction matrix 
+  by using dmperm to perform topological sort
+- new function: GRIDobj/getoutline
+- new function: GRIDobj/toposhielding
+- new function: demarea (incorporation of Juernjakob Dugge's function: 
+  http://www.mathworks.com/matlabcentral/fileexchange/42204-calculate-dem-surface-area )
+- the scope of the function GRIDobj/localtopography was enhanced (min, max, 
+  percentiles, etc in a disk-shaped neighborhood)
+- removed a bug when some functions such log, log10 were called with integer 
+  GRIDobjs
+- additional overloading of built-in functions for GRIDobjs. We added matrix
+  arithmetics, which, however, perform element-wise operations (e.g. mtimes can
+  be used with GRIDobj now, but performs times)
+- FLOWobj/streampoi and STREAMobj/streampoi now return 'bconfluences', 
+  e.g. stream pixels that in downstream direction are located immediately 
+  before confluences.
+
 V2.0.1
 - removed bug in GRIDobj
 - removed bug with case-sensitivity in some functions

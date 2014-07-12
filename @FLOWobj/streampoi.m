@@ -17,7 +17,9 @@ function OUT = streampoi(FD,WW,type,outformat)
 %     FD          flow direction (FLOWobj)
 %     W           channel grid (logical matrix, true where channels/
 %                 channelheads are, or GRIDobj) 
-%     type        'channelheads' (default), 'confluences' or 'outlets'
+%     type        'channelheads' (default), 'confluences', 'bconfluences',
+%                 or 'outlets'. bconfluences returns the stream pixels that 
+%                 are located immediately upstream to confluences.
 %     outformat   'GRIDobj' (default): returns an instance of GRIDobj 
 %                 'xy': nx2 coordinate matrix with x and y coordinates of 
 %                       n points 
@@ -44,7 +46,7 @@ if nargin == 2;
     type = 'channelheads';
     outformat = 'GRIDobj';
 else 
-    type = validatestring(type,{'channelheads','confluences','outlets'},'streampoi','type',3);
+    type = validatestring(type,{'channelheads','confluences','bconfluences','outlets'},'streampoi','type',3);
     if nargin > 3
         outformat = validatestring(outformat,{'gridobj','xy','rc','ix'},'streampoi','outformat',4);
     else       
@@ -80,6 +82,12 @@ switch type
     case 'confluences'
         
         V = reshape(full(sum(M,1)'>1),siz);
+        
+    case 'bconfluences'
+        
+        V = sum(M,1)'>1;
+        V = any(M(:,V),2);
+        V = reshape(full(V),siz);
 
     case 'outlets'
 
