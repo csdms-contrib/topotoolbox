@@ -57,6 +57,8 @@ trunk version
 - new function: GRIDobj/toposhielding
 - new function: demarea (incorporation of Juernjakob Dugge's function: 
   http://www.mathworks.com/matlabcentral/fileexchange/42204-calculate-dem-surface-area )
+- new function: STREAMobj/imposemin - limits downstream minima imposition
+  to the stream network
 - the scope of the function GRIDobj/localtopography was enhanced (min, max, 
   percentiles, etc in a disk-shaped neighborhood)
 - removed a bug when some functions such log, log10 were called with integer 
