@@ -30,7 +30,10 @@ function measure(DEM,varargin)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 23. October, 2013
 
-
+% 24. November, 2014: added structure field nodes if profile is saved to
+% workspace. This allows to continue working with the measure tool with an
+% existing profile by calling 
+% measure(DEM,'position',p.nodes)
 
 % get DEM coordinates
 [X,Y] = getcoordinates(DEM);
@@ -82,7 +85,7 @@ switch p.Results.slopeunit
         slopesign = '';
     case 'degree'
         slopefun = @(x) atand(x);
-        slopesign = '°';
+        slopesign = 'Â°';
     case 'percent'
         slopefun = @(x) 100*x;
         slopesign = '%';
@@ -254,6 +257,8 @@ end
                 n = ceil((totdist/DEM.cellsize)/1.5);
                 posn = getPosition(h);
                 [S.distance,S.z,S.x,S.y] = demprofile(DEM,n,posn(:,1),posn(:,2));
+                S.nodes = posn;
+                
                 
 
                 answer = inputdlg('Enter variable name:', 'Export profile to workspace', 1, {'profile_struct'});
