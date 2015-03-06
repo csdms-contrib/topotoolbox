@@ -6,7 +6,7 @@ function h = plotdz(S,DEM,varargin)
 %
 %     plotdz(S,DEM)
 %     plotdz(S,DEM,pn,pv,...)
-%     plotdz(S,nda,pn,pv,...)
+%     plotdz(S,nal,pn,pv,...)
 %     h = ...
 %
 % Description
@@ -17,7 +17,7 @@ function h = plotdz(S,DEM,varargin)
 %
 %     S      instance of STREAMobj
 %     DEM    digital elevation model (GRIDobj)
-%     nda    node attribute vector (as returned by various STREAMobj
+%     nal    node attribute list (as returned by various STREAMobj
 %            methods, e.g. STREAMobj/streamorder, STREAMobj/gradient)
 %
 %     Parameter name/value pairs {default}
@@ -59,11 +59,17 @@ function h = plotdz(S,DEM,varargin)
 %
 % Example
 %
-% 
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'mex',true,'preprocess','carve');
+%     S  = STREAMobj(FD,flowacc(FD)>1000);
+%     S  = klargestconncomps(S);
+%     plotdz(S,DEM)
 %
+%
+% See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. May, 2013
+% Date: 2. Feb, 2015
 
 nrnodes = numel(S.x);
 
