@@ -101,7 +101,7 @@ addParamValue(p,'drop',10,@(x) isscalar(x) && x>0);
 addParamValue(p,'imposemin',true,@(x) isscalar(x));
 addParamValue(p,'areabins',100,@(x) isscalar(x) || isempty(x));
 addParamValue(p,'areabinlocs','median',@(x) ischar(validatestring(x,validareabinlocs)));
-addParamValue(p,'gradaggfun','median',@(x) ischar(validatestring(x,validgradaggfun)));
+addParamValue(p,'gradaggfun','mean',@(x) ischar(validatestring(x,validgradaggfun)));
 addParamValue(p,'fitmethod','ls',@(x) ischar(validatestring(x,validfitmethods)));
 addParamValue(p,'hist2',false,@(x) isscalar(x));
 addParamValue(p,'plot',true,@(x) isscalar(x));
