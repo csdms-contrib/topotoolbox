@@ -29,6 +29,7 @@ function h = plot3d(S,DEM)
 
 
 [x,y,z] = STREAMobj2XY(S,DEM);
+z       = double(z);
 
 baselevel = min(z);
 baselevel = repmat(baselevel,size(z));
