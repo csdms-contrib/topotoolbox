@@ -25,7 +25,13 @@ Matlab 2011b or higher and the Image Processing Toolbox.
 
 ** References
 
-When you use TopoToolbox in your work, please refer to this publication:
+When you use TopoToolbox in your work, please reference one of these 
+publications:
+
+Schwanghart, W. & Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+software for topographic analysis and modeling in Earth surface sciences. 
+Earth Surface Dynamics, 2, 1-7. [DOI: 10.5194/esurf-2-1-2014]
+
 Schwanghart, W., Kuhn, N. J. (2010): TopoToolbox: a set of Matlab 
 functions for topographic analysis. Environmental Modelling & Software, 
 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
