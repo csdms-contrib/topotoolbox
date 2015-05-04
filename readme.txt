@@ -50,25 +50,35 @@ of each function (help function).
 
 ** Version History
 
-trunk version
+Working copy
+- new function: GRIDobj/excesstopography
+- new function: GRIDobj/GRIDobj2polygon
+- new function: STREAMobj/getnal
+- new function: STREAMobj/mincosthydrocon
+- new function: STREAMobj/intersectlocs
+- new function: STREAMobj/densify
+- new function: STREAMobj/plot3d
+- new function: demo_modifystreamnet
 - better performance of FLOWobj when converting from flow direction matrix 
-  by using dmperm to perform topological sort
-- new function: GRIDobj/getoutline
+  by using dmperm to perform topological sort  
 - new function: GRIDobj/toposhielding
 - new function: demarea (incorporation of Juernjakob Dugge's function: 
   http://www.mathworks.com/matlabcentral/fileexchange/42204-calculate-dem-surface-area )
-- new function: STREAMobj/imposemin - limits downstream minima imposition
-  to the stream network
-- the scope of the function GRIDobj/localtopography was enhanced (min, max, 
-  percentiles, etc in a disk-shaped neighborhood)
+- new function: GRIDobj/getoutline
 - removed a bug when some functions such log, log10 were called with integer 
   GRIDobjs
 - additional overloading of built-in functions for GRIDobjs. We added matrix
   arithmetics, which, however, perform element-wise operations (e.g. mtimes can
   be used with GRIDobj now, but performs times)
+- the scope of the function GRIDobj/localtopography was enhanced (min, max, 
+  percentiles, etc in a disk-shaped neighborhood)
 - FLOWobj/streampoi and STREAMobj/streampoi now return 'bconfluences', 
   e.g. stream pixels that in downstream direction are located immediately 
   before confluences.
+- new function: STREAMobj/imposemin - limits downstream minima imposition
+  to the stream network
+- several bug fixes
+- demo_modifystreamnet.m
 
 V2.0.1
 - removed bug in GRIDobj
