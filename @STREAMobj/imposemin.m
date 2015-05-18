@@ -57,7 +57,7 @@ if nargin == 2;
 elseif nargin == 3;
     d = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2); 
     d = d*sl;
-    for r = 1:numel(FD.ix);
+    for r = 1:numel(S.ix);
         dem(S.IXgrid(S.ixc(r))) = min(dem(S.IXgrid(S.ix(r)))-d(r),dem(S.IXgrid(S.ixc(r))));
     end
 end
