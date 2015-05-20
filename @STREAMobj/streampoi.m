@@ -14,7 +14,7 @@ function OUT = streampoi(S,type,outformat)
 %
 % Input arguments
 %   
-%     FD          stream network (class: STREAMobj)
+%     S           stream network (class: STREAMobj)
 %     type        'channelheads' (default), 'confluences', 'bconfluences' 
 %                 or 'outlets'. bconfluences returns the stream pixels that 
 %                 are located immediately upstream to confluences.
@@ -34,7 +34,7 @@ function OUT = streampoi(S,type,outformat)
 % See also: STREAMobj, FLOWobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 20. May, 2015
 
 
 %% check input arguments
