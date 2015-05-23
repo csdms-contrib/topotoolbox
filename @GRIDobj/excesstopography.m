@@ -43,7 +43,7 @@ function DEM = excesstopography(DEM,varargin)
 % Reference
 %
 %    Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: 
-%    Excess topography in the Himalaya-Karakorum ranges. Geology, in press. 
+%    Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. 
 %    [DOI: 10.1130/G36527.1] 
 %
 % See also: GRIDobj/localtopography 
