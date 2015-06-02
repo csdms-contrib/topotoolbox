@@ -62,13 +62,40 @@ function rgb = imageschs(DEM,A,varargin)
 %
 %     RGB         [DEM.size 3] image (UINT8) with values between 0 and 255
 %
-% Example
 %
-%     load exampleDEM
-%     H = hillshade(X,Y,dem,315,40);
-%     imagesc(X(1,:),Y(:,2),H); axis image; axis xy
-%     colormap('gray')
+% Example 1: Hillshade of DEM with colors derived from elevations. 
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     imageschs(DEM);
+%
+% Example 2: Hillshade of DEM with non-default colormap 
+%     
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     imageschs(DEM,[],'colormap',landcolor);
+%
+% Example 3: Gray-colored hillshading only
 % 
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     imageschs(DEM,[],'colormap',[.9 .9 .9],'colorbar',false);
+%
+% Example 4: Slope map with underlying hillshade
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     G   = gradient8(DEM);
+%     imageschs(DEM,G);
+%
+% Example 5: Nice axis tick labels
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     imageschs(DEM,DEM,'ticklabels','nice','colorbar',true);
+% 
+% Example 6: Map logical GRIDobj with custom colors
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     L   = DEM>1500;
+%     imageschs(DEM,L,'ticklabels','nice','colorbar',true,...
+%                       'truecolor',[1 0 0],'falsecolor',[0 0 1]);
+%
 % References
 %
 %     Katzil, Y., Doytsher, Y. (2003): A logarithmic and sub-pixel approach
@@ -78,16 +105,39 @@ function rgb = imageschs(DEM,A,varargin)
 % See also: HILLSHADE
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 8. January, 2013
+% Date: 2. June, 2015
+
+
+% Change log
+%
+% 23.1.2014: line 198: A = gray2ind(mat2gray(A,ncolors); 
+%            replaced with
+%            A = gray2ind(mat2gray(A,alims),ncolors);
+% 02.6.2015: changed help and updated to R2014b
+
+
 
 narginchk(1,inf);
 nargoutchk(0,1);
 
 % if A is not supplied to the function, coloring will be according to
 % values in DEM
-if nargin == 1 || (nargin==2 && isempty(A));
+if nargin == 1 || (nargin>=2 && isempty(A));
     A = DEM;
 end
+
+%% Default values can be changed here
+% -----------------------------------
+defaultcolormap = 'jet';
+defaulttruecolor = [0 1 0]; 
+defaultfalsecolor = [1 1 1]; 
+defaultnancolor = [1 1 1];
+defaultexaggerate = 1;
+defaultazimuth  = 315;
+defaultaltitude = 60;
+defaultcolorbar = true;
+% -----------------------------------
+%%
 
 % Parse inputs
 p = inputParser;
@@ -96,15 +146,15 @@ p.FunctionName = 'GRIDobj/imageschs';
 addRequired(p,'DEM',@(x) isa(x,'GRIDobj'));
 addRequired(p,'A',@(x) isa(x,'GRIDobj') || ismatrix(A));
 % optional
-addParamValue(p,'colormap','jet',@(x)(ischar(x) || size(x,2)==3));
+addParamValue(p,'colormap',defaultcolormap,@(x)(ischar(x) || size(x,2)==3));
 addParamValue(p,'caxis',[],@(x) numel(x) == 2);
-addParamValue(p,'truecolor',[0 1 0],@(x) isequal(size(x),[1 3]) && (max(x)<=1) && (min(x) >= 0));
-addParamValue(p,'falsecolor',[1 1 1],@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
-addParamValue(p,'nancolor',[1 1 1],@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
-addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
-addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>0);
-addParamValue(p,'altitude',60,@(x) isscalar(x) && x>0);
-addParamValue(p,'colorbar',true,@(x) isscalar(x));
+addParamValue(p,'truecolor',defaulttruecolor,@(x) isequal(size(x),[1 3]) && (max(x)<=1) && (min(x) >= 0));
+addParamValue(p,'falsecolor',defaultfalsecolor,@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
+addParamValue(p,'nancolor',defaultnancolor,@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
+addParamValue(p,'exaggerate',defaultexaggerate,@(x) isscalar(x) && x>0);
+addParamValue(p,'azimuth',defaultazimuth ,@(x) isscalar(x) && x>0);
+addParamValue(p,'altitude',defaultaltitude,@(x) isscalar(x) && x>0);
+addParamValue(p,'colorbar',defaultcolorbar,@(x) isscalar(x));
 addParamValue(p,'ticklabels','default',@(x) ischar(x));
 addParamValue(p,'gridmarkers',[],@(x) numel(x) == 1 || numel(x) == 2);
 addParamValue(p,'gridmarkercolor','k');
@@ -168,14 +218,14 @@ if ~isa(A,'logical');
         clear Inan
     end
     
-    if isa(colmapfun,'char');
-        ncolors = 256-nans;  
+    if isa(colmapfun,'char');        
+        ncolors = 256-nans;
         colmapfun = str2func(lower(colmapfun));
         cmap = colmapfun(ncolors);
     else
         ncolors = size(colmapfun,1);
         if nans && ncolors >= 256;
-            error('TopoToolbox:GRIDobj',['NaNs found in the second input argument matrix. \n'...
+            error('TopoToolbox:GRIDobj',['NaNs found in the second input grid. \n'...
                   'Please provide colormap with less than 256 colors']);
         else
             cmap = colmapfun;
@@ -186,9 +236,11 @@ if ~isa(A,'logical');
         alims = [min(A(:)) max(A(:))];
     elseif cbar && ~isempty(p.Results.caxis);
         alims = sort(p.Results.caxis,'ascend');
-        
+    else
+        alims = [min(A(:)) max(A(:))];
     end
-    A = gray2ind(mat2gray(A),ncolors);
+    
+    A = gray2ind(mat2gray(A,double(alims)),ncolors);
     
 else
     ncolors = 2;
@@ -248,6 +300,11 @@ if nargout == 0;
             
             set(gca,'XTickLabel',num2str(xticklocs([1 end])','%d'));
             set(gca,'YTickLabel',num2str(yticklocs([1 end])','%d'));
+            
+            % rotate tick labels if matlab 2014b or newer available
+            if ~verLessThan('matlab','8.4')
+                set(gca,'YTickLabelRotation',90);
+            end
                        
     end
     
@@ -265,8 +322,6 @@ if nargout == 0;
         hold off
     end
         
-        
-            
     
 elseif nargout == 1;
     rgb = RGB;
