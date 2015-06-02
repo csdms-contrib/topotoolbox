@@ -64,6 +64,7 @@ Working copy
 - new function: STREAMobj/intersectlocs
 - new function: STREAMobj/densify
 - new function: STREAMobj/plot3d
+- new function: STREAMobj/widenstream
 - new function: demo_modifystreamnet
 - better performance of FLOWobj when converting from flow direction matrix 
   by using dmperm to perform topological sort  
