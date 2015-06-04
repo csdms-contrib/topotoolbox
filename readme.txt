@@ -66,6 +66,7 @@ Working copy
 - new function: STREAMobj/plot3d
 - new function: STREAMobj/widenstream
 - new function: demo_modifystreamnet
+- modification of the function slopearea
 - better performance of FLOWobj when converting from flow direction matrix 
   by using dmperm to perform topological sort  
 - new function: GRIDobj/toposhielding
