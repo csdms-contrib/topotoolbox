@@ -9,7 +9,12 @@ function OUT = slopearea(S,DEM,A,varargin)
 % 
 % Description
 %
-%     The power law relation between upslope area and stream slope enables
+%     The relation between upslope area and stream gradient usually follows 
+%     a power law. This function examines this relation using a stream 
+%     network, a DEM (from which stream gradient is derived), and upslope 
+%     area. The function aggregates gradient values into area bins and fits
+%     a power law. The data (binned values, statistical parameters and
+%     measures) are returned in the structure array SA.
 %     
 % Input arguments
 %
@@ -33,9 +38,17 @@ function OUT = slopearea(S,DEM,A,varargin)
 %                      0.5*(edge(i)+edge(i+1)) where edge contains the area
 %                      values that limit each bin.
 %     'gradaggfun'     determines how slope values are aggragated in each
-%                      bin. Can be either {'median'} or 'mean'.
-%     'fitmethod'      allows to switch between least squares {'ls'} and 
-%                      least absolute deviations 'lad' fitting method
+%                      bin. Can be either {'mean'} or 'median'.
+%     'fitmethod'      by default, this function uses a nonlinear fitting
+%                      approach to avoid error bias introduced by taking
+%                      the logarithms of gradient and area. The nonlinear
+%                      regression lets you choose between least squares 
+%                      {'ls'}, and least absolute deviations 'lad'. If you
+%                      prefer a linear fit using least squares with 
+%                      logtransformed data, set this option to 'logtrls'.
+%     'theta'          by default []. Provide a positive value (e.g. 0.45)
+%                      to only fit the scale parameter keeping the exponent
+%                      at a fixed value.
 %     'hist2'          if the option 'plot' is true, setting hist2 to true
 %                      will result in a 2d density plot to visualize the
 %                      distribution of the point cloud of the entire data.
@@ -59,7 +72,8 @@ function OUT = slopearea(S,DEM,A,varargin)
 %          .a       binned area values
 %          .g       aggregated gradients
 %          .ks      channel steepness index 
-%          .theta   channel concavity
+%          .theta   channel concavity (note that this parameter is (against
+%                   convention reported as a negative value).
 %          .hHist   surface handle to the histogram, if plotted
 %          .hPoints line handle to the binned, empirical data, if plotted
 %          .hLine   line handle to the fitted line, if plotted
@@ -72,17 +86,32 @@ function OUT = slopearea(S,DEM,A,varargin)
 %     % many zero gradients. 
 %     FD  = FLOWobj(DEM,'preprocess','c');
 %     A   = flowacc(FD);
-%     S   = STREAMobj(FD,A>1000);
-%     
+%     S   = STREAMobj(FD,A>1000);     
 %     SA  = slopearea(S,DEM,A);
 %
+% Remark
 %
+%     In case you are unsatisfied by the line fitted to the data or in case
+%     you require confidence intervals of the parameters, please use the
+%     functions nlinfit or nlintool with following syntax. nlinfit will
+%     allow you several more options for fitting and robust analysis. Note
+%     that both functions require the statistics toolbox, however.
+%
+%     [beta,R,J,CovB,MSE,ErrorModelInfo] = nlinfit(...
+%                SA.a,SA.g,@(b,x) b(1)*x.^b(2),[SA.ks SA.theta]);
+%
+%     or 
+%
+%     nlintool(SA.a,SA.g,@(b,x) b(1)*x.^b(2),[SA.ks SA.theta],0.05,...
+%                'area','gradient')
+%
+%     
 %
 %
 % See also: slopearea, chiplot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. June, 2013
+% Date: 4. June, 2015
 
 
 narginchk(3,inf)
@@ -94,7 +123,7 @@ p.FunctionName = 'slopearea';
 validstreamgradient = {'forward' 'centered' 'robust'};
 validareabinlocs = {'center' 'median' 'mean'};
 validgradaggfun  = {'mean','median'};
-validfitmethods  = {'ls','lad'};
+validfitmethods  = {'ls','lad','logtrls'};
 
 addParamValue(p,'streamgradient','forward',@(x) ischar(validatestring(x,validstreamgradient)));
 addParamValue(p,'drop',10,@(x) isscalar(x) && x>0);
@@ -103,6 +132,7 @@ addParamValue(p,'areabins',100,@(x) isscalar(x) || isempty(x));
 addParamValue(p,'areabinlocs','median',@(x) ischar(validatestring(x,validareabinlocs)));
 addParamValue(p,'gradaggfun','mean',@(x) ischar(validatestring(x,validgradaggfun)));
 addParamValue(p,'fitmethod','ls',@(x) ischar(validatestring(x,validfitmethods)));
+addParamValue(p,'theta',[],@(x) isscalar(x) && x>0);
 addParamValue(p,'hist2',false,@(x) isscalar(x));
 addParamValue(p,'plot',true,@(x) isscalar(x));
 addParamValue(p,'mingradient',0.0001, @(x) isscalar(x));
@@ -205,27 +235,61 @@ if p.Results.plot
     ylabel('slope')
 end
 
-% Fitting
-% find starting values using a least squares fit on log transformed data
-beta0 = [ones(numel(a),1) log(a(:))]\log(max(g,p.Results.mingradient));
-beta0(1) = exp(beta0(1));
 
-% fit power law S = k*A^(-mn)
-switch fitmethod
-    case 'ls'
-        beta = fminsearch(@(beta) sum((g - beta(1)*a.^beta(2)).^2),beta0);
-    case 'lad'
-        beta = fminsearch(@(beta) sum(abs(g - beta(1)*a.^beta(2))),beta0);
+%% Fitting
+
+% gradient 
+g = max(g,p.Results.mingradient);
+
+if isempty(p.Results.theta) 
+    % Both parameters may vary
+    
+    % find starting values using a least squares fit on log transformed data
+    beta0 = [ones(numel(a),1) log(a(:))]\log(g);
+    beta0(1) = exp(beta0(1));
+    
+    % fit power law S = k*A^(-mn)
+    switch fitmethod
+        case 'logtrls'
+            beta = beta0;
+        case 'ls'
+            beta = fminsearch(@(beta) sum((g - beta(1)*a.^beta(2)).^2),beta0);
+        case 'lad'
+            beta = fminsearch(@(beta) sum(abs(g - beta(1)*a.^beta(2))),beta0);
+    end
+    
+    OUT.ks = beta(1);
+    OUT.theta = beta(2);
+
+else
+    % theta is fixed
+    
+    % slope residuals
+    theta = -p.Results.theta;
+    gres  = g./(a.^theta);
+    
+    % find starting values using a least squares fit on log transformed data
+    beta0 = mean(gres);
+    
+    % fit power law S = k*A^(-mn)
+    switch fitmethod
+        case 'logtrls'
+            beta = beta0;
+        case 'ls'
+            beta = fminsearch(@(beta) sum((g - beta*a.^theta).^2),beta0);
+        case 'lad'
+            beta = fminsearch(@(beta) sum(abs(g - beta*a.^theta)),beta0);
+    end
+    
+    OUT.ks = beta(1);
+    OUT.theta = theta;
 end
 
-OUT.ks = beta(1);
-OUT.theta = beta(2);
-
-% 
+%% Plot
 if p.Results.plot
     hold on
     aeval = logspace(log10(min(a)),log10(max(a)),10);
-    geval = beta(1)*aeval.^beta(2);
+    geval = OUT.ks(1)*aeval.^OUT.theta;
     OUT.hLine = plot(ax,aeval,geval,'k-','LineWidth',1.5);
     
     set(ax,'Xscale','log','Yscale','log');
