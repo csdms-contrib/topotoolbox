@@ -147,7 +147,7 @@ OUT.name  = 'drainage basins';
 if nargout == 2;
     varargout{1} = outlets;
 elseif nargout == 3;
-    [x,y] = ind2coord(S,outlets);
+    [x,y] = ind2coord(FD,outlets);
     varargout{1} = x;
     varargout{2} = y;
 end
