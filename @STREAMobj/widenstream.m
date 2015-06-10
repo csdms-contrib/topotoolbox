@@ -64,6 +64,7 @@ function DEM = widenstream(S,DEM,varargin)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 2. June, 2015
 
+
 narginchk(3,4)
 
 I = false(DEM.size);
@@ -71,12 +72,23 @@ I(S.IXgrid) = true;
 
 [D,L] = bwdist(I,'e');
 
-if numel(varargin) == 1 
+if numel(varargin) == 1 && isscalar(varargin{1});
     I = D<=varargin{1};
 else
     if numel(streampoi(S,'Channelheads','ix')) > 1;
-        error('blab')
+        error('TopoToolbox:widenstream',...
+            ['widenstream works only with a river reach, i.e., there\n'...
+             'must not be more than one channel head.'])
     end
+    
+    if numel(varargin) == 2;
+        method = validatestring(varargin{2},...
+            {'linear','nearest','next','previous','spline','pchip','cubic'},...
+            'widenstream','method',4);
+    else
+        method = 'linear';
+    end
+    
     xyw = varargin{1};
     xyw(:,3) = xyw(:,3)/DEM.cellsize/2;
     
@@ -88,11 +100,11 @@ else
     if any(nrObsPix>=2)
         warning('multiple observations per pixel, taking averages');
     end
-    w  = accumarray(locb,xyw(:,3),size(S.IXgrid),@mean,nan);
+    w    = accumarray(locb,xyw(:,3),size(S.IXgrid),@mean,nan);
     
-    I  = isnan(w);
-    w(I) = interp1(d(~I),w(~I),d(I),varargin{2},'extrap');
-    W  = zeros(DEM.size);
+    I    = isnan(w);
+    w(I) = interp1(d(~I),w(~I),d(I),method,'extrap');
+    W    = zeros(DEM.size);
     W(S.IXgrid) = w;
     
     I  = D<=W(L);
