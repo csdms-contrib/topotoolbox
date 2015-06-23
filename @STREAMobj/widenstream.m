@@ -1,4 +1,4 @@
-function DEM = widenstream(S,DEM,varargin)
+function [DEM,MASK] = widenstream(S,DEM,varargin)
 
 % level elevations adjacent to the stream network
 %
@@ -6,6 +6,7 @@ function DEM = widenstream(S,DEM,varargin)
 %
 %     DEMw = widenstream(S,DEM,nrpx)
 %     DEMw = widenstream(S,DEM,xyw,method)
+%     [DEMw,MASK] = ...
 %
 % Description
 %
@@ -43,6 +44,7 @@ function DEM = widenstream(S,DEM,varargin)
 % Output arguments
 %
 %     DEMw     Carved DEM.
+%     MASK     Stream mask
 %
 % Example
 %
@@ -111,3 +113,8 @@ else
 end
     
 DEM.Z(I) = DEM.Z(L(I));
+
+if nargout == 2;
+    MASK = GRIDobj(DEM,'logical');
+    MASK.Z = I;
+end
