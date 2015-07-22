@@ -49,17 +49,14 @@ You may than either look at the user's guide to get an idea of how the
 toolbox works or you may run some of the many examples in the help block
 of each function (help function). 
 
-** Known issues
-
-- preprocessapp may have some unexpected behavior here and then...
-
 
 ** Version History
 
-Working copy
+2.1
 - new function: GRIDobj/excesstopography
 - new function: GRIDobj/GRIDobj2polygon
 - new function: STREAMobj/getnal
+- new function: STREAMobj/sidebranching
 - new function: STREAMobj/mincosthydrocon
 - new function: STREAMobj/intersectlocs
 - new function: STREAMobj/densify
@@ -87,6 +84,7 @@ Working copy
   to the stream network
 - several bug fixes
 - demo_modifystreamnet.m
+- preprocessapp was removed
 
 V2.0.1
 - removed bug in GRIDobj
