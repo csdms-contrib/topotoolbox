@@ -25,7 +25,13 @@ Matlab 2011b or higher and the Image Processing Toolbox.
 
 ** References
 
-When you use TopoToolbox in your work, please refer to this publication:
+When you use TopoToolbox in your work, please reference one of these 
+publications:
+
+Schwanghart, W. & Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+software for topographic analysis and modeling in Earth surface sciences. 
+Earth Surface Dynamics, 2, 1-7. [DOI: 10.5194/esurf-2-1-2014]
+
 Schwanghart, W., Kuhn, N. J. (2010): TopoToolbox: a set of Matlab 
 functions for topographic analysis. Environmental Modelling & Software, 
 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
@@ -43,32 +49,42 @@ You may than either look at the user's guide to get an idea of how the
 toolbox works or you may run some of the many examples in the help block
 of each function (help function). 
 
-** Known issues
-
-- preprocessapp may have some unexpected behavior here and then...
-
 
 ** Version History
 
-trunk version
+2.1
+- new function: GRIDobj/excesstopography
+- new function: GRIDobj/GRIDobj2polygon
+- new function: STREAMobj/getnal
+- new function: STREAMobj/sidebranching
+- new function: STREAMobj/mincosthydrocon
+- new function: STREAMobj/intersectlocs
+- new function: STREAMobj/densify
+- new function: STREAMobj/plot3d
+- new function: STREAMobj/widenstream
+- new function: demo_modifystreamnet
+- modification of the function slopearea
 - better performance of FLOWobj when converting from flow direction matrix 
-  by using dmperm to perform topological sort
-- new function: GRIDobj/getoutline
+  by using dmperm to perform topological sort  
 - new function: GRIDobj/toposhielding
 - new function: demarea (incorporation of Juernjakob Dugge's function: 
   http://www.mathworks.com/matlabcentral/fileexchange/42204-calculate-dem-surface-area )
-- new function: STREAMobj/imposemin - limits downstream minima imposition
-  to the stream network
-- the scope of the function GRIDobj/localtopography was enhanced (min, max, 
-  percentiles, etc in a disk-shaped neighborhood)
+- new function: GRIDobj/getoutline
 - removed a bug when some functions such log, log10 were called with integer 
   GRIDobjs
 - additional overloading of built-in functions for GRIDobjs. We added matrix
   arithmetics, which, however, perform element-wise operations (e.g. mtimes can
   be used with GRIDobj now, but performs times)
+- the scope of the function GRIDobj/localtopography was enhanced (min, max, 
+  percentiles, etc in a disk-shaped neighborhood)
 - FLOWobj/streampoi and STREAMobj/streampoi now return 'bconfluences', 
   e.g. stream pixels that in downstream direction are located immediately 
   before confluences.
+- new function: STREAMobj/imposemin - limits downstream minima imposition
+  to the stream network
+- several bug fixes
+- demo_modifystreamnet.m
+- preprocessapp was removed
 
 V2.0.1
 - removed bug in GRIDobj

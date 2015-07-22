@@ -49,10 +49,17 @@ function S = modify(S,varargin)
 %     'tributaryto' instance of STREAMobj
 %     returns the stream network that is tributary to a stream (network) 
 %
-%     'interactive' string
-%     'polyselect': plots the stream network and starts a polygon tool to
-%     select the stream network of interest.
-%     'reachselect': select a reach based on two locations on the network
+%     'tributaryto2' instance of STREAMobj
+%     same as 'tributaryto' but tributaries include the pixel of the
+%     receiving stream.
+%
+%     'shrinkfromtop' N of vertices (pixels)
+%     removes N vertices starting from channelheads
+%
+%     'interactive' string (either 'polyselect' or 'reachselect')
+%        'polyselect': plots the stream network and starts a polygon tool to
+%                      select the stream network of interest.
+%        'reachselect': select a reach based on two locations on the network
 %
 %
 % Output arguments
@@ -85,10 +92,10 @@ function S = modify(S,varargin)
 %     hold off
 %
 %     
-%
+% See also: STREAMobj, STREAMobj/trunk
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. October, 2013
+% Date: 2. Feb., 2015
 
 narginchk(3,3)
 
@@ -102,6 +109,8 @@ addParamValue(p,'distance',[],@(x) isnumeric(x) && numel(x)<=2);
 addParamValue(p,'maxdistance',[],@(x) isscalar(x));
 addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
 addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj'));
 addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj'));
 
@@ -189,6 +198,18 @@ elseif ~isempty(p.Results.tributaryto);
     for r = numel(S.ix):-1:1;
         I(S.ix(r)) = (II(S.ixc(r)) || I(S.ixc(r))) && ~II(S.ix(r));
     end
+
+elseif ~isempty(p.Results.tributaryto2)
+    Strunk = p.Results.tributaryto2;
+    [~,~,~,S] = intersectlocs(Strunk,S);
+    return
+    
+elseif ~isempty(p.Results.shrinkfromtop)
+    I = double(streampoi(S,'channelheads','logical'));
+    for r = 1:numel(S.ix);
+        I(S.ixc) = max(I(S.ix)+1,I(S.ixc));
+    end
+    I = I>p.Results.shrinkfromtop;
     
 elseif ~isempty(p.Results.interactive);
     

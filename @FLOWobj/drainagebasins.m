@@ -6,6 +6,7 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %
 %     L = drainagebasins(FD)
 %     L = drainagebasins(FD,IX)
+%     L = drainagebasins(FD,S)
 %     L = drainagebasins(FD,x,y)
 %     L = drainagebasins(FD,SO,order)
 %     [L,outlets] = ...
@@ -25,6 +26,9 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %     outlets indicated by the linear index vector (IX) or coordinate
 %     vectors (x,y) to derive drainage basins.
 %
+%     drainagebasins(FD,S) takes the outlets of the stream network in the
+%     STREAMobj S.
+%
 %     drainagebasins(FD,SO,order) takes a streamorder grid (SO) calculated
 %     by the function FLOWobj/streamorder and a scalar that indicates the
 %     stream order for which drainage basins are to be derived. order = 1 
@@ -37,8 +41,9 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %     FD        flow direction object (FlowDirObj)
 %     IX        linear index indicating position of user defined drainage 
 %               basin outlets
+%     S         STREAMobj. Takes the outlets of the stream network S.
 %     x,y       coordinate pairs of user defined drainage basin outlets
-%     S         stream order raster as produced by the function
+%     SO        stream order raster as produced by the function
 %               FLOWobj/streamorder (GRIDobj)
 %     order     stream order (scalar integer)
 % 
@@ -100,9 +105,13 @@ elseif nargin == 1;
 elseif nargin > 1;
     % ix,x and y, or Stream order grid and stream order are supplied
     if nargin == 2;
-        % IX is supplied
-        IX = varargin{1}; 
-        validateattributes(IX,{'numeric'},{'vector','integer'})
+        if isa(varargin{1},'STREAMobj');
+            IX = streampoi(varargin{1},'outlets','ix');
+        else
+            % IX is supplied
+            IX = varargin{1}; 
+            validateattributes(IX,{'numeric'},{'vector','integer'})
+        end
     else
         if isa(varargin{1},'GRIDobj')
             S = varargin{1};
@@ -138,7 +147,7 @@ OUT.name  = 'drainage basins';
 if nargout == 2;
     varargout{1} = outlets;
 elseif nargout == 3;
-    [x,y] = ind2coord(S,outlets);
+    [x,y] = ind2coord(FD,outlets);
     varargout{1} = x;
     varargout{2} = y;
 end

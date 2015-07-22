@@ -1,4 +1,4 @@
-function [x,y] = ind2coord(DEM,ix)
+function [x,y] = ind2coord(FD,ix)
 
 % convert linear index to x and y coordinates
 %
@@ -23,7 +23,7 @@ function [x,y] = ind2coord(DEM,ix)
 % See also: FLOWobj/coord2ind
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. January, 2013
+% Date: 08. June, 2015
 
 
 [r,c] = ind2sub(FD.size,ix(:));
