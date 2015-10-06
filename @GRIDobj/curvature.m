@@ -33,9 +33,11 @@ function C = curvature(DEM,ctype)
 %     All formulas are according to Olaya (2009) on page 151-152.
 %
 % Example
-% 
-%     
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     DEM = filter(DEM);
+%     C = curvature(DEM,'planc');
+%     imageschs(DEM,C)
 %
 % Reference: Olaya, V. (2009): Basic land-surface parameters. In: 
 %            Hengl, T. & Reuter, H. I. (Eds.), Geomorphometry. Concepts, 
@@ -66,8 +68,10 @@ switch c
 end
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(5001*5001);
-    blksiz = bestblk(size(DEM.Z),5000);    
+% Parallisation for large grids using blockproc does in my experience with
+% four cores hardly increase the speed. 
+if numel(DEM.Z)>(10001*10001);
+    blksiz = bestblk(size(DEM.Z),1000);    
     C.Z = blockproc(DEM.Z,blksiz,@(x) curvaturesub(x,C.cellsize),...
            'BorderSize',[1 1],...
            'Padmethod','symmetric',...
@@ -136,12 +140,12 @@ switch ctype
         
 end
 
+if correctedges
+    dem = dem(2:end-1,2:end-1);
+end
 curv(isinf(curv) | isnan(curv)) = 0;
 curv(isnan(dem)) = nan;
-% curv = reshape(curv,size(dem));
-% if correctedges
-%     curv = curv(2:end-1,2:end-1);
-% end
+curv = reshape(curv,size(dem));
 
 end
 end
