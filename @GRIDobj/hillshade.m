@@ -47,7 +47,7 @@ function OUT2 = hillshade(DEM,varargin)
 % See also: SURFNORM, IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 21. December, 2012
+% Date: 16. August, 2015
 
 
 
@@ -60,21 +60,28 @@ addRequired(p,'DEM',@(x) isequal(class(x),'GRIDobj'));
 addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>= 0 && x<=360);
 addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
+addParamValue(p,'useparallel',true);
+addParamValue(p,'blocksize',1000);
 parse(p,DEM,varargin{:});
 
 OUT     = DEM;
 OUT.Z   = [];
 
+cs      = DEM.cellsize;
+
 % Large matrix support. Break calculations in chunks using blockproc
 if numel(DEM.Z)>(1001*1001);
-    blksiz = bestblk(size(DEM.Z),1000);    
+    blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
-    OUT.Z = blockproc(DEM.Z,blksiz,@(x) hsfun(x),...
+    
+    % The anonymous function must be defined as a variable: see bug 1157095
+    fun   = @(x) hsfun(x,cs,p);
+    OUT.Z = blockproc(DEM.Z,blksiz,fun,...
                 'BorderSize',[1 1],...
                 'padmethod',padval,...
-                'UseParallel',true);
+                'UseParallel',p.Results.useparallel);
 else
-    OUT.Z = hsfun(DEM.Z);
+    OUT.Z = hsfun(DEM.Z,cs,p);
 end
 
 OUT.name = 'hillshade';
@@ -90,7 +97,7 @@ end
 
 
 %% Subfunction
-function H = hsfun(Z)
+function H = hsfun(Z,cs,p)
 
 if isstruct(Z)
     Z = Z.data;    
@@ -107,7 +114,7 @@ azisource = azid/180*pi;
 [sx,sy,sz] = sph2cart(azisource,altsource,1);
 
 % calculate surface normals
-[Nx,Ny,Nz] = surfnorm(Z/DEM.cellsize*p.Results.exaggerate);
+[Nx,Ny,Nz] = surfnorm(Z/cs*p.Results.exaggerate);
 
 % calculate cos(angle)
 H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
@@ -120,7 +127,6 @@ H = reshape(H,size(Nx));
 % % force H to range between 0 and 1
 % H = H-min(H(:));
 % H = H/max(H(:));
-
 
 end
 end
