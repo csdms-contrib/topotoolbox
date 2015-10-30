@@ -1,7 +1,4 @@
-________________________________________________________________________
-
-TopoToolbox - a set of Matlab functions for topographic analysis
-________________________________________________________________________
+# TopoToolbox - a set of Matlab functions for topographic analysis
 
 
 TopoToolbox provides a set of Matlab functions that support the analysis
@@ -18,12 +15,12 @@ w.schwanghart[at]geo.uni-potsdam.de
 Dirk Scherler
 scherler[at]caltech.edu
 
-** Requirements
+## Requirements
 
 TopoToolbox is plat-form independent and requires
 Matlab 2011b or higher and the Image Processing Toolbox.
 
-** References
+## References
 
 When you use TopoToolbox in your work, please reference one of these 
 publications:
@@ -36,7 +33,7 @@ Schwanghart, W., Kuhn, N. J. (2010): TopoToolbox: a set of Matlab
 functions for topographic analysis. Environmental Modelling & Software, 
 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
 
-** Getting started
+## Getting started
 
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
@@ -50,7 +47,7 @@ toolbox works or you may run some of the many examples in the help block
 of each function (help function). 
 
 
-** Version History
+## Version History
 
 2.1
 - new function: GRIDobj/excesstopography
