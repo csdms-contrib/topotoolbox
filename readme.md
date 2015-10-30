@@ -38,9 +38,9 @@ functions for topographic analysis. Environmental Modelling & Software,
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
 
-addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
-addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\tools_and_more
-addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\tools_and_more
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
 
 You may than either look at the user's guide to get an idea of how the 
 toolbox works or you may run some of the many examples in the help block
@@ -83,17 +83,21 @@ of each function (help function).
 - demo_modifystreamnet.m
 - preprocessapp was removed
 
+***
+
 V2.0.1
 - removed bug in GRIDobj
 - removed bug with case-sensitivity in some functions
 - removed bug with internal drainage option in FLOWobj
+
+***
 
 V2.0
 - new functions STREAMobj/intersect, STREAMobj/union
 - new interactive tools in STREAMobj/modify
 - new interactive tool GRIDobj/measure
 
-
+***
 
 V2.0beta ---
 - V2.0 introduces an object oriented approach towards grid representation, flow direction, stream 
@@ -104,6 +108,7 @@ compiled before using them, if your system differs. However, compiling is not ma
 versions are available, too, which are a little slower. Please refer to the Contents.m file for a 
 complete list of functions.
 
+***
 
 V1.06 --- 11. November 2011
 - new function: acv
@@ -124,6 +129,7 @@ V1.06 --- 11. November 2011
 - the baranja_hill.mat dataset was added. It was obtained from 
   here: http://geomorphometry.org/content/baranja-hill
 
+***
 
 V1.05 --- 15. September 2010
 - some of the functions now employ the function validateattributes to check
@@ -149,6 +155,8 @@ V1.05 --- 15. September 2010
 - flowdistanceds can now calculate the maximum downward flowpath distance 
   for each cell at one step. 
 
+***
+
 V1.04 --- 5. January 2010 - *first public release*
 - a bug in flowacc_lm was removed. When a weight matrix W0
   was supplied as additional input argument, W0 was set to 
@@ -158,14 +166,20 @@ V1.04 --- 5. January 2010 - *first public release*
   based on method proposed by Katzil and Doytsher, 2003.
 - flowacc allows for another input argument (runoff ratio). 
 
+***
+
 V1.03 --- 5. November 2009
 - sub-basin analysis has been added as new functionality 
   (see sbstruct, sbplot, sbprops)
 - new function: adjustgauges
 
+***
+
 V1.02 --- 30. October 2009  
 - major speed enhancement for fillsinks with maximum
   fill depth
+
+***
 
 V1.01 --- 16. September 2009  
 - hillshade plots the hillshade matrix when no output
@@ -183,7 +197,7 @@ V1.01 --- 16. September 2009
 - new function: shufflelabel
 - influencemap got a second output Mstreams
 
+***
+
 V1.0 --- 15. March 2009 
 - release
-
-# This is my README
