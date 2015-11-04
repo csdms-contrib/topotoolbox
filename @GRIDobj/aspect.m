@@ -34,7 +34,7 @@ function OUT = aspect(DEM,classify)
 %
 % References
 %
-%     Gómez-Plaza, A.; Martínez-Mena, M.; Albaladejo, J. & Castillo, V. M.
+%     GÃ³mez-Plaza, A.; MartÃ­nez-Mena, M.; Albaladejo, J. & Castillo, V. M.
 %     (2001): Factors regulating spatial distribution of soil water content
 %     in small semiarid catchments. Journal of Hydrology, 253, 211 - 226.
 %
@@ -62,8 +62,9 @@ end
 
 % Large matrix support. Break calculations in chunks using blockproc
 if numel(DEM.Z)>(5001*5001);
+    fun    = @(x) aspfun(x);
     blksiz = bestblk(size(DEM.Z),5000);
-    OUT.Z = blockproc(DEM.Z,blksiz,@(x) aspfun(x),'BorderSize',[1 1]);
+    OUT.Z  = blockproc(DEM.Z,blksiz,fun,'BorderSize',[1 1]);
 else
     OUT.Z = aspfun(DEM.Z);
 end
