@@ -34,10 +34,10 @@ function G = gradient8(DEM,unit)
 %     imagesc(G)
 %
 %
-% See also: EZFLOWACC, CURVATURE, ASPECT
+% See also: GRIDobj, CURVATURE, ASPECT
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 27. December, 2012
+% Date: 6. November, 2015
 
 if nargin == 1;
     unit = 'tangent';
