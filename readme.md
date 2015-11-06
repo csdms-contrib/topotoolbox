@@ -49,6 +49,15 @@ of each function (help function).
 
 ## Version History
 
+2.2 pre
+- new function: GRIDobj/line2GRIDobj
+- new function: GRIDobj/distance
+- new function: STREAMobj/plotc
+- new function: STREAMobj/plot3
+
+
+***
+
 2.1
 - new function: GRIDobj/excesstopography
 - new function: GRIDobj/GRIDobj2polygon
