@@ -42,7 +42,7 @@ path of Matlab. Enter following code into the command line:
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\tools_and_more
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
 
-You may than either look at the user's guide to get an idea of how the 
+You may then either look at the user's guide to get an idea of how the 
 toolbox works or you may run some of the many examples in the help block
 of each function (help function). 
 
