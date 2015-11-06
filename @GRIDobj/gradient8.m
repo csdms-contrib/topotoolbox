@@ -56,8 +56,12 @@ switch c
         c   = 'single';
 end
 
-% Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(5001*5001);
+% I found Large matrix support using blockproc inefficient for gradient8.
+% Matrix dimensions have thus been increased to an out-of-range value to
+% avoid calling blockproc.
+% Large matrix support. Break calculations in chunks using blockproc.
+
+if numel(DEM.Z)>(20001*20001);
     blksiz = bestblk(size(DEM.Z),5000);
     c   = class(DEM.Z);
     
@@ -70,7 +74,8 @@ if numel(DEM.Z)>(5001*5001);
             padval = intmax(c);
     end
     
-    G.Z = blockproc(DEM.Z,blksiz,@(x) steepestgradient(x,G.cellsize,c),...
+    fun = @(x) steepestgradient(x,G.cellsize,c);
+    G.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod',padval,...
            'UseParallel',true);
