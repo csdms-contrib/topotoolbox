@@ -70,7 +70,7 @@ OUT.Z   = [];
 cs      = DEM.cellsize;
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(1001*1001);
+if numel(DEM.Z)>(5001*5001);
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     
