@@ -133,8 +133,6 @@ else
         I = (imdilate(Inan,ones(3)) & ~Inan) | I;
     end
     
-    SINKS = SINKS | I;
-    
     % Refine markers by identifying the lowest value in each sink
     STATS = regionprops(SINKS,dem,'MinIntensity','PixelIdxList');
     SINKS = false(size(SINKS));
@@ -145,10 +143,13 @@ else
     
     marker = -inf(size(dem),class(dem));
     marker(SINKS) = -dem(SINKS);
+    marker(I)     = -dem(I);
     demfs = -imreconstruct(marker,-dem);
     
 end
 
 % nans in the dem are set to nan again
-demfs(Inan) = nan;
+try
+    demfs(Inan) = nan;
+end
 DEM.Z = demfs;
