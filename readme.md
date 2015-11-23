@@ -54,6 +54,7 @@ of each function (help function).
 - new function: GRIDobj/distance
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plot3
+- new function: STREAMobj/cumtrapz
 
 
 ***
