@@ -22,18 +22,21 @@ function d = distance(S,type)
 %             'mean_from_ch'   mean distance from channelheads
 %             'nr_of_ch'       number of channelheads (not a distance
 %                              measure)
+%             'node_to_node'   distance between each node and its
+%                              downstream neighbor
 %
 % See also: STREAMobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. June, 2015
+% Date: 23. November, 2015
 
 validtypes = {...
               'from_outlet', ... % distance in upstream direction
               'min_from_ch',... % shortest from channelhead
               'max_from_ch',... % longest from channelhead
               'mean_from_ch',... % mean distance from channelheads
-              'nr_of_ch'...
+              'nr_of_ch',...
+              'node_to_node'...
               };
           
 type = validatestring(type,validtypes,'distance','type',2);
@@ -50,6 +53,13 @@ d = nan(size(S.x));
 
 % distance between two nodes
 dedge = sqrt((S.x(S.ixc)-S.x(S.ix)).^2 + (S.y(S.ixc)-S.y(S.ix)).^2);
+
+switch type
+    case 'node_to_node'
+        d(:) = 0;
+        d(S.ix) = dedge;
+        return
+end
 
 % identify channel heads
 M  = sparse(double(S.ix),double(S.ixc),true,numel(d),numel(d));
