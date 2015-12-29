@@ -38,7 +38,7 @@ function z = cumtrapz(S,G)
 % See also: STREAMobj, STREAMobj/gradient
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. November, 2015
+% Date: 29. December, 2015
 
 
 % get node attribute list with elevation values
@@ -55,6 +55,5 @@ z = zeros(size(g));
 d = distance(S,'node_to_node');
 
 for r = numel(S.ix):-1:1;
-    z(S.ix(r)) = z(S.ixc(r)) + g(S.ix(r))*d(S.ix(r));
+    z(S.ix(r)) = z(S.ixc(r)) + (g(S.ixc(r))+(g(S.ix(r))-g(S.ixc(r)))/2)*d(S.ix(r));
 end
-
