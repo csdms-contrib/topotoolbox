@@ -55,7 +55,9 @@ of each function (help function).
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plot3
 - new function: STREAMobj/cumtrapz
-
+- modification: STREAMobj/modify includes option rmconncomps
+- new function: STREAMobj/conncomps
+- new function: STREAMobj/isnal
 
 ***
 
