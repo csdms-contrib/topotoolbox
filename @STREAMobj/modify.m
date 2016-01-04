@@ -26,11 +26,15 @@ function S = modify(S,varargin)
 %     greater or equal than 3. Other commands may be '==5', '<5', etc.
 %
 %     'distance' scalar or [2x1] vector
-%     let's you define a minimum and maximum distance from which the stream 
+%     lets you define a minimum and maximum distance from which the stream 
 %     network starts and ends based on the distances given in S. A scalar is
 %     interpreted as minimum upstream distance and a two element vector is
 %     interpreted as minimum and maximum upstream distance to which the
 %     stream network is cut.
+%
+%     'maxdsdistance' scalar
+%     modifies the stream network that only the portion of the network is
+%     retained that is within downstream distance of the the channelheads.
 %
 %     'upstreamto' logical GRIDobj
 %     returns the stream network upstream to true pixels in the logical
@@ -45,6 +49,11 @@ function S = modify(S,varargin)
 %     (e.g. a fault), the foreground (true pixels) should be 4 connected.
 %     Use bwmorph(I.Z,'diag') to establish 4-connectivity in a logical
 %     raster I.
+%
+%     'rmconncomps' scalar
+%     removes connected components (individual stream 'trees') of the
+%     entire network with a maximum distance in map units less than the 
+%     specified value.
 %
 %     'tributaryto' instance of STREAMobj
 %     returns the stream network that is tributary to a stream (network) 
@@ -69,7 +78,7 @@ function S = modify(S,varargin)
 % Examples
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD = FLOWobj(DEM,'mex',true,'preprocess','carve');
+%     FD = FLOWobj(DEM,'preprocess','carve');
 %     S  = STREAMobj(FD,flowacc(FD)>1000);
 %
 %     % Extract the stream network that is tributary to the main trunk
@@ -95,7 +104,7 @@ function S = modify(S,varargin)
 % See also: STREAMobj, STREAMobj/trunk
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. Feb., 2015
+% Date: 4. January, 2016
 
 narginchk(3,3)
 
@@ -106,20 +115,21 @@ addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 
 addParamValue(p,'streamorder',[]);
 addParamValue(p,'distance',[],@(x) isnumeric(x) && numel(x)<=2);
-addParamValue(p,'maxdistance',[],@(x) isscalar(x));
+addParamValue(p,'maxdsdistance',[],@(x) isscalar(x) && x>0);
 addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
 addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj'));
 addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj'));
+addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0);
 
 parse(p,S,varargin{:});
 S   = p.Results.S;
 
-   
+
 if ~isempty(p.Results.streamorder)
-    
+%% streamorder    
     so = streamorder(S);
     if isnumeric(p.Results.streamorder)
         validateattributes(p.Results.streamorder,{'numeric'},...
@@ -143,11 +153,12 @@ if ~isempty(p.Results.streamorder)
         I = relop(so,sothres);
         
     end
-    
+
+
 elseif ~isempty(p.Results.distance);
-    
-    distance = S.distance;
-    maxdist  = max(distance);
+%% distance        
+    d = S.distance;
+    maxdist  = max(d);
     distrange = p.Results.distance;
     
     
@@ -164,9 +175,15 @@ elseif ~isempty(p.Results.distance);
     end
         
     
-    I = distance>=distrange(1) & distance<=distrange(2);               % + norm([S.cellsize S.cellsize]);
+    I = d>=distrange(1) & d<=distrange(2);               % + norm([S.cellsize S.cellsize]);
+    
+elseif ~isempty(p.Results.maxdsdistance);
+%% maximmum downstream distance    
+    d = distance(S,'min_from_ch');
+    I = d <= p.Results.maxdsdistance;
     
 elseif ~isempty(p.Results.upstreamto);
+%% upstream to    
     
     II = p.Results.upstreamto;
     validateattributes(II,{'GRIDobj'},{'scalar'});
@@ -179,7 +196,7 @@ elseif ~isempty(p.Results.upstreamto);
     end
         
 elseif ~isempty(p.Results.downstreamto);
-    
+%% downstream to    
     II = p.Results.downstreamto;
     validateattributes(II,{'GRIDobj'},{'scalar'});
     validatealignment(S,II);
@@ -191,6 +208,7 @@ elseif ~isempty(p.Results.downstreamto);
     end
 
 elseif ~isempty(p.Results.tributaryto);
+%% tributary to
     Strunk = p.Results.tributaryto;
     
     II = ismember(S.IXgrid,Strunk.IXgrid);
@@ -200,19 +218,28 @@ elseif ~isempty(p.Results.tributaryto);
     end
 
 elseif ~isempty(p.Results.tributaryto2)
+%% tributary to 2
     Strunk = p.Results.tributaryto2;
     [~,~,~,S] = intersectlocs(Strunk,S);
     return
     
 elseif ~isempty(p.Results.shrinkfromtop)
+%% shrink from top
     I = double(streampoi(S,'channelheads','logical'));
     for r = 1:numel(S.ix);
         I(S.ixc) = max(I(S.ix)+1,I(S.ixc));
     end
     I = I>p.Results.shrinkfromtop;
     
-elseif ~isempty(p.Results.interactive);
+elseif ~isempty(p.Results.rmconncomps)
+%% remove connected conn comps
+    cc = conncomps(S);
+    d  = S.distance;
+    md = find(accumarray(cc,d,[max(cc) 1],@max) > p.Results.rmconncomps);
+    I = ismember(cc,md);
     
+elseif ~isempty(p.Results.interactive);
+%% interactive    
     figure
     plot(S,'k'); axis image
     
@@ -261,6 +288,7 @@ elseif ~isempty(p.Results.interactive);
     end
 end
 
+%% clean up
 if exist('I','var');
 
 L = I;
@@ -288,7 +316,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SUBFUNCTIONS %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 function posn = getnearest(pos)
     % GETNEAREST  snap to nearest location on stream network
     [~,ix] = min((S.x-pos(1)).^2 + (S.y-pos(2)).^2);
