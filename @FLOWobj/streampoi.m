@@ -35,7 +35,7 @@ function OUT = streampoi(FD,WW,type,outformat)
 % See also: FLOWobj, FLOWobj/flowacc, FLOWobj, STREAMobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 4. March, 2016
 
 
 %% check input arguments
@@ -105,9 +105,9 @@ switch lower(outformat)
         OUT.name  = type;
     case 'xy'
         TEMP = copy2GRIDobj(FD);
-        [OUT(:,1) OUT(:,2)] = ind2coord(TEMP,find(V));
+        [OUT(:,1), OUT(:,2)] = ind2coord(TEMP,find(V));
     case 'rc'
-        [OUT(:,1) OUT(:,2)] = find(V);
+        [OUT(:,1), OUT(:,2)] = find(V);
     case 'ix'
         OUT = find(V);
 end

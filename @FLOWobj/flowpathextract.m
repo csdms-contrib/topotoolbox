@@ -28,7 +28,7 @@ function [ixchannel,d,x,y] = flowpathextract(FD,ixchannel,A,stopcrit)
 %     usually be a minimum upslope area in the same units as A. 
 %     
 %     Be advised that the algorithm uses rand to avoid the extraction of 
-%     multiple paths and thus flow path may vary for same inputs. The 
+%     multiple paths and thus flow paths may vary for same inputs. The 
 %     intercell variability in the weight raster should thus be at best
 %     larger than one. Otherwise, the flow path will be highly random.
 %
@@ -81,9 +81,13 @@ switch type
         end
         
         r = 1;
-        while FD.ixcix(ixchannel) ~= 0
+        
+        ixcix = FD.ixcix;
+        ixc   = FD.ixc;
+        
+        while ixcix(ixchannel) ~= 0
             r = r+1;
-            ixchannel(r) = FD.ixc(FD.ixcix(ixchannel(end)));
+            ixchannel(r) = ixc(ixcix(ixchannel(end)));
         end
         
     case 'upstream'

@@ -1,5 +1,6 @@
 # TopoToolbox - a set of Matlab functions for topographic analysis
 
+<img src="https://github.com/wschwanghart/topotoolbox/blob/master/topotoolbox.jpg" align="center" height="100">
 
 TopoToolbox provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
@@ -39,9 +40,9 @@ Before working with TopoToolbox the functions need to be on the search
 path of Matlab. Enter following code into the command line:
 
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\tools_and_more
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\utilities
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
-		addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
 
 You may then either look at the user's guide to get an idea of how the 
 toolbox works or you may run some of the many examples in the help block
@@ -51,8 +52,10 @@ of each function (help function).
 ## Version History
 
 2.2 pre
+- modification: GRIDobj way to store referencing information was changed
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
+- new function: GRIDobj/pad
 - new function: STREAMobj/distance
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plot3
@@ -60,7 +63,15 @@ of each function (help function).
 - modification: STREAMobj/modify includes option rmconncomps
 - new function: STREAMobj/conncomps
 - new function: STREAMobj/isnal
+- new function: STREAMobj/info
+- new function: STREAMobj/plotstreamorder
+- modification: STREAMobj/streamorder plotting option removed
+- modification: STREAMobj/plotdz includes custom distance option
+- modification: STREAMobj/distance includes option to derive distance from different
+  STREAMobj
 - new function: FLOWobj/FLOWobj2cell
+- update to several FLOWobj methods to avoid speed loss for MATLAB versions newer
+  than R2015b
 
 ***
 

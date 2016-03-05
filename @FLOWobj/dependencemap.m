@@ -34,6 +34,9 @@ function OUT = dependencemap(FD,varargin)
 % Date: 5. January, 2013
 
 
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
+
 
 %% check input arguments
 narginchk(1,3)
@@ -73,8 +76,10 @@ end
 
 if ~(exist(['dependencemap_mex.' mexext],'file') == 3);
     % m implementation
-    for r = numel(FD.ix):-1:1;
-        SEED(FD.ix(r)) = SEED(FD.ix(r)) || SEED(FD.ixc(r));
+    ixtemp  = FD.ix;
+    ixctemp = FD.ixc;
+    for r = numel(ixtemp):-1:1;
+        SEED(ixtemp(r)) = SEED(ixtemp(r)) || SEED(ixctemp(r));
     end
     
 else

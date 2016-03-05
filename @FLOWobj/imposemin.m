@@ -36,29 +36,37 @@ function DEM = imposemin(FD,DEM,sl)
 %
 % 
 %
-% See also: FLOWobj
+% See also: STREAMobj/imposemin
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 10. February, 2012
+% Date: 4. March, 2016
+
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
 
 
 narginchk(2,3)
 validatealignment(FD,DEM);
 dem = DEM.Z;
 
+ix = FD.ix;
+ixc = FD.ixc;
+
 if nargin == 2;    
-    for r = 1:numel(FD.ix);
-        dem(FD.ixc(r)) = min(dem(FD.ix(r)),dem(FD.ixc(r)));
+    for r = 1:numel(ix);
+        dem(ixc(r)) = min(dem(ix(r)),dem(ixc(r)));
     end
     
 elseif nargin == 3;
     d = getdistance(FD.ix,FD.ixc,FD.size,FD.cellsize);
     d = d*sl;
-    for r = 1:numel(FD.ix);
-        dem(FD.ixc(r)) = min(dem(FD.ix(r))-d(r),dem(FD.ixc(r)));
+    for r = 1:numel(ix);
+        dem(ixc(r)) = min(dem(ix(r))-d(r),dem(ixc(r)));
     end
 end
 
 DEM.Z = dem;
+DEM.name = [DEM.name ' - imposemin'];
 
 

@@ -65,7 +65,14 @@ elseif nargin >= 2;
         
         if nargin == 3
             validateattributes(varargin{2},{'numeric'},{'scalar'},'crop','fillval',3);
-            DEM.Z(~MASK) = varargin{2};
+            if isnan(varargin{2}) && ~(isa(DEM.Z,'single') || isa(DEM.Z,'double')) 
+                DEM.Z(~MASK) = 0;
+                warning('TopoToolbox:GRIDobj',...
+                    ['fillval set to zero since data type of the input grid\newline' ...
+                     'does not support nans'])
+            else
+                DEM.Z(~MASK) = varargin{2};
+            end
         end
         MASK = bwperim(MASK);
         IX  = find(MASK);
@@ -166,14 +173,16 @@ demc = reshape(subsref(dem,S),sizout);
 y    = y(S.subs{1});
 x    = x(S.subs{2});
 
-DEMc      = GRIDobj(x,y,demc);
-DEMc.name = [DEM.name ' (cropped)'];
+DEMc       = GRIDobj(x,y,demc);
+DEMc.name  = [DEM.name ' (cropped)'];
+DEMc.zunit = DEM.zunit;
+DEMc.xyunit = DEM.xyunit;
 
 if ~isempty(DEM.georef)
     DEMc.georef = DEM.georef;
-    DEMc.georef.RefMatrix = DEMc.refmat;
-    DEMc.georef.Height = DEMc.size(1);
-    DEMc.georef.Width  = DEMc.size(2);
+%     DEMc.georef.RefMatrix = DEMc.refmat;
+%     DEMc.georef.Height = DEMc.size(1);
+%     DEMc.georef.Width  = DEMc.size(2);
     
     DEMc.georef.SpatialRef = refmatToMapRasterReference(DEMc.refmat, DEMc.size);
     

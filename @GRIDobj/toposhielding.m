@@ -1,5 +1,5 @@
 function OUT = toposhielding(DEM,varargin)
-%TOPOSHIELDING topographic shielding from cosmic rays
+% topographic shielding from cosmic rays
 %
 % Syntax
 %     
@@ -30,8 +30,8 @@ function OUT = toposhielding(DEM,varargin)
 % Input arguments
 %
 %     DEM       digital elevation model (GRIDobj)
-%     dphi      horizontal angular increment
-%     dtheta    vertical angular increment
+%     dphi      horizontal angular increment (default=5°)
+%     dtheta    vertical angular increment (default=5°)
 %
 % Output arguments
 %

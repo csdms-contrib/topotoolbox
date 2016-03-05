@@ -34,6 +34,9 @@ function h = plotdz(S,DEM,varargin)
 %     'color': {'b'}
 %     line colors as provided to plot
 %
+%     'distance': {S.distance}
+%     node attribute list with custom distances (see STREAMobj/distance)
+%
 %     'dunit': {'m'} 'km'
 %     distance unit. plotdz assumes that distance is given in meter. 
 %
@@ -69,7 +72,7 @@ function h = plotdz(S,DEM,varargin)
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. Feb, 2015
+% Date: 4. March, 2016
 
 nrnodes = numel(S.x);
 
@@ -82,6 +85,7 @@ addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParamValue(p,'annotation',[])
 addParamValue(p,'color','b');
 addParamValue(p,'annotationtext',{});
+addParamValue(p,'distance',[],@(x) isnal(S,x));
 addParamValue(p,'gradient',false,@(x) isscalar(x));
 addParamValue(p,'smooth',false,@(x) isscalar(x));
 addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
@@ -99,7 +103,13 @@ end
 
 % get dynamic properties of S
 order    = S.orderednanlist;
-distance = S.distance;
+
+if isempty(p.Results.distance);
+    distance = S.distance;
+else
+    distance = p.Results.distance;
+end
+
 
 switch lower(p.Results.dunit);
     case 'km'
@@ -155,8 +165,8 @@ end
 
 % plot
 ht = plot(d,z,'-','Color',p.Results.color);  
-xlabel(['distance upstream [' lower(p.Results.dunit) ']'])
-ylabel('elevation [m]')
+xlabel(['Distance upstream [' lower(p.Results.dunit) ']'])
+ylabel('Elevation [m]')
 
 %% Annotation
 if ~isempty(p.Results.annotation);

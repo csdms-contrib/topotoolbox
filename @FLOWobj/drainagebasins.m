@@ -74,7 +74,13 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %           GRIDobj/shufflelabel
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 10. February, 2012
+% Date: 4. March, 2016
+
+
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
+
 
 
 narginchk(1,3);
@@ -84,23 +90,28 @@ if strcmpi(FD.type,'multi');
         'drainage basins are not defined for multiple flow directions');
 end
 
+% create temporary indices to gain speed with R2015b and later
+ixtemp  = FD.ix;
+ixctemp = FD.ixc;
+
+
 if exist(['drainagebasins_mex.' mexext],'file')==3 && ...
    nargout==1 && nargin == 1;
     % Use mex-file
-    D = drainagebasins_mex(FD.ix,FD.ixc,FD.size);
+    D = drainagebasins_mex(ixtemp,ixctemp,FD.size);
     
 elseif nargin == 1;
     % Don't use mex-file
     DBcounter = 0;
     D = zeros(FD.size,'uint32');
 
-    for r = numel(FD.ix):-1:1;
-        if D(FD.ixc(r)) == 0;
+    for r = numel(ixtemp):-1:1;
+        if D(ixctemp(r)) == 0;
             DBcounter = DBcounter+1;
-            D(FD.ixc(r)) = DBcounter;
-            outlets(DBcounter) = FD.ixc(r);
+            D(ixctemp(r)) = DBcounter;
+            outlets(DBcounter) = ixctemp;
         end
-        D(FD.ix(r)) = D(FD.ixc(r));
+        D(ixtemp(r)) = D(ixctemp(r));
     end
 elseif nargin > 1;
     % ix,x and y, or Stream order grid and stream order are supplied
@@ -117,8 +128,8 @@ elseif nargin > 1;
             S = varargin{1};
             % find seed pixels for specific stream order
             S.Z(S.Z ~= varargin{2}) = 0;            
-            I = (S.Z(FD.ix) & ~S.Z(FD.ixc));
-            IX = FD.ix(I);
+            I = (S.Z(ixtemp) & ~S.Z(ixctemp));
+            IX = ixtemp(I);
         else
             % SEED pixels are supplied as coordinate pairs
             IX   = coord2ind(FD,varargin{1},varargin{2});
@@ -128,9 +139,9 @@ elseif nargin > 1;
     D = zeros(FD.size,'uint32');
     D(IX) = cast(1:numel(IX),'uint32');
         
-    for r = numel(FD.ix):-1:1;
-        if D(FD.ixc(r)) ~= 0 && D(FD.ix(r))==0;
-            D(FD.ix(r)) = D(FD.ixc(r));
+    for r = numel(ixtemp):-1:1;
+        if D(ixctemp(r)) ~= 0 && D(ixtemp(r))==0;
+            D(ixtemp(r)) = D(ixctemp(r));
         end
     end
     
@@ -147,7 +158,7 @@ OUT.name  = 'drainage basins';
 if nargout == 2;
     varargout{1} = outlets;
 elseif nargout == 3;
-    [x,y] = ind2coord(FD,outlets);
+    [x,y] = ind2coord(S,outlets);
     varargout{1} = x;
     varargout{2} = y;
 end

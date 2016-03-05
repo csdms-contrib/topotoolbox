@@ -48,6 +48,7 @@ function rgb = imageschs(DEM,A,varargin)
 %     nancolor    three element vector (rgb) with values between 0 and 1  
 %                 that indicates how NaNs and Infs are plotted 
 %                 Default is [1 1 1].
+%     medfilt     use median filter to smooth hillshading (default=false)
 %     azimuth     azimuth angle of illumination, (default=315)
 %     altitude    altitude angle of illumination, (default=60)
 %     exaggerate  elevation exaggeration (default=2). Increase to
@@ -105,7 +106,7 @@ function rgb = imageschs(DEM,A,varargin)
 % See also: HILLSHADE
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. June, 2015
+% Date: 4. March, 2016
 
 
 % Change log
@@ -114,7 +115,6 @@ function rgb = imageschs(DEM,A,varargin)
 %            replaced with
 %            A = gray2ind(mat2gray(A,alims),ncolors);
 % 02.6.2015: changed help and updated to R2014b
-
 
 
 narginchk(1,inf);
@@ -136,6 +136,7 @@ defaultexaggerate = 1;
 defaultazimuth  = 315;
 defaultaltitude = 60;
 defaultcolorbar = true;
+defaultmedfilt  = false;
 % -----------------------------------
 %%
 
@@ -155,6 +156,7 @@ addParamValue(p,'exaggerate',defaultexaggerate,@(x) isscalar(x) && x>0);
 addParamValue(p,'azimuth',defaultazimuth ,@(x) isscalar(x) && x>0);
 addParamValue(p,'altitude',defaultaltitude,@(x) isscalar(x) && x>0);
 addParamValue(p,'colorbar',defaultcolorbar,@(x) isscalar(x));
+addParamValue(p,'medfilt',defaultmedfilt,@(x) isscalar(x));
 addParamValue(p,'ticklabels','default',@(x) ischar(x));
 addParamValue(p,'gridmarkers',[],@(x) numel(x) == 1 || numel(x) == 2);
 addParamValue(p,'gridmarkercolor','k');
@@ -204,6 +206,12 @@ if any(Inan(:))
 else
     clear Inan
 end
+
+% median filtering, if required
+if p.Results.medfilt
+    H = medfilt2(H,[3 3],'symmetric');
+end
+
 H = gray2ind(H,nhs);
 
 % derive coloring

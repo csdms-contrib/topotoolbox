@@ -36,7 +36,12 @@ function OUT = influencemap(FD,varargin)
 % See also: FLOWobj, FLOWobj/DEPENDENCEMAP
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 4. March, 2016
+
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
+
 
 
 
@@ -66,8 +71,10 @@ elseif nargin == 3;
 end
 
 %% Do calculation
+ixtemp  = FD.ix;
+ixctemp = FD.ixc;
 for r = 1:numel(FD.ix);
-    SEED(FD.ixc(r)) = SEED(FD.ix(r)) || SEED(FD.ixc(r));
+    SEED(ixctemp(r)) = SEED(ixtemp(r)) || SEED(ixctemp(r));
 end
 
 %% Prepare Output

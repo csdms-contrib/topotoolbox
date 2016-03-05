@@ -26,7 +26,7 @@ function GRIDobj2geotiff(A,file)
 % 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 21. April, 2013
+% Date: 20. February, 2015
 
 narginchk(1,2)
 
@@ -46,7 +46,7 @@ try
         geotiffwrite(file,A.Z,A.refmat);
     else
         geotiffwrite(file,A.Z,A.georef.SpatialRef,...
-            'GeoKeyDirectoryTag',A.georef.GeoTIFFTags.GeoKeyDirectoryTag);
+            'GeoKeyDirectoryTag',A.georef.GeoKeyDirectoryTag);
     end
 catch ME
     warning('TopoToolbox:GRIDobj',...

@@ -132,7 +132,7 @@ for r = 1:ndb;
     [x,y] = sub2coord(DB,C(:,1),C(:,2));
     MS(counter).X = x;
     MS(counter).Y = y;
-    MS(counter).ID = DB.Z(STATS(r).PixelIdxList(1));
+    MS(counter).ID = double(DB.Z(STATS(r).PixelIdxList(1)));
 end
 
 % create coordinate vectors if more than one output

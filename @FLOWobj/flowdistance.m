@@ -40,13 +40,19 @@ function OUT = flowdistance(FD,varargin)
 %
 % Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     D = flowdistance(FD);
+%     imageschs(DEM,D)
 %
 % See also: FLOWobj, FLOWobj/flowacc, GRIDobj
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 25. January, 2013
+% Date: 4. March, 2016
 
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
 
 %% check input arguments
 
@@ -54,7 +60,7 @@ narginchk(1,4)
 
 % check if last input argument is a string 
 if ~isempty(varargin) && ischar(varargin{end})
-    direction = validatestring(varargin{end},{'upstream','downstream'});
+    direction = validatestring(varargin{end},{'upstream','downstream','maxdownstream','mindownstream'});
     nrargsin = nargin - 1;
 else
     direction = 'upstream';
@@ -97,35 +103,37 @@ if ~strcmpi(FD.type,'single')
 end
 
 %% Do calculation
-DIST = getdistance(FD.ix,FD.ixc,FD.size,FD.cellsize);
-
+ixtemp  = FD.ix;
+ixctemp = FD.ixc;
+DIST = getdistance(ixtemp,ixctemp,FD.size,FD.cellsize,'single');
+cl   = class(DIST);
 switch direction
     case 'upstream'
         %% Upstream distance calculation
         if nrargsin == 1;
-            D     = zeros(FD.size);
-            start = numel(FD.ix);
+            D     = zeros(FD.size,cl);
+            start = numel(ixtemp);
             for r = start:-1:1;
-                D(FD.ix(r)) = D(FD.ixc(r))+DIST(r);
+                D(ixtemp(r)) = D(ixctemp(r))+DIST(r);
             end
         else
-            D     = inf(FD.size);
+            D     = inf(FD.size,cl);
             D(SEED) = 0;
-            start = find(SEED(FD.ixc),1,'last');
+            start = find(SEED(ixctemp),1,'last');
             for r = start:-1:1;
-                D(FD.ix(r)) = min(D(FD.ixc(r))+DIST(r),D(FD.ix(r)));
+                D(ixtemp(r)) = min(D(ixctemp(r))+DIST(r),D(ixtemp(r)));
             end
             
             D(isinf(D)) = nan;
         end
-    case 'downstream'
+    case {'downstream' 'maxdownstream'}
         
         %% Downstream distance calculation
         
         if nrargsin == 1
-            D = zeros(FD.size);
+            D = zeros(FD.size,cl);
         else
-            D = -inf(FD.size);
+            D = -inf(FD.size,cl);
             D(SEED) = 0;
         end
         
@@ -135,6 +143,15 @@ switch direction
         
         if nrargsin >= 2;
             D(isinf(D)) = nan;
+        end
+    case 'mindownstream'
+              
+        
+        D = inf(FD.size,cl);
+        D(SEED) = 0;
+        
+        for r = 1:numel(ixtemp);
+            D(ixctemp(r)) = min(D(ixtemp(r))+DIST(r),D(ixctemp(r)));
         end
 end
 

@@ -16,7 +16,7 @@ function OUT = flowacc(FD,W0,RR)
 %     A = flowacc(FD).*(FD.cellsize^2).
 %
 %     The second input argument can be used to define spatially variable
-%     weights into the flow accumulation e.g. to simulate spatially
+%     weights into the flow accumulation e.g., to simulate spatially
 %     variable precipitation patterns.
 %
 %     The third input argument is the runoff ratio. By default, the runoff
@@ -36,13 +36,21 @@ function OUT = flowacc(FD,W0,RR)
 %
 % Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     A = flowacc(FD);
+%     imageschs(DEM,sqrt(A))
+%     
 % 
 % See also: FLOWobj, GRIDobj, FLOWobj/drainagebasins
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 4. March, 2016
   
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% https://topotoolbox.wordpress.com/2015/10/28/good-and-possibly-bad-news-about-the-latest-matlab-r2015b-release/comment-page-1/#comment-127
+
 
 % check input arguments
 narginchk(1,3)
@@ -74,14 +82,17 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
             RR = RR.Z;
         end   
     end
-        
+    
+    % copies of ix and ixc to increase speed with 2015b
+    ix = FD.ix;
+    ixc = FD.ixc;
     
     switch FD.type
         case 'single'
             if nargin < 3
                 
-                for r = 1:numel(FD.ix);
-                    A(FD.ixc(r)) = A(FD.ix(r))+A(FD.ixc(r));
+                for r = 1:numel(ix);
+                    A(ixc(r)) = A(ix(r))+A(ixc(r));
                 end
             else
                 if isscalar(RR);
@@ -94,17 +105,16 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
                     %       = exp(RR*(x1-x2))
                     %       = exp(RR*dx)
                     
-                    dx = getdistance(FD.ix,FD.ixc,FD.size,FD.cellsize);
+                    dx = getdistance(ix,ixc,FD.size,FD.cellsize);
                     RR = exp(RR*dx);
                     clear dx
                     
-                    for r = 1:numel(FD.ix);
-% 						A(FD.ixc(r)) = A(FD.ix(r))*RR(r)+A(FD.ixc(r));
-                        A(FD.ixc(r)) = max(A(FD.ix(r))*RR(r),A(FD.ixc(r)));
+                    for r = 1:numel(ix);
+						A(ixc(r)) = A(ix(r))*RR(r)+A(ixc(r));
                     end
                 else
-                    for r = 1:numel(FD.ix);
-                        A(FD.ixc(r)) = A(FD.ix(r))*RR(FD.ix(r)) + A(FD.ixc(r));
+                    for r = 1:numel(ix);
+                        A(ixc(r)) = A(ix(r))*RR(ix(r)) + A(ixc(r));
                     end
                 end
                 
@@ -112,13 +122,14 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
             end
             
         case 'multi'
+            fraction = FD.fraction;
             if nargin < 3
-                for r = 1:numel(FD.ix);
-                    A(FD.ixc(r)) = A(FD.ix(r))*FD.fraction(r) + A(FD.ixc(r));
+                for r = 1:numel(ix);
+                    A(ixc(r)) = A(ix(r))*fraction(r) + A(ixc(r));
                 end
             else
-                for r = 1:numel(FD.ix);
-                    A(FD.ixc(r)) = A(FD.ix(r))*FD.fraction(r)*RR(FD.ix(r)) + A(FD.ixc(r));
+                for r = 1:numel(ix);
+                    A(ixc(r)) = A(ix(r))*fraction(r)*RR(ix(r)) + A(ixc(r));
                 end
             end
     end
