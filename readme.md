@@ -1,6 +1,10 @@
 # TopoToolbox - a set of Matlab functions for topographic analysis
 
 <img src="https://github.com/wschwanghart/topotoolbox/blob/master/topotoolbox.jpg" align="center" height="100">
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 
 TopoToolbox provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
