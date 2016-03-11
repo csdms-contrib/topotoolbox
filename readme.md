@@ -60,6 +60,7 @@ of each function (help function).
 - new function: STREAMobj/distance
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plot3
+- new function: STREAMobj/chitransform
 - new function: STREAMobj/cumtrapz
 - modification: STREAMobj/modify includes option rmconncomps
 - new function: STREAMobj/conncomps
@@ -73,6 +74,7 @@ of each function (help function).
 - new function: FLOWobj/FLOWobj2cell
 - update to several FLOWobj methods to avoid speed loss for MATLAB versions newer
   than R2015b
+- removed bug in GRIDobj/curvature
 
 ***
 

@@ -54,6 +54,10 @@ end
 z = zeros(size(g));
 d = distance(S,'node_to_node');
 
-for r = numel(S.ix):-1:1;
-    z(S.ix(r)) = z(S.ixc(r)) + (g(S.ixc(r))+(g(S.ix(r))-g(S.ixc(r)))/2)*d(S.ix(r));
+ix  = S.ix;
+ixc = S.ixc;
+
+for r = numel(ix):-1:1;
+    z(ix(r)) = z(ixc(r)) + (g(ixc(r))+(g(ix(r))-g(ixc(r)))/2)*d(ix(r));
 end
+
