@@ -16,10 +16,11 @@ function C = curvature(DEM,ctype)
 % Input arguments
 %
 %     DEM    digital elevation model (GRIDobj)
-%     type   'profc' (default) : profile curvature 
-%            'planc' : planform curvature
-%            'tangc' : tangential curvature
-%            'meanc' : mean curvature
+%     type   'profc' (default) : profile curvature [m^(-1)]
+%            'planc' : planform curvature or contour curvature [m^(-1)]
+%            'tangc' : tangential curvature [m^(-1)]
+%            'meanc' : mean curvature [m^(-1)]
+%            'total' : total curvature [m^(-2)]
 %
 % Output arguments
 %
@@ -30,7 +31,7 @@ function C = curvature(DEM,ctype)
 %     Please note that curvature is not defined for cells with zero 
 %     gradient. Here, curvature is set to zero.
 %
-%     All formulas are according to Olaya (2009) on page 151-152.
+%     All formulas are according to Schmidt et al. (2003) on page 800.
 %
 % Example
 %
@@ -39,11 +40,12 @@ function C = curvature(DEM,ctype)
 %     C = curvature(DEM,'planc');
 %     imageschs(DEM,C)
 %
-% Reference: Olaya, V. (2009): Basic land-surface parameters. In: 
-%            Hengl, T. & Reuter, H. I. (Eds.), Geomorphometry. Concepts, 
-%            Software, Applications, Elsevier, 33, 141-169.
+% Reference: Schmidt, J., Evans, I.S., Brinkmann, J., 2003. Comparison of 
+% polynomial models for land surface curvature calculation. International 
+% Journal of Geographical Information Science 17, 797-814. 
+% doi:10.1080/13658810310001596058
 %
-% See also: GRADIENT8
+% See also: GRIDobj/gradient8
 %        
 % Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 4. January, 2013
@@ -54,7 +56,7 @@ narginchk(1,2);
 if nargin == 1
     ctype = 'profc';
 else
-    ctype = validatestring(ctype,{'profc','planc','tangc','meanc'});
+    ctype = validatestring(ctype,{'profc','planc','tangc','meanc','total'});
 end
 
 % create a copy of the DEM instance
@@ -99,7 +101,7 @@ else
 end
     
 % First-order partial derivatives:
-[p,q] = gradient(dem,cs);
+[fx,fy] = gradient(dem,cs);
 
 if correctedges
     dem = padarray(dem,[1 1],'symmetric');
@@ -112,13 +114,13 @@ end
 
 % kernel for d2z/dx2
 kernel = [1 -2 1; 1 -2 1; 1 -2 1]./(3*cs.^2);
-r = conv2(dem,kernel,shape);
+fxx = conv2(dem,kernel,shape);
 % kernel for d2z/dy2
 kernel = kernel';
-t = conv2(dem,kernel,shape);
+fyy = conv2(dem,kernel,shape);
 % kernel for d2z/dxy
 kernel = [-1 0 1; 0 0 0; 1 0 -1]./(4*cs.^2);
-s = conv2(dem,kernel,shape);
+fxy = conv2(dem,kernel,shape);
 
 
 %% Other options to calculate Second-order partial derivatives:
@@ -130,15 +132,18 @@ s = conv2(dem,kernel,shape);
 
 switch ctype
     case 'profc'
-        curv = - (p.^2 .* r + 2*p.*q.*s + q.^2.*t)./((p.^2 + q.^2).*(1 + p.^2 + q.^2).^(3));
+        curv = - (fx.^2 .* fxx + 2*fx.*fy.*fxy + fy.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2).^(3/2));
     case 'tangc'
-        curv = - (q.^2 .* r + 2*p.*q.*s + p.^2.*t)./((p.^2 + q.^2).*(1 + p.^2 + q.^2).^(3));
+        curv = - (fy.^2 .* fxx + 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2).^(1/2));
     case 'planc'
-        curv = - (q.^2 .* r + 2*p.*q.*s + p.^2.*t)./((1 + p.^2 + q.^2).^(3));
+        curv = - (fy.^2 .* fxx + 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).^(3/2));
     case 'meanc'
-        curv = (p.^2 .* r + 2*p.*q.*s + q.^2.*t)./((p.^2 + q.^2).*(1 + p.^2 + q.^2)) ...
-            - ((1+q).^2 .* r + 2*p.*q.*s + (1+p).^2.*t)./(2.*(1 + p.^2 + q.^2).^(3/2));
-        
+        curv = - ((1+fy.^2).*fxx - 2.*fxy.*fx.*fy + (1+fx.^2).*fyy)./ ...
+            (2.* (fx.^2+fy.^2+1).^(3/2));
+%         curv = (fx.^2 .* fxx + 2*fx.*fy.*fxy + fy.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2)) ...
+%             - ((1+fy).^2 .* fxx + 2*fx.*fy.*fxy + (1+fx).^2.*fyy)./(2.*(1 + fx.^2 + fy.^2).^(3/2));
+    case 'total'
+        curv = fxx.^2 + 2*fxy.^2+fyy.^2;
 end
 
 if correctedges
