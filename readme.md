@@ -56,6 +56,7 @@ of each function (help function).
 - modification: GRIDobj way to store referencing information was changed
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
+- new function: GRIDobj/zscore
 - new function: GRIDobj/pad
 - new function: STREAMobj/distance
 - new function: STREAMobj/plotc

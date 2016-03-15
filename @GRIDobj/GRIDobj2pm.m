@@ -43,7 +43,7 @@ function [X,ix,txt,txtname] = GRIDobj2pm(varargin)
 %     
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. November, 2015
+% Date: 15. March, 2016
 
 
 
@@ -61,7 +61,7 @@ for r=1:numel(varargin)
     txtname{r} = varargin{r}.name;
 end
 
-I  = any(~isnan(X),2);
+I  = ~any(isnan(X),2);
 ix = (1:numel(varargin{1}.Z))';
 
 X  = X(I,:);
