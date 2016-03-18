@@ -37,6 +37,10 @@ function rgb = imageschs(DEM,A,varargin)
 %     colorbar    false or true (default)
 %     caxis       two element vector defining the value range. Default is
 %                 [min(A) max(A)].  
+%     percentclip scalar prc (%) that truncates the displayed range to  
+%                 the prc's and 100%-prc's percentile of the data in A.
+%                 This parameter is ignored if 'caxis' is defined.
+%                 Default is prc=0.
 %     truecolor   three element vector (rgb) with values between 0 and 1  
 %                 that indicates how true values are plotted if A is 
 %                 logical.
@@ -97,6 +101,13 @@ function rgb = imageschs(DEM,A,varargin)
 %     imageschs(DEM,L,'ticklabels','nice','colorbar',true,...
 %                       'truecolor',[1 0 0],'falsecolor',[0 0 1]);
 %
+% Example 7: Calculate hillshade RGB and export as geotiff
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     RGB = imageschs(DEM);
+%     geotiffwrite('file.tif',RGB,DEM.georef.SpatialRef,...
+%            'GeoKeyDirectoryTag',DEM.georef.GeoKeyDirectoryTag);
+%
 % References
 %
 %     Katzil, Y., Doytsher, Y. (2003): A logarithmic and sub-pixel approach
@@ -115,6 +126,8 @@ function rgb = imageschs(DEM,A,varargin)
 %            replaced with
 %            A = gray2ind(mat2gray(A,alims),ncolors);
 % 02.6.2015: changed help and updated to R2014b
+% 04.3.2016: added option medfilt and added example
+% 18.3.2016: added option percentclip
 
 
 narginchk(1,inf);
@@ -149,6 +162,7 @@ addRequired(p,'A',@(x) isa(x,'GRIDobj') || ismatrix(A));
 % optional
 addParamValue(p,'colormap',defaultcolormap,@(x)(ischar(x) || size(x,2)==3));
 addParamValue(p,'caxis',[],@(x) numel(x) == 2);
+addParamValue(p,'percentclip',[],@(x) isscalar(x) && x>=0 && x<50);
 addParamValue(p,'truecolor',defaulttruecolor,@(x) isequal(size(x),[1 3]) && (max(x)<=1) && (min(x) >= 0));
 addParamValue(p,'falsecolor',defaultfalsecolor,@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
 addParamValue(p,'nancolor',defaultnancolor,@(x) isequal(size(x),[1 3]) && (max(x(:))<=1) && (min(x(:)) >= 0));
@@ -188,6 +202,19 @@ end
 if ~isempty(p.Results.caxis)
     A(A<p.Results.caxis(1)) = p.Results.caxis(1);
     A(A>p.Results.caxis(2)) = p.Results.caxis(2);
+elseif ~isempty(p.Results.percentclip)
+    qclip = p.Results.percentclip/100;
+    [n,edges] = histcounts(A(~isnan(A(:))),'Normalization','cdf');
+    lval = edges(find(n>=qclip,1,'first'));
+    uval = edges(find(n<(1-qclip),1,'last'));
+    if lval == uval
+        warning('TopoToolbox:imageschs','percent clip returns flat matrix');
+        A(:,:) = lval;
+    else
+        A = max(A,lval);
+        A = min(A,uval);
+    end
+        
 end
 
 % coordinate matrices
