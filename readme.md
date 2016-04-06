@@ -54,6 +54,7 @@ of each function (help function).
 
 2.2 pre
 - modification: GRIDobj way to store referencing information was changed
+- modification: several new options for imageschs
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
 - new function: GRIDobj/zscore

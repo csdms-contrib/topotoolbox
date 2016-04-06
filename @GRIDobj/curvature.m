@@ -38,7 +38,7 @@ function C = curvature(DEM,ctype)
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     DEM = filter(DEM);
 %     C = curvature(DEM,'planc');
-%     imageschs(DEM,C)
+%     imageschs(DEM,C,'percentclip',0.1)
 %
 % Reference: Schmidt, J., Evans, I.S., Brinkmann, J., 2003. Comparison of 
 % polynomial models for land surface curvature calculation. International 
@@ -48,7 +48,7 @@ function C = curvature(DEM,ctype)
 % See also: GRIDobj/gradient8
 %        
 % Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. January, 2013
+% Date: 3. April, 2016
 
 
 % check input arguments
