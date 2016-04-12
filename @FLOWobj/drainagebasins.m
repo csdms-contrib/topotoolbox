@@ -109,7 +109,7 @@ elseif nargin == 1;
         if D(ixctemp(r)) == 0;
             DBcounter = DBcounter+1;
             D(ixctemp(r)) = DBcounter;
-            outlets(DBcounter) = ixctemp;
+            outlets(DBcounter) = ixctemp(r);
         end
         D(ixtemp(r)) = D(ixctemp(r));
     end
