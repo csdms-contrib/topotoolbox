@@ -1,5 +1,5 @@
 function h = plotdz(SW,varargin)
-% plot instance of SWATHobj in profile view
+% PLOTDZ creates distance-elevation plot of SWATHobj
 %
 % Syntax
 %
@@ -56,6 +56,9 @@ function h = plotdz(SW,varargin)
 % Date: June, 2013
 
 
+% ADD: plot min, max only...
+% plotdz(SW,DEM,'stats','min',... oder , {'min','max','median',@myfct}
+
 % Parse inputs
 p = inputParser;
 p.FunctionName = 'plotdz';
@@ -78,21 +81,21 @@ if ~left && ~right
     return;
 end
 
-for i = 1 : length(SW.xy0)
-
+% for i = 1 : length(SW.xy0)
+    %figure
     if ~left
-        ny = ceil(length(SW.disty{i})/2)+1; % assume all disty are the same
-        SW.Z{i} = SW.Z{i}(ny:end,:);
+        ny = ceil(length(SW.disty)/2)+1; % assume all disty are the same
+        SW.Z = SW.Z(ny:end,:);
     elseif ~right
-        ny = floor(length(SW.disty{i})/2);
-        SW.Z{i} = SW.Z{i}(1:ny,:);
+        ny = floor(length(SW.disty)/2);
+        SW.Z = SW.Z(1:ny,:);
     end
     
-    z_min = nanmin(SW.Z{i},[],1);
-    z_max = nanmax(SW.Z{i},[],1);
-    z_mean = nanmean(SW.Z{i},1)';
-    z_std = nanstd(SW.Z{i},0,1)';
-    dist = SW.distx{i}+distadjust;
+    z_min = nanmin(SW.Z,[],1);
+    z_max = nanmax(SW.Z,[],1);
+    z_mean = nanmean(SW.Z,1)';
+    z_std = nanstd(SW.Z,0,1)';
+    dist = SW.distx+distadjust;
     if exist('boundedline','file') && (boundedl)
         % Use plotting function 'boundedline', by Kelley Kearny, if
         % found in search path. Available from Matlab Central.
@@ -104,7 +107,7 @@ for i = 1 : length(SW.xy0)
         hp(2) = plot([dist;nan;dist],[z_mean-z_std;nan;z_mean+z_std],'b-');
         hp(3) = plot([dist;nan;dist],[z_min nan z_max],'c-');
     end
-end
+% end
 drawnow
 xlabel(sprintf('Distance along profile (%s)',SW.xyunit))
 ylabel(sprintf('Z (%s)',SW.zunit))
