@@ -69,6 +69,10 @@ of each function (help function).
 - new function: STREAMobj/isnal
 - new function: STREAMobj/info
 - new function: STREAMobj/plotstreamorder
+- new function: STREAMobj/split
+- new function: STREAMobj/networksegment
+- new function: STREAMobj/plotsegmentgeometry
+- new function: STREAMobj/randlocs
 - modification: STREAMobj/streamorder plotting option removed
 - modification: STREAMobj/plotdz includes custom distance option
 - modification: STREAMobj/distance includes option to derive distance from different
