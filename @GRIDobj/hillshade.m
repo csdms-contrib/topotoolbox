@@ -47,7 +47,7 @@ function OUT2 = hillshade(DEM,varargin)
 % See also: SURFNORM, IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. August, 2015
+% Date: 24. May, 2016
 
 
 
@@ -56,13 +56,12 @@ p = inputParser;
 p.StructExpand  = true;
 p.KeepUnmatched = false;
 p.FunctionName = 'hillshade'; 
-addRequired(p,'DEM',@(x) isequal(class(x),'GRIDobj'));
 addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>= 0 && x<=360);
 addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
 addParamValue(p,'blocksize',1000);
-parse(p,DEM,varargin{:});
+parse(p,varargin{:});
 
 OUT     = DEM;
 OUT.Z   = [];

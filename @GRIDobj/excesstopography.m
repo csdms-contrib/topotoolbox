@@ -16,7 +16,8 @@ function DEM = excesstopography(DEM,varargin)
 %    topography.
 %
 %    Note that this function takes a while to evaluate, especially if the
-%    DEM and kernelsize are large. Be sure that the kernel is large enough.
+%    DEM and kernelsize are large. Be sure that the kernel is large enough
+%    or set the option 'iterate' to true.
 %
 % Input arguments
 %
@@ -24,11 +25,36 @@ function DEM = excesstopography(DEM,varargin)
 %    
 % Parameter name/value pairs
 %
-%    'maxgradient'   maximum gradient in degrees of slopes (default: 30Â°)
+%    'maxgradient'   maximum gradient in degrees of slopes (default: 30°)
+%    'unit'          deg (degrees = default) or tan (tangens). Applies to
+%                    'maxgradient' and 'tol'.
 %    'kernelsize'    side length in pixels used by the kernel. Must be 
-%                    integer and odd (default: 101)
+%                    integer and odd (default: 7)
 %    'output'        'difference' (default) or 'elevation'. Latter returns
 %                    the eroded DEM without calculating the difference.
+%    'iterate'       true (default) or false. A small kernel may not
+%                    detect all excesstopography. Setting iterate to true
+%                    repeatedly erodes the topography until maxgradient is
+%                    reached
+%    'tol'           only applicable if 'iterate' is set to true. Iteration
+%                    terminates if max(gradient8(DEM))-maxgradient < tol.
+%                    The default is 6e-4 ° (degrees). Note that setting tol
+%                    to a very small value might cause that the algorithm
+%                    uses all maxiter iterations.
+%    'maxiter'       only applicable if 'iterate' is set to true. Iteration
+%                    terminates if maxiter are reached. The default is 100.
+%    'gradtype'      The numeric gradient can be calculated by various ways.
+%                    Usually, TopoToolbox uses a two-point estimation to all 
+%                    cell neighbors and takes the largest one (gradient8). 
+%                    By default, excesstopography calculates the idealized 
+%                    surface such that no cells have two-point gradients
+%                    larger than 'maxgradient'. This option is 'G8'. 
+%                    If required that the resultant surface features only
+%                    gradients less than 'maxgradient' if these gradients 
+%                    are calculated using central differencing (e.g. the 
+%                    MATLAB built-in function gradient, than set this option
+%                    to 'central'.
+%                    
 %
 % Output arguments
 %
@@ -40,17 +66,12 @@ function DEM = excesstopography(DEM,varargin)
 %    EXT = excesstopography(DEM,'maxgradient',30,'kernelsize',31);
 %    imageschs(DEM,EXT)
 %  
-% Reference
-%
-%    BlÃ¶the, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: 
-%    Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. 
-%    [DOI: 10.1130/G36527.1] 
 %
 % See also: GRIDobj/localtopography 
 %     
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. April, 2015
+% Date: 23. January, 2014
 
 
 
@@ -59,19 +80,40 @@ p = inputParser;
 p.FunctionName = 'excesstopography';
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj'));
 addParamValue(p,'maxgradient',30,@(x) isscalar(x) && (x >= 0));
+addParamValue(p,'gradtype','G8', @(x) ischar(validatestring(x,{'G8','central'})));
 addParamValue(p,'kernelsize',101, @(x) isscalar(x) && (rem(x,2)==1) && (x>=3));
 addParamValue(p,'output','difference', @(x) ischar(validatestring(x,{'difference','elevation'})));
+addParamValue(p,'iterate',true);
+addParamValue(p,'maxiter',100);
+addParamValue(p,'tol',6e-4);
+addParamValue(p,'unit','deg', @(x) ischar(validatestring(x,{'deg','tan'})));
 
 parse(p,DEM,varargin{:});
 
 maxgradient = p.Results.maxgradient;
+gradtype    = validatestring(p.Results.gradtype,{'G8','central'});
 kernelsize  = p.Results.kernelsize;
 output      = validatestring(p.Results.output,{'difference','elevation'});
+iterate     = p.Results.iterate;
+tol         = p.Results.tol;
+unit        = validatestring(p.Results.unit,{'deg','tan'});
 
 cl          = class(DEM.Z);
 
 % maxgradient is provided in degrees. Convert to radians
-maxgradient = tand(maxgradient);
+switch unit
+    case 'deg'
+        maxgradient = tand(maxgradient);
+        tol = tand(tol);
+end
+
+switch gradtype
+    case 'central'
+        maxg = maxgradient;
+        maxgradient = sqrt(maxgradient^2 / 2);
+    otherwise
+        maxg = maxgradient;
+end
 
 % prepare for ordfilt
 % handle nans and edge effects
@@ -91,13 +133,46 @@ offset = bwdist(offset,'e');
 offset = offset * DEM.cellsize * maxgradient;
 
 % do the calculation
+DEMcopy = DEM;
+
+mG = getmaximumgradient(DEMcopy,gradtype);
+if mG > maxg;
+    
+    if iterate
+        iter = 0;
+        while ((mG-maxg) > tol) && (iter<= p.Results.maxiter);
+            iter = iter+1;
+            DEMcopy.Z = ordfilt2(double(DEMcopy.Z)-m,1,domain,double(offset),'zeros') + m;
+            mG = getmaximumgradient(DEMcopy,gradtype);
+        end
+    else
+        DEMcopy.Z = ordfilt2(double(DEMcopy.Z)-m,1,domain,double(offset),'zeros') + m;
+    end
+end
+
+
+
 switch output
     case 'difference'
-        DEM   = DEM - (ordfilt2(double(DEM.Z)-m,1,domain,double(offset),'zeros') + m);
+        DEM   = DEM-DEMcopy;
         DEM.Z = cast(DEM.Z,cl);
     case 'elevation'
-        DEM.Z = ordfilt2(double(DEM.Z)-m,1,domain,double(offset),'zeros') + m;
-        DEM.Z = cast(DEM.Z,cl);
+        DEM.Z = cast(DEMcopy.Z,cl);
 end
 % replace infs with nan again
 DEM.Z(INAN) = nan;
+DEM.name = 'excess topography';
+end
+
+function mG = getmaximumgradient(DEM,gradtype)
+switch gradtype
+    case 'G8'
+        G  = gradient8(DEM);
+        mG = max(G);
+    case 'central';
+        [Gx,Gy] = gradient(DEM.Z,DEM.cellsize);
+        G  = sqrt(Gx.^2 + Gy.^2);
+        mG = max(G(:));
+end
+
+end
