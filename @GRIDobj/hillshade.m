@@ -60,7 +60,7 @@ addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>= 0 && x<=360);
 addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
-addParamValue(p,'blocksize',1000);
+addParamValue(p,'blocksize',5000);
 parse(p,varargin{:});
 
 OUT     = DEM;
@@ -69,7 +69,7 @@ OUT.Z   = [];
 cs      = DEM.cellsize;
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(5001*5001);
+if numel(DEM.Z)>(10001*10001);
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     
@@ -116,10 +116,11 @@ azisource = azid/180*pi;
 [Nx,Ny,Nz] = surfnorm(Z/cs*p.Results.exaggerate);
 
 % calculate cos(angle)
-H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
+% H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
+% % reshape
+% H = reshape(H,size(Nx)); 
 
-% reshape
-H = reshape(H,size(Nx)); 
+H = Nx*sx + Ny*sy + Nz*sz;
 
 % % usual GIS approach
 % H = acos(H);

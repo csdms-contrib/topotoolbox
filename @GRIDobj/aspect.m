@@ -34,7 +34,7 @@ function OUT = aspect(DEM,classify)
 %
 % References
 %
-%     GÃ³mez-Plaza, A.; MartÃ­nez-Mena, M.; Albaladejo, J. & Castillo, V. M.
+%     Gómez-Plaza, A.; Martínez-Mena, M.; Albaladejo, J. & Castillo, V. M.
 %     (2001): Factors regulating spatial distribution of soil water content
 %     in small semiarid catchments. Journal of Hydrology, 253, 211 - 226.
 %

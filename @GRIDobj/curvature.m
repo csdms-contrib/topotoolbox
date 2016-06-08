@@ -72,23 +72,24 @@ end
 % Large matrix support. Break calculations in chunks using blockproc
 % Parallisation for large grids using blockproc does in my experience with
 % four cores hardly increase the speed. 
-if numel(DEM.Z)>(5001*5001);
-    blksiz = bestblk(size(DEM.Z),1000);   
-    fun = @(x) curvaturesub(x,C.cellsize); 
+if numel(DEM.Z)>(20001*20001);
+    blksiz = bestblk(size(DEM.Z),5000); 
+    cs  = C.cellsize;
+    fun = @(x) curvaturesub(x,cs,ctype); 
     C.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod','symmetric',...
            'UseParallel',true);
 else
-    C.Z = curvaturesub(DEM.Z,C.cellsize);
+    C.Z = curvaturesub(DEM.Z,C.cellsize,ctype);
 end
 
 C.name = ctype;
 
-
+end
 % subfunction
 
-function curv = curvaturesub(dem,cs)
+function curv = curvaturesub(dem,cs,ctype)
 
 if isstruct(dem);
     dem = dem.data;
@@ -153,5 +154,4 @@ curv(isinf(curv) | isnan(curv)) = 0;
 curv(isnan(dem)) = nan;
 curv = reshape(curv,size(dem));
 
-end
 end

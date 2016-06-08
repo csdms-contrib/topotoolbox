@@ -73,8 +73,8 @@ if numel(DEM.Z)>(20001*20001);
         otherwise
             padval = intmax(c);
     end
-    
-    fun = @(x) steepestgradient(x,G.cellsize,c);
+    cs  = G.cellsize;
+    fun = @(x) steepestgradient(x,cs,c);
     G.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod',padval,...
