@@ -31,36 +31,47 @@ function rgb = imageschs(DEM,A,varargin)
 %
 % Parameter name/value pairs
 %
-%     colormap    string for colormap name or [ncol x 3] matrix. Note that 
-%                 if NaNs or Infs are found in A, the colormap must not 
-%                 have more than 255 colors. Default: 'jet'
-%     colorbar    false or true (default)
-%     caxis       two element vector defining the value range. Default is
-%                 [min(A) max(A)].  
-%     percentclip scalar prc (%) that truncates the displayed range to  
-%                 the prc's and 100%-prc's percentile of the data in A.
-%                 This parameter is ignored if 'caxis' is defined.
-%                 Default is prc=0.
-%     truecolor   three element vector (rgb) with values between 0 and 1  
-%                 that indicates how true values are plotted if A is 
-%                 logical.
-%                 Default is [0 1 0].
-%     falsecolor  three element vector (rgb) with values between 0 and 1  
-%                 that indicates how false values are plotted if A is 
-%                 logical.
-%                 Default is [1 1 1].
-%     nancolor    three element vector (rgb) with values between 0 and 1  
-%                 that indicates how NaNs and Infs are plotted 
-%                 Default is [1 1 1].
-%     medfilt     use median filter to smooth hillshading (default=false)
-%     azimuth     azimuth angle of illumination, (default=315)
-%     altitude    altitude angle of illumination, (default=60)
-%     exaggerate  elevation exaggeration (default=2). Increase to
-%                 pronounce elevation differences in flat terrain
-%     ticklabels  'default', 'nice' or 'none'
-%     gridmarkers two element vector with [dx dy] spacing of + markers
-%     gridmarkercolor   three element vector (rgb) or color abbreviations
-%                 as given in LineSpec (default = 'k')
+%     caxis            two element vector defining the value range. Default 
+%                      is [min(A) max(A)].  
+%     colorbar         false or true (default)
+%     colorbarlabel    string. Title for the colorbar
+%     colorbarylabel   string. Label for the y-axis of the colorbar
+%     colormap         string for colormap name or [ncol x 3] matrix. Note 
+%                      that if NaNs or Infs are found in A, the colormap  
+%                      must not have more than 255 colors. Default: 'jet'
+%     percentclip      scalar prc (%) that truncates the displayed range to  
+%                      the prc's and 100%-prc's percentile of the data in A.
+%                      This parameter is ignored if 'caxis' is defined.
+%                      Default is prc=0.
+%     truecolor        three element vector (rgb) with values between 0 and 1  
+%                      that indicates how true values are plotted if A is 
+%                      logical.
+%                      Default is [0 1 0].
+%     falsecolor       three element vector (rgb) with values between 0 and 1  
+%                      that indicates how false values are plotted if A is 
+%                      logical.
+%                      Default is [1 1 1].
+%     nancolor         three element vector (rgb) with values between 0 and 1  
+%                      that indicates how NaNs and Infs are plotted 
+%                      Default is [1 1 1].
+%     usepermanent     controls whether the hillshade is retained in 
+%                      memory as persistent variable. Default is false. If 
+%                      set to true, and if the DEM has the same size as the
+%                      persistently stored hillshade, the function will
+%                      reuse this variable, thus avoiding to recalculate
+%                      hillshading.
+%     medfilt          use median filter to smooth hillshading 
+%                      (default=false)
+%     azimuth          azimuth angle of illumination, (default=315)
+%     altitude         altitude angle of illumination, (default=60)
+%     exaggerate       elevation exaggeration (default=2). Increase to
+%                      pronounce elevation differences in flat terrain
+%     ticklabels       'default', 'nice' or 'none'
+%     tickstokm        true or {false}. If set to true, coordinates will be
+%                      divided by 1000.
+%     gridmarkers      two element vector with [dx dy] spacing of + markers
+%     gridmarkercolor  three element vector (rgb) or color abbreviations
+%                      as given in LineSpec (default = 'k')
 %                 
 %
 % Output
@@ -117,7 +128,7 @@ function rgb = imageschs(DEM,A,varargin)
 % See also: HILLSHADE
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 13. June, 2016
 
 
 % Change log
@@ -128,7 +139,10 @@ function rgb = imageschs(DEM,A,varargin)
 % 02.6.2015: changed help and updated to R2014b
 % 04.3.2016: added option medfilt and added example
 % 18.3.2016: added option percentclip
+% 13.6.2016: added option makepermanent
+% 14.6.2016: added options 
 
+persistent H
 
 narginchk(1,inf);
 nargoutchk(0,1);
@@ -174,6 +188,11 @@ addParamValue(p,'medfilt',defaultmedfilt,@(x) isscalar(x));
 addParamValue(p,'ticklabels','default',@(x) ischar(x));
 addParamValue(p,'gridmarkers',[],@(x) numel(x) == 1 || numel(x) == 2);
 addParamValue(p,'gridmarkercolor','k');
+addParamValue(p,'useparallel',true);
+addParamValue(p,'usepermanent',false);
+addParamValue(p,'colorbarlabel',[],@(x) ischar(x));
+addParamValue(p,'colorbarylabel',[],@(x) ischar(x));
+addParamValue(p,'tickstokm',false,@(x) isscalar(x));
 parse(p,DEM,A,varargin{:});
 
 % required
@@ -187,6 +206,12 @@ exag       = p.Results.exaggerate;
 azi        = p.Results.azimuth;
 alti       = p.Results.altitude;
 nancolor   = p.Results.nancolor;
+usepermanent  = p.Results.usepermanent;
+tokm           = p.Results.tickstokm > 0;
+colorBarLabel  =p.Results.colorbarlabel;
+colorBarYLabel =p.Results.colorbarylabel;
+
+
 ticklabels = validatestring(p.Results.ticklabels,{'default','none','nice'});
 gridmarkers= p.Results.gridmarkers;
 gridmarkercolor = p.Results.gridmarkercolor;
@@ -220,26 +245,37 @@ end
 % coordinate matrices
 [x,y] = refmat2XY(DEM.refmat,DEM.size);
 
+% convert coordinates to km if wanted
+if tokm    
+    x = x*1e-3;
+    y = y*1e-3;
+end
+
 % nr of colors
 nhs = 256;
 
 % calculate hillshading
-H = hillshade(DEM,'exaggerate',exag,'azimuth',azi,'altitude',alti);
-H = H.Z;
-Inan = isnan(H);
-if any(Inan(:))
-    H(Inan) = 1;
-    clear Inan
+if usepermanent && isequal(size(H),DEM.size)
+
 else
-    clear Inan
+    
+    H = hillshade(DEM,'exaggerate',exag,'azimuth',azi,'altitude',alti,'useparallel',p.Results.useparallel);
+    H = H.Z;
+    Inan = isnan(H);
+    if any(Inan(:))
+        H(Inan) = 1;
+        clear Inan
+    else
+        clear Inan
+    end
+    
+    % median filtering, if required
+    if p.Results.medfilt
+        H = medfilt2(H,[3 3],'symmetric');
+    end
+    
+    H = gray2ind(H,nhs);
 end
-
-% median filtering, if required
-if p.Results.medfilt
-    H = medfilt2(H,[3 3],'symmetric');
-end
-
-H = gray2ind(H,nhs);
 
 % derive coloring
 if ~isa(A,'logical');
@@ -307,26 +343,37 @@ cmapUINT8 = uint8(round(cmap*256));
 % http://www.mathworks.de/matlabcentral/fileexchange/26322-mat2im
 RGB=reshape(cmapUINT8(IND(:),:),[size(IND),3]);
 
+% use permanent
+if ~usepermanent
+    H = [];
+end
+
 % plot
-if nargout == 0;
+if nargout == 0
     imagesc(x,y,RGB);
     axis xy
     axis image
     
     % add colorbar if needed
     if cbar
-        if alims(1) ~= alims(2) ;
+        if alims(1) ~= alims(2) 
             caxis(alims);
         end
         colormap(cmap(nhs:nhs:nhs*ncolors,:));
-        colorbar;%('location','south');
+        cc = colorbar;%('location','south');
+        if ~isempty(colorBarLabel)
+            title(cc,colorBarLabel);
+        end
+        if ~isempty(colorBarYLabel)
+            ylabel(cc,colorBarYLabel);
+        end
     end
     
     % plot nice ticklabels if wanted
     switch ticklabels
-        case 'none';
+        case 'none'
             set(gca,'XTickLabel',{},'YTickLabel',{});
-        case 'nice';
+        case 'nice'
             xticklocs = get(gca,'XTick');
             yticklocs = get(gca,'YTick');
             
