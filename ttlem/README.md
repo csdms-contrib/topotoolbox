@@ -1,6 +1,6 @@
 # TTLEM - TopoToolbox Landscape Evolution Model
 
-<img src= "https://github.com/BCampforts/SPLM/blob/master/Fig_4%20RiverIncision_bis.png" align=" center" >
+<img src= "https://github.com/BCampforts/topotoolbox/blob/master/ttlem/Fig_5%20Syntehtic%20DEM.jpg" align=" center" >
 
 ## What is TTLEM
 TTLEM is a grid based object oriented Landscape Evolution Model based on the TopoToolbox library. The aim of TTLEM is to provide an accurate numerical tool to simulate landscape evolution in eroding regions. TTLEM is multi-process based and hence allows a modular use of the code depending on the requirements of the end user. The LEM has a good overall computational performance and obtains a high numerical accuracy in solving the partial differential equations involved when simulating landscape evolution.
