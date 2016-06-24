@@ -16,9 +16,9 @@ TTLEM is developed to be easy accessible and adaptable and requires knowledge of
 ## Where can I report bugs or suggestions for enhancement?
 In case of bugs in the source code, any suggestions for model improvements or elaboration, please contact us on one of these mail addresses:
 
-Benjamin Campforts (benjamin.campforts[at]kuleuven.be
+Benjamin Campforts:     benjamin.campforts[at]kuleuven.be
 
-Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+Wolfgang Schwanghart:   w.schwanghart[at]geo.uni-potsdam.de
 
 ## How can I stay informed about updates?
 Small updates will be posted straight on the GitHub repository. Major software updates will always be announced at this blog: topotoolbox.wordpress.com.
@@ -54,12 +54,14 @@ functions for topographic analysis. Environmental Modelling & Software,
 25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
 https://www.researchgate.net/publication/223084856_TopoToolbox_A_set_of_MATLAB_functions_for_topographic_analysis
 
-
-
 ## Links
-https://www.researchgate.net/profile/Benjamin_Campforts
+- 1D Stream Power Law Models: https://github.com/BCampforts/SPLM
 
-https://topotoolbox.wordpress.com/
+- Benjamin: https://www.researchgate.net/profile/Benjamin_Campforts
+
+- Wolfgang: https://www.researchgate.net/profile/Wolfgang_Schwanghart2
+
+- Blog: https://topotoolbox.wordpress.com/
 
 ## Version History
 
