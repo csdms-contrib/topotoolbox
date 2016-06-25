@@ -34,6 +34,10 @@ function h = plotdz(S,DEM,varargin)
 %     'color': {'b'}
 %     line colors as provided to plot
 %
+%     'distance': {S.distance}
+%     node attribute list with custom distances (see STREAMobj/distance) or
+%     STREAMobj (see function distance(S,S2))
+%
 %     'dunit': {'m'} 'km'
 %     distance unit. plotdz assumes that distance is given in meter. 
 %
@@ -69,7 +73,7 @@ function h = plotdz(S,DEM,varargin)
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. Feb, 2015
+% Date: 5. March, 2016
 
 nrnodes = numel(S.x);
 
@@ -82,6 +86,7 @@ addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParamValue(p,'annotation',[])
 addParamValue(p,'color','b');
 addParamValue(p,'annotationtext',{});
+addParamValue(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
 addParamValue(p,'gradient',false,@(x) isscalar(x));
 addParamValue(p,'smooth',false,@(x) isscalar(x));
 addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
@@ -99,16 +104,26 @@ end
 
 % get dynamic properties of S
 order    = S.orderednanlist;
-distance = S.distance;
+
+if isempty(p.Results.distance);
+    dist = S.distance;
+else
+    if isa(p.Results.distance,'STREAMobj');
+        dist = distance(S,p.Results.distance);
+    else
+        dist = p.Results.distance;
+    end
+end
+
 
 switch lower(p.Results.dunit);
     case 'km'
-        distance = distance/1000;
+        dist = dist/1000;
 end
         
 
 % apply distance offset
-distance = distance + p.Results.doffset;
+dist = dist + p.Results.doffset;
 
 if isa(DEM,'GRIDobj')
     zz    = DEM.Z(S.IXgrid);
@@ -126,7 +141,7 @@ end
 if ~p.Results.smooth;
     I     = ~isnan(order);
     d     = nan(size(order));
-    d(I)  = distance(order(I));
+    d(I)  = dist(order(I));
     z     = nan(size(order));
     
     if ~p.Results.gradient
@@ -143,20 +158,20 @@ if ~p.Results.smooth;
         
 else
     if ~p.Results.gradient
-        [d,z] = smooth(distance,double(zz),order,p.Results.kernelsize);
+        [d,z] = smooth(dist,double(zz),order,p.Results.kernelsize);
     else
         g     = (zz(S.ix)-zz(S.ixc))./hypot(S.x(S.ix)-S.x(S.ixc),S.y(S.ix)-S.y(S.ixc));
         gg     = zeros(size(S.x));
         gg(S.ix) = g;
-        [d,z] = smooth(distance,double(gg),order,p.Results.kernelsize);
+        [d,z] = smooth(dist,double(gg),order,p.Results.kernelsize);
     end
         
 end
 
 % plot
 ht = plot(d,z,'-','Color',p.Results.color);  
-xlabel(['distance upstream [' lower(p.Results.dunit) ']'])
-ylabel('elevation [m]')
+xlabel(['Distance upstream [' lower(p.Results.dunit) ']'])
+ylabel('Elevation [m]')
 
 %% Annotation
 if ~isempty(p.Results.annotation);
@@ -170,7 +185,7 @@ if ~isempty(p.Results.annotation);
             'Some of the annotations are not located on the stream network')
     end
     
-    annd = distance(Locb);
+    annd = dist(Locb);
     
     if isa(DEM,'GRIDobj')
         annz = DEM.Z(S.IXgrid(Locb));

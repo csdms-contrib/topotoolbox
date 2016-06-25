@@ -1,10 +1,16 @@
 function tf = ismulti(FD)
 % check if FD is multi or single flow direction
+%
+% Syntax
+%
+%     tf = ismulti(FD)
+%
+% See also: FLOWobj
+%
+% Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 4. March, 2016
 
-tf = false;
-r = 2;
-while ~tf && r<=numel(FD.ix);
-    tf = FD.ix(r) == FD.ix(r-1);
-    r  = r+1;
-end
-end
+
+
+tf = any(histcounts(FD.ix,1:(prod(FD.size)+1))>1);
+

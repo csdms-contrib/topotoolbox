@@ -29,12 +29,17 @@ function N = flowconvergence(FD)
 % See also: FLOWOBJ
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. February, 2013
+% Date: 4. March, 2016
 
 
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
+
+ix = FD.ix;
+ixc = FD.ixc;
 nr = zeros(FD.size,'uint8');
-for r = 1:numel(FD.ix);
-    nr(FD.ixc(r)) = nr(FD.ixc(r))+1;
+for r = 1:numel(ix);
+    nr(ixc(r)) = nr(ixc(r))+1;
 end
 
 % Prepare output

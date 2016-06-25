@@ -56,10 +56,10 @@ classdef GRIDobj
 %     % Display DEM
 %     imageschs(DEM)
 %
-% See also: FLOWobj, STREAMobj
+% See also: FLOWobj, STREAMobj, GRIDobj/info
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. June, 2013
+% Date: 20. February, 2015
 
     
     properties
@@ -130,12 +130,10 @@ classdef GRIDobj
     
     methods
         function DEM = GRIDobj(varargin)
-            
-           
-            
-            if nargin == 3;
-                
-                %% GRIDobj is created from three matrices
+            % GRIDobj constructor
+          
+            if nargin == 3;                
+                % GRIDobj is created from three matrices
                 % GRIDobj(X,Y,dem)
                 X = varargin{1};
                 Y = varargin{2};
@@ -153,7 +151,7 @@ classdef GRIDobj
                 if numel(X) ~= DEM.size(2) || numel(Y) ~= DEM.size(1)
                     error('TopoToolbox:GRIDobj',...
                           ['Coordinate matrices/vectors don''t fit the size of the \n'...
-                           'the digital elevation model']);
+                           'the grid']);
                 end
                 
                 if (Y(2)-Y(1)) > 0
@@ -195,7 +193,6 @@ classdef GRIDobj
                                    '*.tiff',  'GeoTiff (*.tiff)';...
                                    '*.*',     'all files (*.*)'};
                         
-%                     FilterSpec  = {'*.txt';'*.asc';'*.tif';'*.tiff'};
                     DialogTitle = 'Select ESRI ASCII grid or GeoTiff';
                     [FileName,PathName] = uigetfile(FilterSpec,DialogTitle);
                 
@@ -253,11 +250,30 @@ classdef GRIDobj
 
                 if any(strcmpi(ext,{'.tif', '.tiff'}))
                     % it is a GeoTiff
-                    try
+                    try 
                         % try to read using geotiffread (requires mapping
                         % toolbox)
                         [DEM.Z, DEM.refmat, ~] = geotiffread(filename);
-                        DEM.georef = geotiffinfo(filename);
+                        gtiffinfo  = geotiffinfo(filename);
+                        DEM.georef.SpatialRef = gtiffinfo.SpatialRef; 
+                        DEM.georef.GeoKeyDirectoryTag = gtiffinfo.GeoTIFFTags.GeoKeyDirectoryTag;
+                        
+                        try
+                            % try to create an mstruct array using the
+                            % geotiffinfo. This will not work if the DEM is
+                            % in a geographic coordinate system
+                        
+                            DEM.georef.mstruct = geotiff2mstruct(gtiffinfo);
+                        catch 
+                            DEM.georef.mstruct = [];
+                            warning('TopoToolbox:GRIDobj:projection',...
+                                ['The grid is in a geographic coordinate system. TopoToolbox \n'...
+                                 'assumes that horizontal and vertical units of DEMs are the \n'...
+                                 'same. It is recommended to use a projected coordinate system,\n' ...
+                                 'preferably UTM WGS84. Use the function GRIDobj/reproject2utm\n' ...
+                                 'to reproject your grid.'])
+                        end
+
                     catch err
                         % if this doesn't work, try reading the world-file
                         

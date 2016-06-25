@@ -1,25 +1,25 @@
-function flowpathtool(FD,DEM,S)
+function flowpathapp(FD,DEM,S)
 
 % Map, visualize and export flowpaths that start at manually set channelheads
 %
 % Syntax
 %     
-%     flowpathtool(FD,DEM)
-%     flowpathtool(FD,DEM,S)
+%     flowpathapp(FD,DEM)
+%     flowpathapp(FD,DEM,S)
 %
 % Description
 %
-%     flowpathtool provides an interactive tool to visualize and generate
+%     flowpathapp provides an interactive tool to visualize and generate
 %     flow paths on a digital elevation model based on single flow direction
 %     (FLOWobj). If an instance of STREAMobj derived from FD is supplied as
-%     third argument, manually set points are automatically snapped to the
+%     third argument, channelheads are automatically snapped to the
 %     existing stream network, so that a subset of the latter can be
 %     generated.
 %
-%     The stream network constructed by manually setting
-%     channelheads can be exported to the workspace as new instance of
-%     STREAMobj. In addition, the stream network can be exported to Excel, 
-%     as text file or as shapefile (requires Mapping Toolbox).
+%     The stream network constructed by manually setting channelheads can
+%     be exported to the workspace as new instance of STREAMobj. In
+%     addition, the stream network can be exported to Excel, as text file
+%     or as shapefile (requires Mapping Toolbox).
 %
 %     Tools are found in the menu bar of the main window. 
 %
@@ -131,12 +131,9 @@ set(hMagBox,'Position',[0 0 pos(3) pos(4)])
 imoverview(hIm)
 
 % create figure for profiles
-hFigProfiles = figure('OuterPosition',[1/4*scrsz(3) 50 3/4*scrsz(3) 1/3*scrsz(4)-50],...
-                      'NumberTitle','off',...
-                      'Name','Profiles') ;
-hAxProfiles = axes('Parent',hFigProfiles,'Xscale','linear','Yscale','linear','box','on');
-xlabel(hAxProfiles,'distance from outlet');
-ylabel(hAxProfiles,'elevation');
+[hFigProfiles,hAxProfiles] = getprofilefig;
+
+
 
 %% add callbacks
 enterFcn = @(figHandle, currentPoint)...
@@ -219,8 +216,9 @@ hPlotProfiles = [];
         hPlot(counter) = plot(hAx,X(c),Y(r),props.linecolor,'LineWidth',2);
         hold(hAx,'off');
         drawnow
-        
+
         hold(hAxProfiles,'on')
+
         hPlotProfiles(counter) = plot(hAxProfiles,distance{counter},DEM.Z(IXchannel{counter}),props.linecolor);
         hold(hAxProfiles,'off');
         drawnow
@@ -385,6 +383,17 @@ hPlotProfiles = [];
         header = {'ID' 'X' 'Y' 'upstream_distance' 'elevation' 'upslope_area' 'slope'};
    
     end
+    
+    function [hFigProfiles,hAxProfiles] = getprofilefig
+        % create figure for profiles
+        hFigProfiles = figure('OuterPosition',[1/4*scrsz(3) 50 3/4*scrsz(3) 1/3*scrsz(4)-50],...
+                      'NumberTitle','off',...
+                      'Name','Profiles') ;
+        hAxProfiles = axes('Parent',hFigProfiles,'Xscale','linear','Yscale','linear','box','on');
+        xlabel(hAxProfiles,'distance from outlet');
+        ylabel(hAxProfiles,'elevation');
+    end    
+
         
 end
         

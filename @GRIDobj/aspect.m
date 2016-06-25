@@ -62,8 +62,9 @@ end
 
 % Large matrix support. Break calculations in chunks using blockproc
 if numel(DEM.Z)>(5001*5001);
+    fun    = @(x) aspfun(x);
     blksiz = bestblk(size(DEM.Z),5000);
-    OUT.Z = blockproc(DEM.Z,blksiz,@(x) aspfun(x),'BorderSize',[1 1]);
+    OUT.Z  = blockproc(DEM.Z,blksiz,fun,'BorderSize',[1 1]);
 else
     OUT.Z = aspfun(DEM.Z);
 end

@@ -36,7 +36,11 @@ function DZ = vertdistance2stream(FD,S,DEM)
 % See also: FLOWobj, FLOWobj/flowdistance, GRIDobj, STREAMobj
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 25. January, 2013
+% Date: 4. March, 2016
+
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
 
 narginchk(3,3)
 
@@ -47,7 +51,9 @@ DZ = DEM;
 DZ.Z = -inf(DEM.size);
 DZ.Z(S.IXgrid) = DEM.Z(S.IXgrid);
 
-for r = numel(FD.ix):-1:1
-    DZ.Z(FD.ix(r)) = max(DZ.Z(FD.ix(r)),DZ.Z(FD.ixc(r)));
+ix = FD.ix;
+ixc = FD.ixc;
+for r = numel(ix):-1:1
+    DZ.Z(ix(r)) = max(DZ.Z(ix(r)),DZ.Z(ixc(r)));
 end
 DZ = DEM-DZ;

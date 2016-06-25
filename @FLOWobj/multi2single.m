@@ -1,33 +1,27 @@
 function FD = multi2single(FD)
+% converts multiple to single flow direction
+%
+% Syntax
+%
+%     FD = multi2multi(FD)
+%
+% See also: FLOWobj
+%
+% Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 4. March, 2016
+
 switch FD.type
     case 'single';
         
         % do nothing
         
     otherwise
-        nre = numel(FD.ix);
-        I   = false(nre,1);
-        
-        IX = FD.ix(1);
-        LargestFraction = FD.fraction(1);
-        IXLargestFraction = 1;
-        
-        
-        for r = 2:nre;
-            if FD.ix(r) == IX;
-                if FD.fraction(r)>=LargestFraction;
-                    IXLargestFraction = r;
-                end
-            else
-                I(IXLargestFraction) = true;
-                IX = FD.ix(r);
-                LargestFraction = FD.fraction(r);
-                IXLargestFraction = r;
-            end
-        end
-        I(IXLargestFraction) = true;
-        
-        
+        RR = (1:numel(FD.ix))';
+        IX = double(FD.ix);
+        S  = sparse(IX,RR,FD.fraction,max(RR),max(IX));
+        [~,ii] = max(S,[],1);
+        I  = false(size(RR));
+        I(ii) = true;
         
         FD.ix = FD.ix(I);
         FD.ixc = FD.ixc(I);

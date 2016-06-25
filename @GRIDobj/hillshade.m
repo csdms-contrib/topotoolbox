@@ -47,7 +47,7 @@ function OUT2 = hillshade(DEM,varargin)
 % See also: SURFNORM, IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. August, 2015
+% Date: 24. May, 2016
 
 
 
@@ -56,13 +56,12 @@ p = inputParser;
 p.StructExpand  = true;
 p.KeepUnmatched = false;
 p.FunctionName = 'hillshade'; 
-addRequired(p,'DEM',@(x) isequal(class(x),'GRIDobj'));
 addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>= 0 && x<=360);
 addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
-addParamValue(p,'blocksize',1000);
-parse(p,DEM,varargin{:});
+addParamValue(p,'blocksize',5000);
+parse(p,varargin{:});
 
 OUT     = DEM;
 OUT.Z   = [];
@@ -70,7 +69,7 @@ OUT.Z   = [];
 cs      = DEM.cellsize;
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(1001*1001);
+if numel(DEM.Z)>(10001*10001);
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     
@@ -117,10 +116,11 @@ azisource = azid/180*pi;
 [Nx,Ny,Nz] = surfnorm(Z/cs*p.Results.exaggerate);
 
 % calculate cos(angle)
-H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
+% H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
+% % reshape
+% H = reshape(H,size(Nx)); 
 
-% reshape
-H = reshape(H,size(Nx)); 
+H = Nx*sx + Ny*sy + Nz*sz;
 
 % % usual GIS approach
 % H = acos(H);

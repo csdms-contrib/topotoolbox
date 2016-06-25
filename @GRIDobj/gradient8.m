@@ -34,10 +34,10 @@ function G = gradient8(DEM,unit)
 %     imagesc(G)
 %
 %
-% See also: EZFLOWACC, CURVATURE, ASPECT
+% See also: GRIDobj, CURVATURE, ASPECT
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 27. December, 2012
+% Date: 6. November, 2015
 
 if nargin == 1;
     unit = 'tangent';
@@ -56,8 +56,12 @@ switch c
         c   = 'single';
 end
 
-% Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(5001*5001);
+% I found Large matrix support using blockproc inefficient for gradient8.
+% Matrix dimensions have thus been increased to an out-of-range value to
+% avoid calling blockproc.
+% Large matrix support. Break calculations in chunks using blockproc.
+
+if numel(DEM.Z)>(20001*20001);
     blksiz = bestblk(size(DEM.Z),5000);
     c   = class(DEM.Z);
     
@@ -69,8 +73,9 @@ if numel(DEM.Z)>(5001*5001);
         otherwise
             padval = intmax(c);
     end
-    
-    G.Z = blockproc(DEM.Z,blksiz,@(x) steepestgradient(x,G.cellsize,c),...
+    cs  = G.cellsize;
+    fun = @(x) steepestgradient(x,cs,c);
+    G.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod',padval,...
            'UseParallel',true);

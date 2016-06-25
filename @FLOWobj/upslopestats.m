@@ -38,9 +38,11 @@ function OUT = upslopestats(FD,VAR,meth)
 % See also: FLOWDIR, FLOWACC
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. August, 2012
+% Date: 4. March, 2016
 
 
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
 
 narginchk(2,3)
 
@@ -94,14 +96,18 @@ switch meth
                 VAR = sqrt(VAR);
         end
     case 'min'
+        ix = FD.ix;
+        ixc = FD.ixc;
         % minimum imposition
-        for r = 1:numel(FD.ix);
-            VAR(FD.ixc(r)) = min(VAR(FD.ix(r)),VAR(FD.ixc(r)));
+        for r = 1:numel(ix);
+            VAR(ixc(r)) = min(VAR(ix(r)),VAR(ixc(r)));
         end
     case 'max'
+        ix = FD.ix;
+        ixc = FD.ixc;
         % maximum imposition
-        for r = 1:numel(FD.ix);
-            VAR(FD.ixc(r)) = max(VAR(FD.ix(r)),VAR(FD.ixc(r)));
+        for r = 1:numel(ix);
+            VAR(ixc(r)) = max(VAR(ix(r)),VAR(ixc(r)));
         end
 end
 

@@ -14,7 +14,7 @@ function ht = surf(DEM,varargin)
 %     surf for GRIDobj overloads the surf command and thus provides fast
 %     access to 3D visualization of digital elevation models. Note that
 %     GRIDobj/surf automatically resamples the DEM so that the maximum of
-%     rows or columns does not exceed 500. This ensures that the surface
+%     rows or columns does not exceed 1000. This ensures that the surface
 %     is efficiently drawn.
 %
 % Input arguments
@@ -40,9 +40,9 @@ maxrowsorcols = 1000;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if max(DEM.size)>maxrowsorcols;
-    resamplefactor = maxrowsorcols/max(DEM.size);
     
-    DEM = resample(DEM,resamplefactor);
+    resamplecellsize = max(DEM.size)/(maxrowsorcols-1) * DEM.cellsize;
+    DEM = resample(DEM,resamplecellsize);
     
     if ~isempty(varargin) && isa(varargin{1},'GRIDobj');
         A = varargin{1};
@@ -95,8 +95,6 @@ else
     baselevel = min(DEM)*.8;
 end
 
-
-
 [x,y] = refmat2XY(DEM.refmat,DEM.size);    
 
 if overlay
@@ -107,7 +105,7 @@ end
 
 exaggerate(gca,exagg);
 shading interp
-camlight
+% camlight
 
 if block 
     

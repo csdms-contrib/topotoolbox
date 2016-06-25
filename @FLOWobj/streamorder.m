@@ -55,7 +55,11 @@ function OUT = streamorder(FD,WW,type)
 % See also: FLOWobj, FLOWobj/flowacc, STREAMobj/streamorder
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 4. March, 2016
+
+
+% 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
+% FLOWobj/flowacc
 
 
 %% check input arguments
@@ -86,14 +90,17 @@ switch lower(type)
         offset = uint16(1);
         VIS    = false(FD.size);
         
-        for r = 1:numel(FD.ix);
-            if W(FD.ix(r))
-                if (S(FD.ixc(r)) == S(FD.ix(r))) && VIS(FD.ixc(r));
-                    S(FD.ixc(r)) = S(FD.ixc(r))+offset;
-                    VIS(FD.ixc(r)) = true;
+        ix = FD.ix;
+        ixc = FD.ixc;
+        
+        for r = 1:numel(ix);
+            if W(ix(r))
+                if (S(ixc(r)) == S(ix(r))) && VIS(ixc(r));
+                    S(ixc(r)) = S(ixc(r))+offset;
+                    VIS(ixc(r)) = true;
                 else
-                    S(FD.ixc(r)) = max(S(FD.ix(r)),S(FD.ixc(r)));
-                    VIS(FD.ixc(r)) = true;
+                    S(ixc(r)) = max(S(ix(r)),S(ixc(r)));
+                    VIS(ixc(r)) = true;
                 end
             end
         end

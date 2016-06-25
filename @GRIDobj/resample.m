@@ -4,25 +4,23 @@ function DEMr = resample(DEM,target,method)
 %
 % Syntax
 %
-%     DEMr = resample(DEM,scale)
+%     DEMr = resample(DEM,cellsize)
 %     DEMr = resample(DEM,GRID)
 %     DEMr = resample(...,'method')
 %
 % Description
 %
 %     resample changes the cellsize of a grid. The function uses the Matlab
-%     class griddedInterpolant. If an instance of GRIDobj is supplied as
+%     function imtransform. If an instance of GRIDobj is supplied as
 %     second argument, resample interpolates values in DEM to match the
 %     spatial reference of GRID.
 %
 % Input arguments
 %
-%     DEM     grid object (GRIDobj)
-%     scale   resampling scale. A scale of 2 will change the cellsize x to
-%             x/2. Scales larger/less than 1 will increase/decrease 
-%             resolution.
-%     GRID    other grid object
-%     method  'linear' (default). See griddedInterpolant for more options
+%     DEM       grid object (GRIDobj)
+%     cellsize  cellsize of resampled grid
+%     GRID      other grid object
+%     method    'bicubic', 'bilinear', or 'nearest' 
 %
 % Output arguments
 %
@@ -31,73 +29,81 @@ function DEMr = resample(DEM,target,method)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     DEMr = resample(DEM,.2);
+%     DEMr = resample(DEM,5);
 %     imagesc(DEMr)
 %
 % See also: griddedInterpolant
 %
+%        
+% Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 8. August, 2015 
 
 % check input arguments
 narginchk(2,3)
 validateattributes(target,{'double' 'GRIDobj'},{'scalar'})
 if nargin == 2;
-    method = 'linear';
+    method = 'bilinear';
 else
-    method = validatestring(method,{'linear','nearest','spline','pchip','cubic'});
+    method = validatestring(method,{'bicubic', 'bilinear', 'nearest' });
+end
+
+% check underlying class
+if islogical(DEM.Z)
+    method = 'nearest';
 end
 
 % get coordinate vectors
-[x,y] = refmat2XY(DEM.refmat,DEM.size);
+[u,v] = getcoordinates(DEM);
+
+% tform
+T = maketform('affine',[1 0 0; 0 1 0; 0 0 1]);
+
+% Fillvalues
+if isinteger(DEM.Z)
+    fillval = 0;
+elseif islogical(DEM.Z)
+    fillval = 0;
+else
+    fillval = nan;
+end
+
 
 if isa(target,'GRIDobj')
+    
     DEMr    = target;
-    [xn,yn] = refmat2XY(DEMr.refmat,DEMr.size);
-    if yn(2)<yn(1)
-        yn = yn(end:-1:1);
-    end
+    [xn,yn] = getcoordinates(DEMr);
+    
+    DEMr.Z = imtransform(DEM.Z,T,method,...
+        'Udata',[u(1) u(end)],'Vdata',[v(1) v(end)],...
+        'Xdata',[xn(1) xn(end)],'Ydata',[yn(1) yn(end)],...
+        'Size',DEMr.size,...
+        'FillValues',fillval);
+    DEMr.name = [DEM.name ' (resampled)'];
+        
 else
-    scale   = target;
+    csnew   = target;
     DEMr    = GRIDobj([]);
-    DEMr.georef = DEM.georef;
-    % cellsize of resampled grid
-    cellsizenew = DEM.cellsize/scale;
-    % coordinate vectors
-    xn    = min(x):cellsizenew:max(x);
-    yn    = min(y):cellsizenew:max(y);
+    [DEMr.Z,xn,yn] = imtransform(DEM.Z,T,method,...
+        'Udata',[u(1) u(end)],'Vdata',[v(1) v(end)],...
+        'Xdata',[u(1) u(end)],'Ydata',[v(1) v(end)],...
+        'XYscale',[csnew csnew],...
+        'FillValues',fillval);
+
 
     % new referencing matrix
-    DEMr.refmat = [0 -cellsizenew;...
-                   cellsizenew 0; ...
-                   xn(1)-cellsizenew ...
-                   yn(end)+cellsizenew];
+    DEMr.refmat = [0 -csnew;...
+                   csnew 0; ...
+                   xn(1)-csnew ...
+                   yn(1)+csnew];
     % size of the resampled grid           
-    DEMr.size    = [numel(yn) numel(xn)];
-    DEMr.cellsize = cellsizenew;
+    DEMr.size    = size(DEMr.Z);
+    DEMr.cellsize = csnew;
+    DEMr.georef = DEM.georef;
 end
+
 DEMr.name    = [DEM.name ' (resampled)'];
 
-% griddedInterpolant requires coordinate vectors monotically increasing
-if y(2)<y(1)
-    y = y(end:-1:1);
-    Z = flipud(DEM.Z);
-else
-    Z = DEM.Z;
-end
-% gridded interpolant
-cla   = class(Z);
-F     = griddedInterpolant({x(:)' y(:)},double(Z'),method);
-
-% interpolate
-DEMr.Z = flipud(F({xn(:)' yn(:)})');
-
-if islogical(Z)
-    DEMr.Z(isnan(DEMr.Z)) = 0;
-end
-    
-DEMr.Z = cast(DEMr.Z,cla);
-
-
-if ~isempty(DEMr.georef)
+if ~isempty(DEMr.georef) && ~isa(target,'GRIDobj');
     DEMr.georef.RefMatrix = DEMr.refmat;
     DEMr.georef.Height = DEMr.size(1);
     DEMr.georef.Width  = DEMr.size(2);
