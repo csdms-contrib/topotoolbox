@@ -298,6 +298,14 @@ classdef GRIDobj
                             rethrow(err)
                         end
                     end
+                    
+                    % check whether no_data tag is available. This tag is
+                    % not accessible using geotiffinfo (nice hack by Simon
+                    % Riedl)
+                    tiffinfo = imfinfo(filename);
+                    if isfield(tiffinfo,'GDAL_NODATA')
+                        nodata_val = str2double(tiffinfo.GDAL_NODATA);
+                    end
         
                 else
                     % it is a ESRI ascii grid
@@ -310,16 +318,35 @@ classdef GRIDobj
                 
                 % remove nans
                 demclass = class(DEM.Z);
+                
+                nodata_val_exists = exist('nodata_val','var');
+                
                 switch demclass
                     case {'uint8','uint16','uint32'}
                         % unsigned integer
                         DEM.Z = single(DEM.Z);
-                        DEM.Z(DEM.Z==intmax(demclass)) = nan;
+                        
+                        if nodata_val_exists
+                            nodata_val = single(nodata_val);
+                            DEM.Z(DEM.Z == nodata_val) = nan;
+                        else                                                 
+                            DEM.Z(DEM.Z==intmax(demclass)) = nan;
+                        end
+                        
                     case {'int8','int16','int32'}
                         % signed integer
                         DEM.Z = single(DEM.Z);
-                        DEM.Z(DEM.Z==intmin(demclass)) = nan;
+                        if nodata_val_exists
+                            nodata_val = single(nodata_val);
+                            DEM.Z(DEM.Z == nodata_val) = nan;
+                        else                                                 
+                            DEM.Z(DEM.Z==intmin(demclass)) = nan;
+                        end
+                        
                     case {'double','single'}
+                        if nodata_val_exists
+                            DEM.Z(DEM.Z == cast(nodata_val,class(DEM.Z))) = nan;
+                        end
                     case 'logical'
                     otherwise
                         error('TopoToolbox:GRIDobj','unrecognized class')
