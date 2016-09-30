@@ -19,20 +19,21 @@ function d = distance(S,type)
 % Input arguments
 %
 %     S       STREAMobj
-%     type    'from_outlet'    distance in upstream direction
-%             'min_from_ch'    shortest from channelhead
-%             'max_from_ch'    longest from channelhead
-%             'mean_from_ch'   mean distance from channelheads
-%             'nr_of_ch'       number of channelheads (not a distance
-%                              measure)
-%             'node_to_node'   distance between each node and its
-%                              downstream neighbor
+%     type    'from_outlet'      distance in upstream direction
+%             'min_from_ch'      shortest from channelhead
+%             'max_from_ch'      longest from channelhead
+%             'mean_from_ch'     mean distance from channelheads
+%             'nr_of_ch'         number of channelheads (not a distance
+%                                measure)
+%             'node_to_node'     distance between each node and its
+%                                downstream neighbor
+%             'accumdownstream'  downstream accumulated distance
 %     S2      STREAMobj of which S is a subset.
 %
 % See also: STREAMobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 30. September, 2016
 
 if nargin == 1;
     d = S.distance;
@@ -47,6 +48,7 @@ if ischar(type)
         'mean_from_ch',... % mean distance from channelheads
         'nr_of_ch'...
         'node_to_node'...
+        'accumdownstream' ...
         };
     
     type = validatestring(type,validtypes,'distance','type',2);
@@ -97,6 +99,11 @@ if ischar(type)
             
             d  = (speye(nrc)-M')\d;
             d  = full(d./nr);
+        case 'accumdownstream'
+            d(:) = 0;
+            for r = 1:numel(S.ix);
+                d(S.ixc(r)) = d(S.ix(r))+dedge(r) + d(S.ixc(r));
+            end
     end
     
 else

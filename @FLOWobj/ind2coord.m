@@ -23,7 +23,7 @@ function [x,y] = ind2coord(FD,ix)
 % See also: FLOWobj/coord2ind
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 08. June, 2015
+% Date: 30. January, 2013
 
 
 [r,c] = ind2sub(FD.size,ix(:));

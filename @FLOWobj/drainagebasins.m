@@ -74,14 +74,14 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %           GRIDobj/shufflelabel
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 30. September, 2016
 
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
 % FLOWobj/flowacc
 
-
+% 30/9/2016: bug removed when called with 2 or 3 outputs
 
 narginchk(1,3);
 
@@ -113,6 +113,9 @@ elseif nargin == 1;
         end
         D(ixtemp(r)) = D(ixctemp(r));
     end
+    
+    outlets = double(outlets(:));
+    
 elseif nargin > 1;
     % ix,x and y, or Stream order grid and stream order are supplied
     if nargin == 2;
@@ -158,7 +161,7 @@ OUT.name  = 'drainage basins';
 if nargout == 2;
     varargout{1} = outlets;
 elseif nargout == 3;
-    [x,y] = ind2coord(S,outlets);
+    [x,y] = ind2coord(FD,outlets);
     varargout{1} = x;
     varargout{2} = y;
 end
