@@ -5,6 +5,7 @@ function OUT = chiplot(S,DEM,A,varargin)
 % Syntax
 %
 %     C = chiplot(S,DEM,A)
+%     C = chiplot(S,z,a)
 %     C = chiplot(S,DEM,A,pn,pv,...)
 %
 % Description
@@ -21,6 +22,8 @@ function OUT = chiplot(S,DEM,A,varargin)
 %           one connected component (only one outlet may exist!)
 %     DEM   digital elevation model (GRIDobj)
 %     A     flow accumulation as calculated by flowacc (GRIDobj)
+%     z     elevation values for each node in S (node attribute list)
+%     a     flowaccumulation values for each node in S (node attribute list)
 %
 %     Parameter name/value pairs {default}
 %
@@ -31,11 +34,22 @@ function OUT = chiplot(S,DEM,A,varargin)
 %     mn is the ratio of m and n in the stream power equation. The value
 %     ranges usually for bedrock rivers between 0.1 and 0.5. If empty, it
 %     is automatically found by a least squares approach.
+%
+%     'mnoptim': {'fminsearch'}, 'nlinfit'
+%     chiplot finds an optimal value of mn that linearizes the relation
+%     between chi and elevation. By default, fminsearch is used. nlinfit
+%     requires the statistics and machine learning toolbox but additionally
+%     returns 95% confidence intervals of mn. These bounds must, however,
+%     be taken with care since their determination violates the assumption
+%     of an independent and identically distributed (i.i.d.) variable. Note 
+%     also that the standard deviation of beta (betase) is determined
+%     independently from mn.
 %     
 %     'trunkstream': {[]}, STREAMobj
 %     instance of STREAMobj that must be a subset of S, e.g. the main river
 %     in the network S. The main trunk is highlighted in the plot and can
-%     be used to fit the mn ratio (see pn/pv pair 'fitto').
+%     be used to fit the mn ratio (see pn/pv pair 'fitto'). Note that the
+%     trunkstream must end at the river network's root (outlet).
 %
 %     'fitto': {'all'},'ts', 
 %     choose which data should be used for fitting the mn ratio.
@@ -53,6 +67,8 @@ function OUT = chiplot(S,DEM,A,varargin)
 %
 %     C     structure array that contains
 %     .mn       ratio of m and n
+%     .mnci     95% intervals of mn (empty if 'mnoptim' is set to
+%               fminsearch)
 %     .beta     slope of the best fit line
 %     .betase   standard error of beta
 %     .a0       reference area
@@ -67,10 +83,14 @@ function OUT = chiplot(S,DEM,A,varargin)
 %
 % Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     S   = STREAMobj(FD,'minarea',1000);
+%     S   = klargestconncomps(S);
+%     c   = chiplot(S,DEM,flowacc(FD));
 %
 % See also: flowpathapp, STREAMobj, FLOWobj/flowacc, STREAMobj/trunk,
-%           STREAMobj/modify  
+%           STREAMobj/modify, STREAMobj/getnal  
 %
 %
 % References:
@@ -81,21 +101,26 @@ function OUT = chiplot(S,DEM,A,varargin)
 %     
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 13. May, 2013
+% Date: 11. June, 2014
 
+% update 11. June, 2014
+% supports node attribute lists as input data (DEM,A)
+% update 4. October, 2016
+% lets you choose the algorithm to find the optimal value of mn. 
 
 % Parse Inputs
 p = inputParser;         
 p.FunctionName = 'chiplot';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
-addRequired(p,'DEM', @(x) isa(x,'GRIDobj'));
-addRequired(p,'A', @(x) isa(x,'GRIDobj'));
+addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || isequal(size(S.IXgrid),size(x)));
+addRequired(p,'A', @(x) isa(x,'GRIDobj') || isequal(size(S.IXgrid),size(x)))
 
 addParamValue(p,'mn',[],@(x) isscalar(x) || isempty(x));
 addParamValue(p,'trunkstream',[],@(x) isa(x,'STREAMobj') || isempty(x));
 addParamValue(p,'plot',true,@(x) isscalar(x));
 addParamValue(p,'mnplot',false,@(x) isscalar(x));
 addParamValue(p,'fitto','all');
+addParamValue(p,'mnoptim','fminsearch');
 addParamValue(p,'a0',1e6,@(x) isscalar(x) && isnumeric(x));
 addParamValue(p,'betamethod','ls',@(x) ischar(validatestring(x,{'ls','lad'})));
 addParamValue(p,'mnmethod','ls',@(x) ischar(validatestring(x,{'ls','lad'})));
@@ -133,12 +158,21 @@ end
 % reference drainage area
 a0   = p.Results.a0; % m^2
 % elevation values at nodes
-zx   = double(DEM.Z(S.IXgrid));
-% elevation at outlet
-zb   = double(DEM.Z(S.IXgrid(outlet)));
+if isa(DEM,'GRIDobj');
+    zx   = double(DEM.Z(S.IXgrid));
+    % elevation at outlet
+    zb   = double(DEM.Z(S.IXgrid(outlet)));
+else
+    zx   = double(DEM);
+    zb   = double(DEM(outlet));
+end
 
-% a is the term inside the brackets of equation 6b 
-a    = double(a0./(A.Z(S.IXgrid)*(A.cellsize.^2)));
+if isa(A,'GRIDobj');
+    % a is the term inside the brackets of equation 6b 
+    a    = double(a0./(A.Z(S.IXgrid)*(A.cellsize.^2)));
+else
+    a    = double(a0./(double(A) .* S.cellsize.^2));
+end
 
 % x is the cumulative horizontal distance in upstream direction
 x    = S.distance;
@@ -163,7 +197,18 @@ end
 % uses fminsearch
 if isempty( p.Results.mn );
     mn0  = 0.5; % initial value
-    mn   = fminsearch(@mnfit,mn0);
+    % fminsearch is a nonlinear optimization procedure that doesn't require
+    % the statistics toolbox
+    switch p.Results.mnoptim
+        case 'fminsearch'
+            mn   = fminsearch(@mnfit,mn0);
+            ci   = [];
+        case 'nlinfit'
+            ztest   = zx(Lib)-zb;
+            ztest   = ztest./max(ztest);
+            [mn0,R,J,CovB,MSE,ErrorModelInfo] = nlinfit(a,ztest,@mnfit,mn0);
+            ci = nlparci(mn0,R,'jacobian',J)
+    end
 else
     % or use predefined mn ratio.
     mn   = p.Results.mn;
@@ -177,7 +222,7 @@ if p.Results.mnplot
     chitest = zeros(numel(Lib),numel(mntest));
     
     for r = 1:numel(mntest);
-        chitest(:,r) = netcumtrapz(x(Lib),a(Lib).^mntest(r),SFIT.ix,SFIT.ixc);
+        chitest(:,r) = cumtrapz(S,a.^mntest(r));
     end
     plot(chitest,zx(Lib)-zb,'x');
     xlabel('\chi [m]')
@@ -188,7 +233,8 @@ if p.Results.mnplot
 end
 
 % calculate chi
-chi = netcumtrapz(x,a.^mn,S.ix,S.ixc); %*ab.^mn
+chi = cumtrapz(S,a.^mn);
+% chi = netcumtrapz(x,a.^mn,S.ix,S.ixc); %*ab.^mn
 % now use chi to fit beta
 switch betamethod
     case 'ls'
@@ -215,7 +261,7 @@ if p.Results.plot;
     c     = nan(size(order));
     c(I)  = chi(order(I));
     zz    = nan(size(order));
-    zz(I) = zx(order(I))-zb;
+    zz(I) = zx(order(I));
     
     plot(c,zz,'-','color',[.5 .5 .5]);
     hold on
@@ -245,12 +291,12 @@ if p.Results.plot;
         zxfit  = zx(Lib);
         c(I)  = chifit(order(I));
         zz    = nan(size(order));
-        zz(I) = zxfit(order(I))-zb;
+        zz(I) = zxfit(order(I));
 
         plot(c,zz,'k-','LineWidth',2);
     end
     
-    refline(beta,0);
+    refline(beta,zb);
     hold off
     xlabel('\chi [m]')
     ylabel('elevation [m]');
@@ -260,11 +306,16 @@ end
 if nargout == 1;
     
     OUT.mn   = mn;
+    OUT.mnci = ci;
     OUT.beta = beta;
     OUT.betase = betase;
     OUT.a0   = a0;
     OUT.ks   = beta*a0^mn;
     OUT.R2   = R2;
+    OUT.x_nal    = S.x;
+    OUT.y_nal    = S.y;
+    OUT.chi_nal  = chi;
+    OUT.d_nal    = S.distance;
     
     [OUT.x,...
      OUT.y,...
@@ -273,7 +324,7 @@ if nargout == 1;
      OUT.elevbl,...
      OUT.distance,...
      OUT.pred,...
-     OUT.area] = STREAMobj2XY(S,chi,DEM,zx-zb,S.distance,beta*chi,A.*(A.cellsize^2));
+     OUT.area] = STREAMobj2XY(S,chi,DEM,zx-zb,S.distance,beta*chi,A.*(S.cellsize^2));
      OUT.res   = OUT.elevbl-OUT.pred;
 
 end
@@ -281,13 +332,26 @@ end
 
 
 %% fitting function
-function sqres = mnfit(mn)
+function sqres = mnfit(varargin)
+    
+    if nargin == 1;
+        mn = varargin{1};
+    elseif nargin == 2;
+        mn = varargin{1};
+        a  = varargin{2};
+    end
 
 % calculate chi with a given mn ratio
 % and integrate in upstream direction
-CHI = netcumtrapz(x(Lib),a(Lib).^mn,SFIT.ix,SFIT.ixc);%*ab.^mn
+CHI = cumtrapz(S,a.^mn);
 % normalize both variables
 CHI = CHI ./ max(CHI);
+
+if nargin == 2;
+    sqres = CHI;
+    return
+end
+
 z   = zx(Lib)-zb;
 z   = z./max(z);
 % calculate the residuals and minimize their squared sums
@@ -296,21 +360,13 @@ switch mnmethod
         sqres = sum((CHI - z).^2);
     case 'lad'
         sqres = sum(sqrt(abs(CHI-z)));
-end
+end 
 
 end
 
 end
 
 
-function z = netcumtrapz(x,y,ix,ixc)
-% cumtrapz along upward direction in a directed tree network
-
-z = zeros(size(x));
-for lp = numel(ix):-1:1;
-    z(ix(lp)) = z(ixc(lp)) + (y(ixc(lp))+(y(ix(lp))-y(ixc(lp)))/2) *(abs(x(ixc(lp))-x(ix(lp))));
-end
-end
 
 
 
