@@ -4,18 +4,24 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 %
 % Syntax
 % 
-%     [DEMr,zone] = reproject2UTM(DEM,res)
-%     [DEMr,zone] = reproject2UTM(DEM,res,pn,pv,...)
+%     [GRIDr,zone] = reproject2utm(GRID,res)
+%     [GRIDr,zone] = reproject2utm(GRID,res,pn,pv,...)
+%     GRIDr        = reproject2utm(GRID,GRID2)
+%     GRIDr        = reproject2utm(GRID,GRID2,'method',method)
 %
 % Description
 %
-%     Reproject a DEM with WGS84 geographic coordinates to UTM WGS84 
-%     (requires the mapping toolbox and image processing toolbox).
+%     Reproject a grid (GRIDobj) with WGS84 geographic coordinates to UTM 
+%     WGS84 (requires the mapping toolbox and image processing toolbox).
 %
 % Input arguments
 %
-%     DEM     raster (GRIDobj) with WGS84 geographic coordinates. 
-%     res     spatial resolution in x- and y-direction (scalar)
+%     GRID     raster (GRIDobj) with WGS84 geographic coordinates. 
+%     res      spatial resolution in x- and y-direction (scalar)
+%     GRID2    raster (GRIDobj) with projected coordinate system to which
+%              GRID shall be projected. The resulting grid will be
+%              perfectly spatially aligned (same cellsize, same upper left
+%              egde, same size) with GRID2.
 %     
 % Parameter name/value pairs
 %
@@ -28,24 +34,30 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 %
 % Output arguments
 %
-%     DEMr    raster (GRIDobj) with UTM-WGS84 projected coordinates
-%     zone    utm zone (string)
+%     GRIDr    raster (GRIDobj) with UTM-WGS84 projected coordinates
+%     zone     utm zone (string)
 %
 %
 % See also: GRIDobj, imtransform, maketform, mfwdtran, minvtran, utmzone
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. June, 2014
+% Date: 25. August, 2016
 
 
 % get latitude and longitude vectors
 [lon,lat] = getcoordinates(DEM);
-% and calculate centroid of DEM. The centroid is used to
-% get the utmzone
-lonc = sum(lon([1 end]))/2;
-latc = sum(lat([1 end]))/2;
-zone        = utmzone(latc,lonc);
-Nhemisphere = double(upper(zone(end)))>=78;
+
+if ~isa(res,'GRIDobj');
+    % and calculate centroid of DEM. The centroid is used to
+    % get the utmzone
+    lonc = sum(lon([1 end]))/2;
+    latc = sum(lat([1 end]))/2;
+    zone        = utmzone(latc,lonc);
+    Nhemisphere = double(upper(zone(end)))>=78;
+else
+    zone = '';
+    
+end
 
 % parse input arguments 
 p = inputParser;
@@ -53,10 +65,10 @@ validmethods = {'bicubic','bilinear','nearest','linear'};
 p.FunctionName = 'GRIDobj/reproject2UTM';
 % required
 addRequired(p,'DEM',@(x) isa(x,'GRIDobj'));
-addRequired(p,'res',@(x) isscalar(x) && x > 0);
+addRequired(p,'res',@(x) (~isa(x,'GRIDobj') && isscalar(x) && x > 0) || isa(x,'GRIDobj'));
 % optional
-addParamValue(p,'zone',zone,@(x) ischar(x));
-addParamValue(p,'method','bilinear',@(x) ischar(validatestring(x,validmethods)));
+addParameter(p,'zone',zone,@(x) ischar(x));
+addParameter(p,'method','bilinear',@(x) ischar(validatestring(x,validmethods)));
 
 parse(p,DEM,res,varargin{:});
 
@@ -64,17 +76,23 @@ parse(p,DEM,res,varargin{:});
 zone = p.Results.zone;
 
 
-% prepare mstruct (transformation structure)
-mstruct       = defaultm('utm');
-mstruct.zone  = p.Results.zone;
-mstruct.geoid = wgs84Ellipsoid;
-mstruct       = defaultm(utm(mstruct));
-
-% use forward transformation of the corner locations of the DEM
-% to calculate the bounds of the reprojected DEM
-[lims(1:2),lims(3:4)]   = mfwdtran(mstruct,[min(lat) max(lat)],[min(lon) max(lon)]);
-
+% prepare mstruct (transformation structure) if only res supplied
+if ~isa(res,'GRIDobj');
+    mstruct       = defaultm('utm');
+    mstruct.zone  = p.Results.zone;
+    mstruct.geoid = wgs84Ellipsoid;
+    mstruct       = defaultm(utm(mstruct));
     
+    % use forward transformation of the corner locations of the DEM
+    % to calculate the bounds of the reprojected DEM
+    [lims(1:2),lims(3:4)]   = mfwdtran(mstruct,[min(lat) max(lat)],[min(lon) max(lon)]);
+else
+    
+    mstruct  = res.georef.mstruct;
+    [x,y]    = getcoordinates(res);
+    lims     = [min(x) max(x) min(y) max(y)];
+end
+
 
 % prepare tform for the image transform
 T = maketform('custom', 2, 2, ...
@@ -83,20 +101,33 @@ T = maketform('custom', 2, 2, ...
     []);
 
 % calculate image transform
-[Znew,xdata,ydata] = imtransform(flipud(DEM.Z),T,p.Results.method,...
-      'Xdata',lims([1 2]),...
-      'Ydata',lims([3 4]),...
-     'Udata',lon([1 end]),'Vdata',lat([end 1])',...
-     'XYScale',[res res],...
-     'Fillvalues',nan...
-    );
+if ~isa(res,'GRIDobj');
+    [Znew,xdata,ydata] = imtransform(flipud(DEM.Z),T,p.Results.method,...
+        'Xdata',lims([1 2]),...
+        'Ydata',lims([3 4]),...
+        'Udata',lon([1 end]),'Vdata',lat([end 1])',...
+        'XYScale',[res res],...
+        'Fillvalues',nan...
+        );
+    % we have calculated the imtransform with 'ColumnsStartFrom' south. 
+    % GRIDobjs use 'ColumnsStartFrom' north
+    Znew = flipud(Znew);
+    xnew = cumsum([xdata(1) repmat(res,1,size(Znew,2)-1)]);
+    ynew = flipud(cumsum([ydata(1) repmat(res,1,size(Znew,1)-1)])');
+else
+    Znew = imtransform(flipud(DEM.Z),T,p.Results.method,...
+        'Xdata',lims([1 2]),...
+        'Ydata',lims([3 4]),...
+        'Udata',lon([1 end]),'Vdata',lat([end 1])',...
+        'XYScale',[res.cellsize res.cellsize],...
+        'Fillvalues',nan...
+        );
+    Znew = flipud(Znew);
+end
 
-% we have calculated the imtransform with 'ColumnsStartFrom' south. 
-% GRIDobjs use 'ColumnsStartFrom' north
-Znew = flipud(Znew);
-xnew = cumsum([xdata(1) repmat(res,1,size(Znew,2)-1)]);
-ynew = flipud(cumsum([ydata(1) repmat(res,1,size(Znew,1)-1)])');
 
+
+if ~isa(res,'GRIDobj');
 % Construct GRIDobj
 DEMr = GRIDobj(xnew,ynew,Znew);
 
@@ -129,6 +160,12 @@ DEMr.georef.GeoKeyDirectoryTag = GeoKeyDirectoryTag;
 DEMr.georef.mstruct = mstruct;
 DEMr.name = [DEM.name ' (utm)'];
 
+else
+    DEMr = res;
+    DEMr.Z = Znew;
+    DEMr.name = [DEM.name ' (repr)'];
+    zone = [];
+end
 
 % Transformation functions for imtransform
 % (may want to check projfwd and projinv instead mfwdtran and minvtran)
