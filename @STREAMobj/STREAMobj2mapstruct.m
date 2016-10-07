@@ -5,6 +5,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 % Syntax
 %
 %     MS = STREAMobj2mapstruct(S)
+%     MS = STREAMobj2mapstruct(S,type)
 %     MS = STREAMobj2mapstruct(S,'seglength',length,...
 %                        'attributes',{'fieldname1' var1 aggfunction1 ...
 %                                      'fieldname2' var2 aggfunction2})
@@ -59,6 +60,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 % Input arguments
 %
 %     S       STREAMobj
+%     type    {'strahler'} or 'shreve'
 %
 % Parameter name/value pairs
 %
@@ -72,8 +74,16 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %                   node attribute list
 %                   aggfunction is a anonymous function that takes a vector
 %                   and returns a scalar
-%
-%   *** This might not be easy to understand so check the example below ***
+%                   *** This might not be easy to understand so check the 
+%                       example below ***
+%      'parallel'   {false} or true. Requires the Parallel Computing
+%                   Toolbox. If set to true, the function will split the
+%                   stream network into its connected components and
+%                   process each individually in parallel. Mostly, there
+%                   will not be a gain in speed as there is a significant
+%                   computational overhead to split the network. Running in 
+%                   may be more efficient if network is very large with 
+%                   numerous connected components.                    
 %     
 % Output arguments
 %
@@ -103,10 +113,15 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 % Date: 23. April, 2013
 
 
-
 if nargin == 1;
+    type = 'strahler';
+elseif nargin == 2;
+    type = validatestring(varargin{1},{'strahler','shreve'},'STREAMobj/streamorder','type',2);
+end
+
+if nargin <= 2;
     % get streamorder
-    s = streamorder(S);
+    s = streamorder(S,type);
     % get outlets
     outlets = streampoi(S,'outlets','logical');
     
@@ -167,7 +182,7 @@ if nargin == 1;
         GS(r).X = [GS(r).X(end:-1:1) nan];
         GS(r).Y = [GS(r).Y(end:-1:1) nan];
         if isempty(GS(r).tribtoIX)
-            GS(r).tribtoIX = NaN;
+            GS(r).tribtoIX = 0;
         end
         
     end
@@ -179,11 +194,14 @@ else
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
     addParamValue(p,'seglength',S.cellsize*10,@(x) isscalar(x) && x>=S.cellsize*3);
     addParamValue(p,'attributes',{},@(x) iscell(x)); 
+    addParamValue(p,'parallel',false)
     parse(p,S,varargin{:});
     
     % check the attributes
     attributes   = p.Results.attributes;
     nrattributes = numel(attributes)/3;
+    runinpar     = p.Results.parallel;
+    seglength    = p.Results.seglength;
     
     % convert strings to functions, if necessary
     for r = 1:nrattributes;
@@ -192,6 +210,56 @@ else
             attributes{ix} = str2func(attributes{ix});
         end
     end
+    
+    % convert attributes to node attribute lists
+    for r = 1:nrattributes;
+        ix = ((r-1)*3)+2;
+        if isa(attributes{ix},'GRIDobj');
+            attributes{ix} = getnal(S,attributes{ix});
+        elseif isnal(S,attributes{ix});
+            % everything's fine here
+        else
+            error('TopoToolbox:incompatibleformat',...
+                ['Incompatible format of attribute. Attribute is expected to\n'...
+                 'be either a GRIDobj or a node attribute list (nal) of S']);
+        end
+    end
+    
+    %% Parallel computing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if runinpar
+        % Place each connected component in an individual cell
+        [CS,locS] = STREAMobj2cell(S);
+        
+        % Derive a cell array of attributes
+        CATT = cell(numel(CS),nrattributes*3);
+        for r = 1:numel(CS);
+            for r2 = 1:nrattributes;
+                CATT{r,(r2-1)*3 + 1} = attributes{(r2-1)*3 + 1}; 
+                CATT{r,(r2-1)*3 + 3} = attributes{(r2-1)*3 + 3};               
+                CATT{r,(r2-1)*3 + 2} = attributes{(r2-1)*3 + 2}(locS{r});
+            end
+        end
+        
+        % Preallocate cell array
+        GS = cell(numel(CS),1);
+        
+        parfor r = 1:numel(CS)            
+            GS{r} = STREAMobj2mapstruct(CS{r},'seglength',seglength,...
+                                                'attributes',CATT(r,:),...
+                                                'parallel',false);
+        end
+        
+        GS = vertcat(GS{:});
+        if nargout>1
+            x = [GS.X]';
+            y = [GS.Y]';
+        end
+        return
+        
+    end
+    %% Parallel computing end here %%%%%%%%%%%%%%%%%%%%%%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
             
     
     % write stream segments

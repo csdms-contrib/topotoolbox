@@ -1,4 +1,4 @@
-function CS = STREAMobj2cell(S,ref,n)
+function [CS,locS] = STREAMobj2cell(S,ref,n)
 
 % convert instance of STREAMobj to cell array of stream objects
 %
@@ -7,6 +7,7 @@ function CS = STREAMobj2cell(S,ref,n)
 %     CS = STREAMobj2cell(S)
 %     CS = STREAMobj2cell(S,ref)
 %     CS = STREAMobj2cell(S,ref,n)
+%     [CS,locS] = ...
 %
 % Description
 %
@@ -31,11 +32,22 @@ function CS = STREAMobj2cell(S,ref,n)
 % Output arguments
 %
 %     CS    cell array with elements of CS being instances of STREAMobj
+%     locS  cell array with linear indices into node attribute lists of S
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     S   = STREAMobj(FD,'minarea',1000);
+%     z   = getnal(S,DEM);
+%     [CS,locS] = STREAMobj2cell(S);
+%     plotdz(CS{21},z(locS{21}))
 %
 %
+% See also: FLOWobj2cell
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. May, 2013
+% Date: 7. October, 2016
 
 if nargin == 1;
     ref = 'outlets';
@@ -86,6 +98,11 @@ switch lower(ref)
         
         % adapt new STREAMobj to the reduced network
         LL = L;
+        
+        if nargout == 2;
+            locS = cell(1,nc);
+        end
+        
         for r = 1:nc;
             CS{r} = S;
             L     = LL==r;
@@ -100,6 +117,12 @@ switch lower(ref)
             CS{r}.x   = CS{r}.x(L);
             CS{r}.y   = CS{r}.y(L);
             CS{r}.IXgrid   = CS{r}.IXgrid(L);
+            
+            if nargout == 2;
+                locS{r} = find(L);
+            end
+                
+            
         end
         
         
@@ -113,7 +136,9 @@ switch lower(ref)
         nc = numel(ixchannel);
         
         CS = cell(1,nc);
-        
+        if nargout == 2;
+            locS = cell(1,nc);
+        end
         for r = 1:nc;
             IX = ixchannel(r);
         
@@ -127,21 +152,25 @@ switch lower(ref)
             L(IX) = true;
             
             % adapt new STREAMobj to the reduced network
-%             LL = L;
             
-                CS{r} = S;
-%                 L     = LL==r;
-                I     = L(CS{r}.ix);
-                CS{r}.ix  = CS{r}.ix(I);
-                CS{r}.ixc = CS{r}.ixc(I);
-
-                IX    = cumsum(L);
-                CS{r}.ix  = IX(CS{r}.ix);
-                CS{r}.ixc = IX(CS{r}.ixc);
-
-                CS{r}.x   = CS{r}.x(L);
-                CS{r}.y   = CS{r}.y(L);
-                CS{r}.IXgrid   = CS{r}.IXgrid(L);
+            CS{r} = S;
+            I     = L(CS{r}.ix);
+            CS{r}.ix  = CS{r}.ix(I);
+            CS{r}.ixc = CS{r}.ixc(I);
+            
+            IX    = cumsum(L);
+            CS{r}.ix  = IX(CS{r}.ix);
+            CS{r}.ixc = IX(CS{r}.ixc);
+            
+            CS{r}.x   = CS{r}.x(L);
+            CS{r}.y   = CS{r}.y(L);
+            CS{r}.IXgrid   = CS{r}.IXgrid(L);
+            
+            if nargout == 2;
+                locS{r} = find(L);
+            end
+            
+            
             
         end
         
@@ -155,4 +184,8 @@ for r = 1:nc;
     end
 end
 CS = CS(valid);
+
+if nargout == 2;
+    locS = locS(valid);
+end
 
