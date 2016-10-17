@@ -21,7 +21,7 @@ function demo_modifystreamnet
 narginchk(0,0)
 nargoutchk(0,0)
 
-load exampledem
+load exampleDEM.mat
 DEM = GRIDobj(X,Y,dem);
 FD  = FLOWobj(DEM,'preprocess','carve');
 S   = STREAMobj(FD,'minarea',100);
