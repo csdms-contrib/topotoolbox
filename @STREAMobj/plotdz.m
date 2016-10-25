@@ -31,9 +31,6 @@ function h = plotdz(S,DEM,varargin)
 %     if annotated, a cell array of strings can be added to the vertical 
 %     arrows
 %
-%     'color': {'b'}
-%     line colors as provided to plot
-%
 %     'distance': {S.distance}
 %     node attribute list with custom distances (see STREAMobj/distance) or
 %     STREAMobj (see function distance(S,S2))
@@ -45,23 +42,42 @@ function h = plotdz(S,DEM,varargin)
 %     add an offset (scalar) to the distance from outlet to shift the 
 %     x-axis of the plot.
 %
-%     'gradient': {false},true
-%     set to true, if you want to plot the gradient instead of elevation.
+%     'linewidth', 1
+%     scalar that specifies the width of the line. 
 %
-%     'kernelsize'  {11}, odd, scalar integer
-%     if option 'smooth' is true, than kernelwidth determines the width of
-%     the moving average filter. kernelsize must be odd.
+%     'color': {'b'}
+%     line colors as provided to plot. Alternatively, you can supply a node
+%     attribute list (nal). The line will then have varying colors based on 
+%     nal and h will be a surface object.
 %
-%     'smooth'   {false} or true
-%     smooth the profiles using a moving average filter (see also the
-%     kernelwidth parameter).
+%     if 'color' is a node attribute list, then following parameter
+%     name/values apply
 %
+%     'colormethod'    {'line'} or 'surface'
+%     lines with variable colors can be obtained by different methods.
+%     Before introduction of the new graphics system in Matlab, using the
+%     edges of surfaces was the standard hack. Since 2014b and the new
+%     graphics system, lines have an undocumented edge property. Modifying
+%     this edge property results in much smoother and more beautiful lines,
+%     but may be bugged in newer versions.
+%
+%     'colormap'  {'parula'}
+%     string that identifies a known colormap (e.g. 'jet','landcolor')
+%
+%     'colorbar'  {true} or false
+%     true adds a colorbar. Note that colors created with the undocumented
+%     method can not be changed afterwards by 'caxis'.
+%
+%     'cbarlabel' {''}
+%     string to label colorbar
+%     
 %
 % Output arguments
 %
-%     h     handle to the line handle
+%     h     handle to the line handle. h will be a surface handle if color 
+%           is set to a nal and colormethod is surface.
 %
-% Example
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'mex',true,'preprocess','carve');
@@ -69,29 +85,36 @@ function h = plotdz(S,DEM,varargin)
 %     S  = klargestconncomps(S);
 %     plotdz(S,DEM)
 %
+% Example 2 (colored plot)
+%     
+%     z = imposemin(S,DEM);
+%     g = gradient(S,z);
+%     plotdz(S,DEM,'color',g)
 %
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. March, 2016
+% Date: 23. October, 2016
 
 nrnodes = numel(S.x);
+ax      = gca;
 
 % check input
 p = inputParser;         
 p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
-
-addParamValue(p,'annotation',[])
-addParamValue(p,'color','b');
-addParamValue(p,'annotationtext',{});
-addParamValue(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
-addParamValue(p,'gradient',false,@(x) isscalar(x));
-addParamValue(p,'smooth',false,@(x) isscalar(x));
-addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
-addParamValue(p,'doffset',0,@(x) isscalar(x));
-addParamValue(p,'kernelsize',11,@(x) isscalar(x) && mod(x,2)==1 && x>=3);
+addParameter(p,'annotation',[])
+addParameter(p,'color',ax.ColorOrder(ax.ColorOrderIndex,:));
+addParameter(p,'annotationtext',{});
+addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
+addParameter(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
+addParameter(p,'doffset',0,@(x) isscalar(x));
+addParameter(p,'colormap','parula');
+addParameter(p,'linewidth',1);
+addParameter(p,'colormethod','line');
+addParameter(p,'colorbar',true);
+addParameter(p,'cbarlabel','');
 
 parse(p,S,DEM,varargin{:});
 S   = p.Results.S;
@@ -99,7 +122,16 @@ DEM = p.Results.DEM;
 
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
-    
+    zz = getnal(S,DEM);
+elseif isnal(S,DEM);
+    zz = DEM;
+else
+    error('Imcompatible format of second input argument')
+end
+
+
+if isa(DEM,'GRIDobj')
+    validatealignment(S,DEM);
 end
 
 % get dynamic properties of S
@@ -125,51 +157,72 @@ end
 % apply distance offset
 dist = dist + p.Results.doffset;
 
-if isa(DEM,'GRIDobj')
-    zz    = DEM.Z(S.IXgrid);
-else
-    zz    = DEM;
-    if numel(zz) ~= numel(S.IXgrid);
-        error('TopoToolbox:wronginput',...
-            ['The number of elements in the node attribute vector \n' ...
-             'must equal the number of nodes in the stream network']);
-    end
-        
-end
-
-% smooth
-if ~p.Results.smooth;
-    I     = ~isnan(order);
-    d     = nan(size(order));
-    d(I)  = dist(order(I));
-    z     = nan(size(order));
-    
-    if ~p.Results.gradient
-        
-        z(I)  = zz(order(I));
-    else
-        
-        g     = (zz(S.ix)-zz(S.ixc))./hypot(S.x(S.ix)-S.x(S.ixc),S.y(S.ix)-S.y(S.ixc));
-        gg     = zeros(size(S.x));
-        gg(S.ix) = g;
-        z     = nan(size(order));
-        z(I)  = gg(order(I));
-    end
-        
-else
-    if ~p.Results.gradient
-        [d,z] = smooth(dist,double(zz),order,p.Results.kernelsize);
-    else
-        g     = (zz(S.ix)-zz(S.ixc))./hypot(S.x(S.ix)-S.x(S.ixc),S.y(S.ix)-S.y(S.ixc));
-        gg     = zeros(size(S.x));
-        gg(S.ix) = g;
-        [d,z] = smooth(dist,double(gg),order,p.Results.kernelsize);
-    end
-        
-end
+I     = ~isnan(order);
+d     = nan(size(order));
+d(I)  = dist(order(I));
+z     = nan(size(order));
+z(I)  = zz(order(I));
 
 % plot
-ht = plot(d,z,'-','Color',p.Results.color);  
+if ~isnal(S,p.Results.color)
+    ht = plot(ax,d,z,'-','Color',p.Results.color,'LineWidth',p.Results.linewidth);
+else
+    meth = validatestring(p.Results.colormethod,{'line','surface'});
+    switch meth
+        case 'line'
+            %% Plotting colored lines using undocumented Edges property
+            % see here:
+            % http://undocumentedmatlab.com/blog/plot-line-transparency-and-color-gradient
+            ht = plot(ax,d,z,'-');
+            c     = zeros(size(order,1),3);
+            minc  = min(p.Results.color);
+            maxc  = max(p.Results.color);
+            
+            cmap    = colormap(p.Results.colormap)*255;
+            cmapix  = linspace(minc,maxc,size(cmap,1));
+            
+            col   = interp1(cmapix,cmap,p.Results.color);
+            c(I,:) = col(order(I),:);
+            c     = c';
+            c     = [c;zeros(1,size(c,2))+200];
+            c     = uint8(c);
+            % nans must be removed
+            c     = c(:,I);
+            
+            ht.LineWidth = p.Results.linewidth;
+            % seems that the line must be first drawn ...
+            drawnow
+            % ... to be colored.
+            set(ht.Edge, 'ColorBinding','interpolated', 'ColorData',c);
+            
+            if p.Results.colorbar
+                cc = colorbar;
+                caxis([minc maxc]);
+            end
+            
+        otherwise
+            %% Plotting colored lines using surface
+            
+            dummy = z*0;
+            c     = nan(size(order));
+            c(I)  = p.Results.color(order(I));
+            colormap(p.Results.colormap)
+            ht = surface([d d],[z z],[dummy dummy],[c c],...
+                'facecolor','none',...
+                'edgecolor','flat',...
+                'linewidth',p.Results.linewidth,...
+                'parent',ax);
+            if p.Results.colorbar
+                cc = colorbar;
+            end
+            
+            
+    end
+    if p.Results.colorbar && ~isempty(p.Results.cbarlabel);
+        cc.Label.String = p.Results.cbarlabel;
+    end
+end
+
 xlabel(['Distance upstream [' lower(p.Results.dunit) ']'])
 ylabel('Elevation [m]')
 
@@ -208,7 +261,7 @@ if ~isempty(p.Results.annotation);
             annotext = '\downarrow ';
         end
         
-        text('Position',[annd(r), annz(r)],...
+        text(ax,'Position',[annd(r), annz(r)],...
              'String', annotext,...
              'VerticalAlignment','bottom',...
              'FontWeight','bold');
@@ -219,46 +272,5 @@ end
 
 if nargout == 1;
     h = ht;
-end
-end
-
-function [ds,zs] = smooth(d,z,order,ks)
-% smooth profiles using an moving average filter
-%
-% start and endpoints of stream segments are retained or adapted to streams
-% that have been filtered before
-%
-
-INNAN = ~isnan(order);
-nanix1 = 0;
-nanix2  = find(~INNAN);
-ds     = nan(size(order));
-ds(INNAN) = d(order(INNAN));
-zs     = nan(size(order));
-
-kernel   = ones(ks,1)/ks;
-padwidth = floor(ks/2);
-
-for r = 1:numel(nanix2);
-    dd = ds(nanix1+1:nanix2(r)-1);
-    zz = z(order(nanix1+1:nanix2(r)-1));
-    
-    di = linspace(dd(1),dd(end),numel(dd));
-    zi = interp1(dd,zz,di,'linear');
-    
-    zi = [repmat(zi(1),padwidth,1);...
-          zi(:);...
-          repmat(zi(end),padwidth,1)];
-    
-    zi = conv(zi,kernel,'valid');
-    zh = interp1(di,zi,dd);
-    zh(1) = zz(1);
-    zh(end) = zz(end);
-    
-    z(order(nanix1+1:nanix2(r)-1)) = zh;
-    zs(nanix1+1:nanix2(r)-1) = zh;
-    
-    nanix1 = nanix2(r);
-    
 end
 end
