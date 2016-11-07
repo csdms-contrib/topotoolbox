@@ -212,6 +212,7 @@ if isempty( p.Results.mn );
 else
     % or use predefined mn ratio.
     mn   = p.Results.mn;
+    ci   = [];
 end
 
 % plot different values of mn
