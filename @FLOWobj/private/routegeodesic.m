@@ -1,4 +1,4 @@
-function [ic,icd] = routegeodesic(dem,type)
+function [ic,icd] = routegeodesic(DEM,type)
 
 % use least cost path to route through flats of a digital elevation model
 %
@@ -35,14 +35,13 @@ function [ic,icd] = routegeodesic(dem,type)
 % Date: 7. October, 2011
 
 
-
-if verLessThan('images', '7.3')
-    error('Image Processing Toolbox 7.3 (R2011b) or higher is required.');
-end
+dem = DEM.Z;
 
 siz = size(dem);
 
-[I,SILLS] = identifyflats(dem);
+[I,SILLS] = identifyflats(DEM);
+I = I.Z;
+SILLS = SILLS.Z;
 
 if any(I(:))
     
@@ -82,29 +81,22 @@ if any(I(:))
             II = icd == 0;
             icd(II) = [];
             ic(II) = [];
-            
-            [~,ia] = unique(PreSillPixel);
-            SillPixel = SillPixel(ia);
-            PreSillPixel = PreSillPixel(ia);
-            
         case 'multi'
             icd = [];
             ic2 = [];
             for r = 1:8;
                 DSN = ic+neighs(r);
                 II  = C(ic)-C(DSN) > 0;
-                icd = [icd; DSN(II)]; %#ok<AGROW>
-                ic2 = [ic2; ic(II)]; %#ok<AGROW>
+                icd = [icd; DSN(II)];
+                ic2 = [ic2; ic(II)];
                 
             end
             ic = ic2;
-            
-            
     end
+    
+    
     ic  = [ic;  PreSillPixel];
     icd = [icd; SillPixel];
-    
-    
 else
     ic = [];
     icd = [];

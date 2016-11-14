@@ -6,6 +6,8 @@ classdef FLOWobj
 %
 %     FD = FLOWobj(DEM)
 %     FD = FLOWobj(DEM,'pn','pv',...)
+%     FD = FLOWobj(DEM,'multi')
+%     FD = FLOWobj(DEM,'Dinf')
 %     FD = FLOWobj(M,'cellsize',cs,'size',siz)
 %
 % Description
@@ -20,6 +22,12 @@ classdef FLOWobj
 %     FD can be calculated from the original digital elevation model or
 %     converted from an existing flow direction matrix. FD contains a
 %     topological ordering of the DEM nodes.
+%
+%     FLOWobj(DEM,'multi') derives multiple flow direction (MFD) and
+%     FLOWobj(DEM,'dinf') derives D infinity according to Tarboton's (1997)
+%     method (Eddins 2016). Note that this option precludes any other 
+%     options to be set. Thus, this method needs preprocessing, e.g. using 
+%     fillsinks(DEM).
 %
 % Input arguments
 %
@@ -65,8 +73,8 @@ classdef FLOWobj
 %            the size of the DEM of which the flow direction matrix was 
 %            derived from. 
 %     'refmat' -- referencing matrix as derived from GRIDobj property refmat
-%     'algorithm' -- {'dmperm'} or 'tsort' 
-%            determine the algorithm to perform a topological sorting
+%     'algorithm' -- {'dmperm'} or 'tsort' or 'toposort'
+%            determines the algorithm to perform a topological sorting
 %            of the vertices of the directed graph in matrix M (this option
 %            is left here mainly for evaluation purposes of different 
 %            algorithms).
@@ -75,7 +83,7 @@ classdef FLOWobj
 %
 %     FD     flow direction object (FLOWobj)
 %
-% Example
+% Example 1
 %
 %     % create and evaluate flow direction object for a DEM
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
@@ -83,14 +91,41 @@ classdef FLOWobj
 %     A  = flowacc(FD);
 %     imageschs(DEM,log(A));
 %
+% Example 2
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','carve','mex',true);
+%     DEM = imposemin(FD,DEM,0.0001);
+%     S   = STREAMobj(FD,'minarea',1000);
+%     DEMc = DEM;
+%     DEMc.Z(S.IXgrid) = DEMc.Z(S.IXgrid)-100; 
+%     FD  = FLOWobj(DEMc,'multi');
+%     A   = flowacc(FD);
+%     imageschs(DEM,log(A));
 % 
+%
 % See also: GRIDobj, STREAMobj
 %
+% References: 
+%
+%     Tarboton, D. G. (1997). A new method for the determination of flow 
+%     directions and upslope areas in grid digital elevation models. 
+%     Water Resources Research, 33(2), 309-319.
+%
+%     Eddins, S. (2016). Upslope area function. Mathworks File Exchange, 
+%     https://www.mathworks.com/matlabcentral/fileexchange/15818-upslope-area-functions
+%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 07. October, 2016
 
-properties(GetAccess = 'public', SetAccess = 'private')
+
+% Update 
+% 2015-06-16: added support for digraph toposort algorithm available with
+% R2015b
+% 2016-10-07: added support for multiple flow directions
+% 2016-11-14: added support for Dinf
+
+properties(GetAccess = 'public', SetAccess = 'public')
     size      % size of instance of GRIDobj from which STREAMobj was derived
     type      % flow direction type (single, multi)
     ix        % [edge attribute] topologically sorted nodes (givers)
@@ -98,27 +133,27 @@ properties(GetAccess = 'public', SetAccess = 'private')
     fraction  % [edge attribute] fraction transfered between nodes
     cellsize  % cellsize of the grid (scalar)
     refmat    % 3-by-2 affine transformation matrix (see makerefmat)
+    georef    % additional information on spatial referencing
     
 end
 
 properties(GetAccess = 'public', SetAccess = 'public')
     fastindexing = false; % set to true to initiate fast indexing
     ixcix     % indexing matrix for fast indexing
-    georef    % additional information on spatial referencing
 end
 
 methods
     function FD = FLOWobj(DEM,varargin)
 
         if nargin == 0;
-            
-        else
+            % Create an empty FLOWobj
+        elseif nargin >= 1 && nargin ~= 2;
 
             % Parse inputs
             p = inputParser;
             p.FunctionName = 'FLOWobj';
             expectedPreProcess = {'none','fill','carve'};
-            expectedAlgorithms = {'dmperm', 'tsort'};
+            expectedAlgorithms = {'dmperm', 'toposort','tsort'};
 
             addRequired(p,'DEM',@(x) issparse(x) || isa(x,'GRIDobj'));
             
@@ -135,6 +170,8 @@ methods
             addParamValue(p,'internaldrainage',false,@(x) isscalar(x) && islogical(x));
             addParamValue(p,'mex',false,@(x) isscalar(x) && islogical(x));
             addParamValue(p,'algorithm','dmperm',@(x) ischar(validatestring(x,expectedAlgorithms)));
+            
+            addParamValue(p,'type','single');
 
             parse(p,DEM,varargin{:});
 
@@ -151,7 +188,7 @@ methods
             mexx       = p.Results.mex;
             algo       = validatestring(p.Results.algorithm,expectedAlgorithms);
             
-            % % % %
+            %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if mexx
                 % check if compiled mex files are really available
                 ext = mexext;
@@ -165,7 +202,7 @@ methods
             end
                 
 
-            % % % % % %
+            %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             if issparse(DEM)
                 % construct flow direction object from M
                 M = DEM;
@@ -205,8 +242,18 @@ methods
                             FD.type = 'single';
                         end
                         
-                    case 'dmperm'
-                        [p,~] = dmperm(speye(size(M))-M);
+                    case {'dmperm','toposort'}
+                        switch algo
+                            case 'dmperm'
+                                [p,~] = dmperm(speye(size(M))-M);
+                            case 'toposort'
+                                if verLessThan('matlab','8.6')
+                                    error('This option requires MATLAB R2015b or later')
+                                end
+                                G = digraph(M);
+                                p = toposort(G);
+                        end
+                                     
                         if mtf
                             [FD.ix,FD.ixc,FD.fraction] = find(M(p,p));
                             FD.type = 'multi';
@@ -217,7 +264,7 @@ methods
                         p = p(:);
                         FD.ixc = p(FD.ixc);
                         FD.ix  = p(FD.ix);
-                        
+
                 end
                 
                 FD.ix = uint32(FD.ix);
@@ -225,20 +272,26 @@ methods
 
                 
                 
-
+            
             %%  construct flow direction object from DEM
             else
-
+                
+                % transfer object properties from DEM to FD
                 FD.cellsize = DEM.cellsize;
                 FD.refmat   = DEM.refmat;
                 FD.georef   = DEM.georef;
                 FD.size     = DEM.size;
                 FD.type     = 'single';
                 nrc         = numel(DEM.Z);
-
+                
+                % start preprocessing (e.g. carve or fill)    
                 switch lower(preprocess)                   
                     
                     case 'fill'
+                        % fill will fill all internally drained basins
+                        % (unless specified in the sinks raster). At a
+                        % later stage, FLOWobj will find a route along the 
+                        % centerline of flat areas.
                         if verbose
                             disp([datestr(clock) ' -- Sink filling'])
                         end
@@ -250,6 +303,9 @@ methods
                         end
                         
                     case 'carve'
+                        % carve will make use of the topography in
+                        % depressions to derive the most realistic flow
+                        % paths.
                         if verbose
                             disp([datestr(clock) ' -- Sink filling'])
                         end
@@ -259,6 +315,11 @@ methods
                             DEMF = fillsinks(DEM,sinks);
                         end
                         
+                        % By default, weights are calculated as the
+                        % difference between the filled and the actual DEM.
+                        % There is also a weights option, which is a
+                        % GRIDobj with weights. But this is currently
+                        % undocumented
                         if isempty(weights);                            
                             D    = DEMF-DEM;
                         else
@@ -269,6 +330,11 @@ methods
                 end
 
                 % construct height graph
+                % After DEM filling, this code will identify flat sections,
+                % sills, and internally drained basins. By default
+                % internaldrainage is set to false. That means that FLOWobj
+                % will not attempt to route through the lowest region in a
+                % internally drained basin (e.g. a flat lake surface).
                 if p.Results.internaldrainage
                     [Iobj,SILLSobj,IntBasin] = identifyflats(DEM);
                 else
@@ -277,31 +343,46 @@ methods
                 
                 I     = Iobj.Z;
                 SILLS = SILLSobj.Z;
-                clear Iobj Sillsobj
+                clear Iobj SILLSobj
                 
                 % calculate sills for internal lake basins. These should be
                 % located within the lake to force convergent flows
                 if p.Results.internaldrainage
                     % There are various ways to get a lake center pixel
-                    % 1. regional maxima of distance transform. Most
-                    % elegant and good looking, but may produce several
-                    % internal sills and requires much computation
-                    % 2. randomly pick one pixel in each sink
-                    %
-                    % Here we choose the first one
-                    STATS   = regionprops(IntBasin.Z,'PixelIdxList');
-                    for r = 1:numel(STATS);
+                    % Here we choose the distance transform from outside
+                    % the lakes to the inside and take the locations as sills
+                    % where the distance is maximum.
+                    
+                    DD = bwdist(~IntBasin.Z,'e');
+                    STATS   = regionprops(IntBasin.Z,DD,'PixelIdxList','PixelValues');
+                    
+                    for r=1:numel(STATS);
+                        [~,ixm] = max(STATS(r).PixelValues);
+                        STATS(r).MaxIntIX = STATS(r).PixelIdxList(ixm);
+
                         I(STATS(r).PixelIdxList(1)) = false;
                         SILLS(STATS(r).PixelIdxList(1)) = true;
                     end
-                    clear IntBasin STATS
-                end
+                    ixm = [STATS(r).MaxIntIX];
+                    I(ixm) = false;
+                    SILLS(ixm) = true;
+                    clear InBasin STATS
                     
-                
+                    % A slightly faster but less elegant approach
+                    % STATS   = regionprops(IntBasin.Z,'PixelIdxList');
+                    % for r = 1:numel(STATS);
+                    %    I(STATS(r).PixelIdxList(1)) = false;
+                    %    SILLS(STATS(r).PixelIdxList(1)) = true;
+                    %end
+                    % clear IntBasin STATS
+                end
+
                 if verbose
                     disp([datestr(clock) ' -- Flat sections identified'])
                 end
 
+                % Some more preprocessing required. If the option carve is
+                % chosen, we derive here the costs to route through sinks
                 switch preprocess
                     case 'carve'
                         CarveMinVal = 0.1;
@@ -309,12 +390,24 @@ methods
                             D = (D + cweight);                            
                             D = linscale(D,0,100);
                         end
-                 
-                        CC = bwconncomp(I);                        
+                        
+                        % -- New version -- slightly faster but may require
+                        % more memory
+%                         STATS = regionprops(I,D,{'PixelIdxList','MaxIntensity','PixelValues'});
+%                         PixelValues = cellfun(@(pixval,maxval) (maxval-pixval).^tweight + CarveMinVal,...
+%                             {STATS.PixelValues},{STATS.MaxIntensity},...
+%                             'UniformOutput',false);
+%                         D(vertcat(STATS.PixelIdxList)) = cell2mat(PixelValues);
+                        
+                        % -- Old version
+                        CC = bwconncomp(I);                                
                         for r = 1:CC.NumObjects;
                             D(CC.PixelIdxList{r}) = (max(D(CC.PixelIdxList{r})) - D(CC.PixelIdxList{r})).^tweight + CarveMinVal;
                         end
-                        
+                        clear CC
+
+                        % enable that flow in flats follows digitized
+                        % streams. Undocumented...
                         if ~isscalar(streams);
                         if islogical(streams);                        
                             D(streams) = CarveMinVal;
@@ -322,12 +415,10 @@ methods
                             D = max(D - D.*min(streams,0.99999),CarveMinVal);
                         end
                         end
-                        clear CC
                 end
-                
-
-                dem = DEM.Z;
+               
                 % establish the connectivity between sills and flats
+                dem = DEM.Z;
                 [row,col] = find(SILLS);
                 IXsill    = sub2ind(FD.size,row,col);
                 rowadd = [-1 -1 0 1 1  1  0 -1];
@@ -347,7 +438,8 @@ methods
                 
                 clear row col IXsill rowadd coladd ValidRowColPair IXPreSill
 
-                % costs to route over flats
+                % Some more preprocessing if option fill is chosen. Here we
+                % derive the costs to route over flats
                 I = ~I;
                 switch lower(preprocess)
                     case {'fill','none'}
@@ -362,7 +454,9 @@ methods
                     disp([datestr(clock) ' -- Weights for graydist calculated'])
                 end
 
-                % distance transform
+                % Here we calculate the auxiliary topography. That is, the
+                % cost surface seeded at socalled PreSillPixels, i.e. the
+                % pixel immediately upstream to sill pixels.
                 D(I) = inf;
                 D = graydist(double(D),double(PreSillPixel),'q') + 1;
                 D(I) = -inf;
@@ -465,7 +559,41 @@ methods
                 if verbose
                     disp([datestr(clock) ' -- Ordered topology established'])
                 end
+                
+                        
+                end
+            
+        else
+            %% Multiple flow direction
+            FD.cellsize = DEM.cellsize;
+            FD.refmat   = DEM.refmat;
+            FD.georef   = DEM.georef;
+            FD.size     = DEM.size;
+            
+            switch lower(varargin{1});
+                case 'multi'           
+                    M = flowdir(DEM,'type','multi');                  
+                    FD.type = 'multi';
+                case 'dinf'
+                    R = dem_flow(DEM.Z);
+                    M = flow_matrix(DEM.Z,R,DEM.cellsize,DEM.cellsize);
+                    M = -M';
+                    
+                    FD.type = 'Dinf';
+                otherwise
+                    error('unknown flow direction type')
             end
+            
+            p = toposort(digraph(M));
+            p = uint32(p);
+            
+            [FD.ix,FD.ixc,FD.fraction] = find(M(p,p));
+            
+            
+            p = p(:);
+            FD.ixc = p(FD.ixc);
+            FD.ix  = p(FD.ix);
+            
         end
     end
 
@@ -475,10 +603,16 @@ methods
     end
     
     function FD = set.fastindexing(FD,val)
+        % fastindexing enables quick traversal along flow directions
+        % starting from a single pixel. It is used when deriving flow 
+        % paths, e.g., flowpathextract.
         
         validateattributes(val,{'numeric','logical'},{'scalar'})
         
         if val
+            if ~strcmp(FD.type,'single');
+                error('TopoToolbox:fastindexing','Fast indexing is only possible for single flow directions');
+            end
             FD.fastindexing = true;
             FD.ixcix  = zeros(FD.size,'uint32');
             FD.ixcix(FD.ix) = uint32(1):uint32(numel(FD.ix));

@@ -54,7 +54,9 @@ of each function (help function).
 
 2.2 pre
 - modification: GRIDobj way to store referencing information was changed
+- modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
+- new function: FLOWobj/dbentropy 
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
 - new function: GRIDobj/zscore
@@ -77,6 +79,8 @@ of each function (help function).
 - modification: STREAMobj/plotdz includes custom distance option
 - modification: STREAMobj/distance includes option to derive distance from different
   STREAMobj
+- modification: STREAMobj/STREAMobj2cell
+- modification: STREAMobj/STREAMobj2mapstruct
 - new function: FLOWobj/FLOWobj2cell
 - update to several FLOWobj methods to avoid speed loss for MATLAB versions newer
   than R2015b

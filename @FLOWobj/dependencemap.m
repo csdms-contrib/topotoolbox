@@ -31,7 +31,7 @@ function OUT = dependencemap(FD,varargin)
 % See also: FLOWobj, FLOWobj/INFLUENCEMAP
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
+% Date: 4. March, 2016
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 

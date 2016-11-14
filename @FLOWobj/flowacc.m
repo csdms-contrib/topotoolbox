@@ -121,7 +121,7 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
                 
             end
             
-        case 'multi'
+        case {'multi','Dinf'}
             fraction = FD.fraction;
             if nargin < 3
                 for r = 1:numel(ix);

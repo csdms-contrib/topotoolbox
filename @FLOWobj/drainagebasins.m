@@ -85,9 +85,10 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 
 narginchk(1,3);
 
-if strcmpi(FD.type,'multi');
+switch lower(FD.type)
+    case {'multi','dinf'};
     error('TopoToolbox:drainagebasins',...
-        'drainage basins are not defined for multiple flow directions');
+        'drainage basins are not defined for divergent flows');
 end
 
 % create temporary indices to gain speed with R2015b and later

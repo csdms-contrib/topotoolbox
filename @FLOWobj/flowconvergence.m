@@ -29,7 +29,7 @@ function N = flowconvergence(FD)
 % See also: FLOWOBJ
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 14. November, 2016
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
@@ -37,9 +37,19 @@ function N = flowconvergence(FD)
 
 ix = FD.ix;
 ixc = FD.ixc;
-nr = zeros(FD.size,'uint8');
-for r = 1:numel(ix);
-    nr(ixc(r)) = nr(ixc(r))+1;
+
+switch FD.type
+    case 'single'
+        nr = zeros(FD.size,'uint8');
+        for r = 1:numel(ix);
+            nr(ixc(r)) = nr(ixc(r))+1;
+        end
+    case {'multi' 'Dinf'}
+        fr = FD.fraction;
+        nr = zeros(FD.size);
+        for r = 1:numel(ix);
+            nr(ixc(r)) = nr(ixc(r)) + fr(r);
+        end
 end
 
 % Prepare output

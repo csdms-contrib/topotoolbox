@@ -15,8 +15,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mexErrMsgTxt("Need 3 inputs and no more than 1 output");
     }
     
-    ixp    = (int*) mxGetData(prhs[0]);
-	ixcp   = (int*) mxGetData(prhs[1]);
+    ixp    = (uint32_T*) mxGetData(prhs[0]); //int*
+	ixcp   = (uint32_T*) mxGetData(prhs[1]); //int*
 	W0p    = mxGetPr(prhs[2]);
 	numel    = mxGetNumberOfElements(prhs[0]);
 	numelW0  = mxGetNumberOfElements(prhs[2]);

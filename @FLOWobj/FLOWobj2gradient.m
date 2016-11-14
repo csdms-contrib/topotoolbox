@@ -13,6 +13,9 @@ function G = FLOWobj2gradient(FD,DEM)
 %     when deriving the FLOWobj. FLOWobj2gradient returns an instance of
 %     GRIDobj that contains the gradient along the flow paths.
 %
+%     If FLOWobj has been derived using a multiple or Dinf flow direction
+%     algorithm, then G is calculated as the weighted mean gradient. 
+%
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
@@ -21,5 +24,13 @@ function G = FLOWobj2gradient(FD,DEM)
 validatealignment(FD,DEM)
 d = getdistance(FD.ix,FD.ixc,FD.size,FD.cellsize);
 G = DEM;
-G.Z = zeros(FD.size,class(DEM.Z));
-G.Z(FD.ix) = (DEM.Z(FD.ix)-DEM.Z(FD.ixc))./d;
+switch FD.type
+    case 'single'
+        G.Z = zeros(FD.size,class(DEM.Z));
+        G.Z(FD.ix) = (DEM.Z(FD.ix)-DEM.Z(FD.ixc))./d;
+    otherwise
+        d   = FD.fraction .* (DEM.Z(FD.ix) - DEM.Z(FD.ixc))./d;
+        g   = accumarray(FD.ix,d,[prod(DEM.size) 1],@sum,zeros(1,'like',DEM.Z),false);
+        G.Z = reshape(g,DEM.size);
+end
+        
