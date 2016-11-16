@@ -98,14 +98,14 @@ function h = plotdz(S,DEM,varargin)
 
 nrnodes = numel(S.x);
 ax      = gca;
-
+colororderindex = mod(ax.ColorOrderIndex, size(ax.ColorOrder,1));
 % check input
 p = inputParser;         
 p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParameter(p,'annotation',[])
-addParameter(p,'color',ax.ColorOrder(ax.ColorOrderIndex,:));
+addParameter(p,'color',ax.ColorOrder(colororderindex,:));
 addParameter(p,'annotationtext',{});
 addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
 addParameter(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
