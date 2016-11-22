@@ -1,11 +1,13 @@
 function s = gradient(S,DEM,varargin)
 
-% stream gradient
+% along-stream gradient
 %
 % Syntax
 %
 %     s = gradient(S,DEM)
-%     s = gradient(S,DEM,pn,pv)
+%     s = gradient(S,DEM,pn,pv,...)
+%     s = gradient(S,z)
+%     s = gradient(S,z,pn,pv,...
 %
 % Description
 %
@@ -18,6 +20,7 @@ function s = gradient(S,DEM,varargin)
 %
 %     S    instance of STREAMobj
 %     DEM  digital elevation model (class: GRIDobj)
+%     z    node attribute list
 %
 %     parameter name/value pairs {default}
 %
@@ -67,11 +70,15 @@ addParamValue(p,'imposemin',false,@(x) isscalar(x));
 
 parse(p,varargin{:});
 
-% validate alignment
-validatealignment(S,DEM)
-
-% get DEM values
-z = double(DEM.Z(S.IXgrid));
+% get node attribute list with elevation values
+if isa(DEM,'GRIDobj')
+    validatealignment(S,DEM);
+    z = double(getnal(S,DEM));
+elseif isnal(S,DEM);
+    z = double(DEM);
+else
+    error('Imcompatible format of second input argument')
+end
 
 % if imposemin
 if p.Results.imposemin
