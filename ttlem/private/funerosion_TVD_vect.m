@@ -1,4 +1,4 @@
-function Z= funerosion_TVD(p,Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,upl)
+function Z= funerosion_TVD_vect(p,Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,upl)
 % Explicit solution for river incision, calucalted by solving the Stream Power
 % Law.
 %
@@ -83,31 +83,19 @@ while time>0;
         dte=dte+time;
         time=0;
     end
-    Z=Z+dte.*upl;   
-    
-    for r = 1:numel(i);
-        
-        el_c=Z(i(r));
-        el_d=Z(k(r));
-        
-        %Find second downstream cell        
-        if ~isnan(kk(r))
-            el_d2=Z(kk(r));
-        else
-            el_d2=el_d;
-        end
-        
-        %Find upstream cell        
-        if ~isnan(ii(r))         
-            el_up=Z(ii(r));
-            headFlag=false;
-        else
-            el_up=nan;
-            headFlag=true;
-        end
-        if ~headFlag
-    
-        r_TVD=(el_d2-el_d)/(el_d-el_c);
+       
+   
+        el_c=Z(i);
+        el_d=Z(k);
+        kk_nb=kk;
+            kk_nb(isnan(kk))=1;
+            el_d2=Z(kk_nb);    
+            el_d2(isnan(kk))=nan;%el_d(isnan(kk));
+            iiNb=ii;
+            iiNb(isnan(ii))=1;
+            el_up=Z(iiNb);
+            el_up(isnan(ii))=nan;
+        r_TVD=(el_d2-el_d)./(el_d-el_c);
         r_TVD((el_d-el_c)==0)=1;
         
         % Define Flux Limiter function
@@ -122,24 +110,23 @@ while time>0;
         phi_l = (l_TVD + abs(l_TVD))./(1 + abs(l_TVD));        
         
         % Compute fluxes for TVD
-        F_rl = a_p(r).*el_c + a_m(r).*el_d;
-        F_rh = (1/2)*a_vect(r).*(el_c+el_d) - (1/2)*(a_vect(r).^2).*...
-            (dte./dx_centered(r)).*(el_d-el_c);
-        F_ll = a_p(r).*el_up + a_m(r).*el_c;
-        F_lh= (1/2)*a_vect(r).*(el_up+el_c) - (1/2)*(a_vect(r).^2).*...
-            (dte./dx_centered(r)).*(el_c-el_up);
+        F_rl = a_p.*el_c + a_m.*el_d;
+        F_rh = (1/2)*a_vect.*(el_c+el_d) - (1/2)*(a_vect.^2).*...
+            (dte./dx_centered).*(el_d-el_c);
+        F_ll = a_p.*el_up + a_m.*el_c;
+        F_lh= (1/2)*a_vect.*(el_up+el_c) - (1/2)*(a_vect.^2).*...
+            (dte./dx_centered).*(el_c-el_up);
              
         F_right = F_rl + phi.*(F_rh-F_rl);
         F_left = F_ll+ phi_l.*( F_lh- F_ll);
-        TVD_next= Z(i(r))-(dte*(F_right-F_left)./dx_centered(r));
+        TVD_next= Z(i)-(dte*(F_right-F_left)./dx_centered);
         TVD_next(TVD_next<0)=0;
         
-        % In case of nan value, replace by explicit solution
-        else
-            TVD_next=Z(i(r))-dte*A(i(r)).*((max(Z(i(r))-Z(k(r)),0))./dx_ik(r));  
-        end
-        Z(i(r)) = TVD_next;
-        
-    end
+        % In case of nan value, replace by explicit solution        
+        exp_next=Z(i)-dte*A(i).*((max(Z(i)-Z(k),0))./dx_ik);        
+        TVD_next(isnan(TVD_next))=exp_next(isnan(TVD_next));        
+        Z(i) = TVD_next;        
+        Z=Z+dte.*upl;
+      
 end
 end

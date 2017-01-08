@@ -11,7 +11,9 @@ function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p
 %
 % Input
 %
-%       H1        DEM (digital elevation model) (GRIDobj) W         Weights
+%       H1        DEM (digital elevation model) (GRIDobj) 
+%       BORDER    (GRIDobj) produced with getBORDER function
+%       W         Weights
 %       p         structure array with parameter definitions (see ttlemset)
 %       X         gridded X distance Y         gridded Y distance R
 %       Randomized matrix with dimensions of DEM.Z
@@ -19,13 +21,17 @@ function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p
 %
 % Output
 %
-%       FD        Flow Direction, FLOWobj C         River cells S
-%       STREAMobj i         Giver k         Receiver p         updated
-%       structure array with parameter definitions (see ttlemset) A
-%       Velocity field of advective stream power law dx_ik     distance
-%       between giver and receiver kk        Receiver of receiver ii
-%       Giver of giver dx_centered distance between giver of giver and
-%       receiver
+%       FD        Flow Direction, FLOWobj 
+%       C         River cells 
+%       S         STREAMobj 
+%       i         Giver 
+%       k         Receiver 
+%       p         updated structure array with parameter definitions (see ttlemset) 
+%       A         Velocity field of advective stream power law 
+%       dx_ik     distance between giver and receiver 
+%       kk        Receiver of receiver 
+%       ii        Giver of giver 
+%       dx_centered distance between giver of giver and receiver
 %
 % Example
 %
