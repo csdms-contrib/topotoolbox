@@ -1,5 +1,5 @@
 function BORDER = getBORDER(DEM,p)
-%Function to get the border in fuction of the boundary condtions. 
+%Function to get the border in fuction of the boundary condtions.
 %
 % Syntax
 %
@@ -30,7 +30,7 @@ function BORDER = getBORDER(DEM,p)
 
 BORDER = GRIDobj(DEM,'logical');
 switch p.FlowBC
-    case 'b'        
+    case 'b'
         BORDER.Z(end,:) = true;
     case 't'
         BORDER.Z(1,:) = true;
@@ -38,13 +38,34 @@ switch p.FlowBC
         BORDER.Z(:,end) = true;
     case 'l'
         BORDER.Z(:,1) = true;
-    case 'lb'
+    case 'bl'
         BORDER.Z(end,:) = true;
         BORDER.Z(:,1) = true;
-    case 'rb'
+    case 'br'
         BORDER.Z(end,:) = true;
         BORDER.Z(:,end) = true;
-    case 'all'
+    case 'tb'
+        BORDER.Z(1,:) = true;
+        BORDER.Z(end,:) = true;
+    case 'tl'
+        BORDER.Z(1,:) = true;
+        BORDER.Z(:,1) = true;
+    case 'tr'
+        BORDER.Z(1,:) = true;
+        BORDER.Z(:,end) = true;
+    case 'lr'
+        BORDER.Z(:,1) = true;
+        BORDER.Z(:,end) = true;
+    case 'tbl'
+        BORDER.Z(1,:) = true;
+        BORDER.Z(end,:) = true;
+        BORDER.Z(:,1) = true;
+    case 'tbr'
+        BORDER.Z(1,:) = true;
+        BORDER.Z(end,:) = true;
+        BORDER.Z(:,end) = true;
+        
+    case 'tblr'
         BORDER.Z(:,1) = true;
         BORDER.Z(:,end) = true;
         BORDER.Z(1,:) = true;

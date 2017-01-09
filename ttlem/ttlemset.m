@@ -44,14 +44,23 @@ function p = ttlemset(varargin)
 %    'BC_dir_DistSites' 
 %                    Random disturbance at the edges. Possible combinations:
 %                           * {''}
-%                           * 't','b','l','r','tb','tbl','tblr','bl','br','lr'
+%                           * 't','b','l','r'
+%                           * 'tb','tl','bl','br','lr','tr'
+%                           * 'tbl','tbr'
+%                           * 'tblr'
 %     'FlowBC'       flow boundary conditions. Forces specified borders
-%                    inward directed flow. The default is '', meaning to 
-%                    flow boundary conditions. Setting 'b' forces the bottom 
-%                    boundary to flow inward. 'rl' forces left and right
-%                    boundaries to flow inward. FlowBC can take on any
-%                    combination of 'b' (bottom), 't' (top), 'r' (right)
-%                    and 'l' (left).
+%                    inward directed flow. The default is '', meaning to
+%                    flow boundary conditions. Setting 'b' forces the
+%                    bottom boundary to flow inward. 'rl' forces left and
+%                    right boundaries to flow inward. FlowBC can take on
+%                    any combination of 'b' (bottom), 't' (top), 'r'
+%                    (right) and 'l' (left). Combinations should be entered
+%                    as:
+%                           * {''}
+%                           * 't','b','l','r'
+%                           * 'tb','tl','bl','br','lr','tr'
+%                           * 'tbl','tbr'
+%                           * 'tblr'
 %     'DrainDir'     {'variable'} or 'fixed' drainage directions. Setting
 %                    'fixed' will decrease computation time but will keep
 %                    the drainage system at the same locations.
@@ -157,9 +166,9 @@ addParameter(p,'TimeStep',20000,@(x) isscalar(x) && x>0);
 addParameter(p,'BC_Type','Dirichlet_Matrix_Ini',@(x) ischar(validatestring(x,{'Dirichlet','Neumann','Periodic','Dirichlet_Matrix','Dirichlet_Matrix_Ini'})));
 addParameter(p,'BC_nbGhost',1,@(x) x==1 || x==2);
 addParameter(p,'BC_dir_value',0,@(x) ismatrix(x));
-addParameter(p,'BC_dir_DistSites','',@(x) ischar(validatestring(x,{'','t','b','l','r','tb','tl','tr','tbl','tbr','tblr','bl','br','lr'})));%Edges where ranmosiation can occur
+addParameter(p,'BC_dir_DistSites','',@(x) ischar(validatestring(x,{'','t','b','l','r','tb','tl','tr','tbl','tbr','tblr','bl','br','lr'})));%Edges where randomisation can occur
 %Flow boundary conditions
-addParameter(p,'FlowBC','',@(x) ischar(validatestring(x,{'','b','l','t','b'})));
+addParameter(p,'FlowBC','',@(x) ischar(validatestring(x,{'','t','b','l','r','tb','tl','tr','tbl','tbr','tblr','bl','br','lr'})));
 addParameter(p,'BC_dir_Dist_Value',1,@(x) isscalar(x) && x>0 && x<10); 
 
 
