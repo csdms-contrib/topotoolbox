@@ -280,7 +280,10 @@ while iter < nriter && ~get(hGUI.stopbutton,'value');
     if strcmp(p.riverInc,'explicit_FDM')
         H1.Z  = funerosion_ex(p,H1.Z,dt,dx,A,i,k,dx_ik,uplRiv);
     elseif strcmp(p.riverInc,'TVD_FVM')
-        H1.Z  = funerosion_TVD(p,H1.Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,uplRiv);
+        %Non vectorized TVD scheme (comment and uncomment if required)
+        %H1.Z  = funerosion_TVD(p,H1.Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,uplRiv);
+        %Vectorized TVD scheme
+        H1.Z  = funerosion_TVD_vect(p,H1.Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,uplRiv);
     elseif strcmp(p.riverInc,'implicit_FDM') && (p.n == 1)
         H1.Z  = funerosion_implin(p,H1.Z,dt,A, i,k,dx_ik,uplRiv);
     elseif strcmp(p.riverInc,'implicit_FDM') && (p.n ~= 1)
