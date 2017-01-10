@@ -41,7 +41,7 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 % See also: GRIDobj, imtransform, maketform, mfwdtran, minvtran, utmzone
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 25. August, 2016
+% Date: 10. January, 2017
 
 
 % get latitude and longitude vectors
@@ -85,7 +85,12 @@ if ~isa(res,'GRIDobj');
     
     % use forward transformation of the corner locations of the DEM
     % to calculate the bounds of the reprojected DEM
-    [lims(1:2),lims(3:4)]   = mfwdtran(mstruct,[min(lat) max(lat)],[min(lon) max(lon)]);
+    xlims = zeros(4,1);
+    ylims = xlims;
+    [xlims(1:2),ylims(1:2)]   = mfwdtran(mstruct,[min(lat) max(lat)],[min(lon) max(lon)]);
+    [xlims(3:4),ylims(3:4)]   = mfwdtran(mstruct,[min(lat) max(lat)],[max(lon) min(lon)]);
+    lims     = [min(xlims) max(xlims) min(ylims) max(ylims)]; 
+
 else
     
     mstruct  = res.georef.mstruct;

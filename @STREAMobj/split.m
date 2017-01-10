@@ -54,6 +54,7 @@ if nargin == 1;
     I = V(S.ixc);
 else
     I = ismember(S.IXgrid,varargin{1});
+    I = I(S.ixc);
 end
 
 S.ix(I) = [];
