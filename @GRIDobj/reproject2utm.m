@@ -41,7 +41,7 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 % See also: GRIDobj, imtransform, maketform, mfwdtran, minvtran, utmzone
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 10. January, 2017
+% Date: 12. January, 2017
 
 
 % get latitude and longitude vectors
@@ -158,7 +158,8 @@ end
 % http://www.remotesensing.org/geotiff/spec/geotiff6.html#6.3.3.1
 %    WGS84 / UTM northern hemisphere:	326zz where zz is UTM zone number
 %    WGS84 / UTM southern hemisphere:	327zz where zz is UTM zone number
-GeoKeyDirectoryTag.ProjectedCSTypeGeoKey = str2double([hemisphere zone(1:2)]);
+% GeoKeyDirectoryTag.ProjectedCSTypeGeoKey = str2double([hemisphere zone(1:2)]);
+GeoKeyDirectoryTag.ProjectedCSTypeGeoKey = str2double([hemisphere sprintf('%02d',str2double(zone(regexp(zone,'[0-9]'))))]); 
 GeoKeyDirectoryTag.ProjLinearUnitsGeoKey = 9001; % Linear_Meter
                  
 DEMr.georef.GeoKeyDirectoryTag = GeoKeyDirectoryTag;
