@@ -9,7 +9,11 @@ function S = modify(S,varargin)
 % Description
 %
 %     The function modify changes the geometry of a stream network to meet
-%     different user-defined criteria.
+%     different user-defined criteria. See
+%
+%     demo_modifystreamnet
+%
+%     for an overview of the function's scope.
 %
 % Input arguments
 %
@@ -36,14 +40,14 @@ function S = modify(S,varargin)
 %     modifies the stream network that only the portion of the network is
 %     retained that is within downstream distance of the the channelheads.
 %
-%     'upstreamto' logical GRIDobj
+%     'upstreamto' logical GRIDobj or linear index in GRIDobj
 %     returns the stream network upstream to true pixels in the logical
 %     raster of GRIDobj. Note that, if the grid contains linear features
 %     (e.g. a fault), the line should be 4 connected. Use
 %     bwmorph(I.Z,'diag') to establish 4-connectivity in a logical raster
 %     I.
 %
-%     'downstreamto' logical GRIDobj 
+%     'downstreamto' logical GRIDobj or linear index in GRIDobj
 %     returns the stream network downstream to true pixels in the logical
 %     raster of GRIDobj. Note that, if the grid contains linear features
 %     (e.g. a fault), the foreground (true pixels) should be 4 connected.
@@ -55,6 +59,13 @@ function S = modify(S,varargin)
 %     entire network with a maximum distance in map units less than the 
 %     specified value.
 %
+%     'rmconncomps_ch' scalar
+%     removes connected components (individual stream 'trees') that have
+%     less or equal the number of channel heads 
+%
+%     'rmnodes' STREAMobj
+%     removes nodes in S that belong another stream network S2.
+%
 %     'tributaryto' instance of STREAMobj
 %     returns the stream network that is tributary to a stream (network) 
 %
@@ -62,13 +73,16 @@ function S = modify(S,varargin)
 %     same as 'tributaryto' but tributaries include the pixel of the
 %     receiving stream.
 %
-%     'shrinkfromtop' N of vertices (pixels)
-%     removes N vertices starting from channelheads
+%     'shrinkfromtop' scalar distance
+%     removes parts of the stream network that are within the specified
+%     distance from the channelheads.
 %
-%     'interactive' string (either 'polyselect' or 'reachselect')
+%     'interactive'  string
 %        'polyselect': plots the stream network and starts a polygon tool to
 %                      select the stream network of interest.
 %        'reachselect': select a reach based on two locations on the network
+%        'channelheadselect': select a number of channel heads and derive 
+%                      stream network from them.
 %
 %
 % Output arguments
@@ -101,10 +115,10 @@ function S = modify(S,varargin)
 %     hold off
 %
 %     
-% See also: STREAMobj, STREAMobj/trunk
+% See also: STREAMobj, STREAMobj/trunk, demo_modifystreamnet
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. January, 2016
+% Date: 16. January, 2017
 
 narginchk(3,3)
 
@@ -116,13 +130,15 @@ addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addParamValue(p,'streamorder',[]);
 addParamValue(p,'distance',[],@(x) isnumeric(x) && numel(x)<=2);
 addParamValue(p,'maxdsdistance',[],@(x) isscalar(x) && x>0);
-addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect'})));
+addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect','channelheadselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
-addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj'));
-addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj'));
-addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0);
+addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
+addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
+addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
+addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
+addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
 
 parse(p,S,varargin{:});
 S   = p.Results.S;
@@ -140,7 +156,7 @@ if ~isempty(p.Results.streamorder)
             % expecting relational operator
             sothres = nan;
             counter = 1;
-            while isnan(sothres);
+            while isnan(sothres)
                 sothres = str2double(p.Results.streamorder(counter+1:end));
                 relop   = p.Results.streamorder(1:counter);
                 counter = counter+1;
@@ -186,10 +202,21 @@ elseif ~isempty(p.Results.upstreamto);
 %% upstream to    
     
     II = p.Results.upstreamto;
-    validateattributes(II,{'GRIDobj'},{'scalar'});
-    validatealignment(S,II);
-
-    II.Z = logical(II.Z);
+    
+    if isa(II,'GRIDobj')
+        validatealignment(S,II);
+        II.Z = logical(II.Z);
+    else
+        % II contains linear indices into the DEM from which S was derived
+        IX = II;
+        I = ismember(IX,S.IXgrid);
+        if ~all(I)
+            error('TopoToolbox:modify','Some linear indices are not located on the stream network')            
+        end
+        II = GRIDobj(S,'logical');
+        II.Z(IX) = true;
+    end
+  
     I = false(size(S.x));
     for r = numel(S.ix):-1:1;
         I(S.ix(r)) = II.Z(S.IXgrid(S.ixc(r))) || I(S.ixc(r));
@@ -197,11 +224,23 @@ elseif ~isempty(p.Results.upstreamto);
         
 elseif ~isempty(p.Results.downstreamto);
 %% downstream to    
+    
     II = p.Results.downstreamto;
-    validateattributes(II,{'GRIDobj'},{'scalar'});
-    validatealignment(S,II);
-
-    II.Z = logical(II.Z);
+    
+    if isa(II,'GRIDobj')
+        validatealignment(S,II);
+        II.Z = logical(II.Z);
+    else
+        % II contains linear indices into the DEM from which S was derived
+        IX = II;
+        I = ismember(IX,S.IXgrid);
+        if ~all(I)
+            error('TopoToolbox:modify','Some linear indices are not located on the stream network')            
+        end
+        II = GRIDobj(S,'logical');
+        II.Z(IX) = true;
+    end
+    
     I = false(size(S.x));
     for r = 1:numel(S.ix);
         I(S.ixc(r)) = II.Z(S.IXgrid(S.ix(r))) || I(S.ix(r)) || I(S.ixc(r));
@@ -225,11 +264,8 @@ elseif ~isempty(p.Results.tributaryto2)
     
 elseif ~isempty(p.Results.shrinkfromtop)
 %% shrink from top
-    I = double(streampoi(S,'channelheads','logical'));
-    for r = 1:numel(S.ix);
-        I(S.ixc) = max(I(S.ix)+1,I(S.ixc));
-    end
-    I = I>p.Results.shrinkfromtop;
+    d = distance(S,'max_from_ch');
+    I = d > p.Results.shrinkfromtop;
     
 elseif ~isempty(p.Results.rmconncomps)
 %% remove connected conn comps
@@ -237,13 +273,51 @@ elseif ~isempty(p.Results.rmconncomps)
     d  = S.distance;
     md = find(accumarray(cc,d,[max(cc) 1],@max) > p.Results.rmconncomps);
     I = ismember(cc,md);
+
+elseif ~isempty(p.Results.rmconncomps_ch)
+%% remove connected conn comps
+    cc = conncomps(S);
+    d  = distance(S,'nr_of_ch');
+    md = find(accumarray(cc,d,[max(cc) 1],@max) > p.Results.rmconncomps_ch);
+    I = ismember(cc,md);
+    
+elseif ~isempty(p.Results.rmnodes)
+    I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
     
 elseif ~isempty(p.Results.interactive);
 %% interactive    
     figure
     plot(S,'k'); axis image
     
-    switch validatestring(p.Results.interactive,{'polyselect','reachselect'})
+    switch validatestring(p.Results.interactive,{'polyselect','reachselect','channelheadselect'})
+        case 'channelheadselect'
+            title('map channel heads and enter any key to finalize')
+            hold on
+            xy = streampoi(S,'channelhead','xy');
+            scatter(xy(:,1),xy(:,2));
+            hold off
+            set(gcf,'WindowKeyPressFcn',@(k,l) uiresume);
+            xys   = [];
+            while true
+                try
+                    hpstart = impoint('PositionConstraintFcn',@getnearestchanhead);
+                    
+                    setColor(hpstart,[0 1 0])
+%                     idstart = addNewPositionCallback(hpstart,@drawpath);
+                    setPosition(hpstart,getPosition(hpstart))
+                    xys = [xys; getPosition(hpstart)];
+                catch
+                    break
+                end
+            end
+            
+%             IX = coord2ind(S,xys(:,1),xys(:,2));
+            I = ismember([S.x S.y],xys,'rows');
+            
+            for r = 1:numel(S.ix)
+                I(S.ixc(r)) = I(S.ix(r)) || I(S.ixc(r));
+            end
+            
         case 'polyselect'
             title('create a polygon and double-click to finalize')
             hp = impoly;
@@ -324,6 +398,13 @@ function posn = getnearest(pos)
 
 end
 
+function posn = getnearestchanhead(pos)
+    % GETNEAREST  snap to nearest location on stream network
+    [~,ix] = min((xy(:,1)-pos(1)).^2 + (xy(:,2)-pos(2)).^2);
+    posn= xy(ix,:);
+
+end
+
 function posn = getnearestend(pos)
     % GETNEAREST  snap to nearest location on stream network
         [~,ixend] = min((S.x-pos(1)).^2 + (S.y-pos(2)).^2);
@@ -333,9 +414,12 @@ end
 
 function drawpath(pos)
     % DRAWPATH   
+    
+    % bring hpstart and hpend to top
+
     ixcc = ix;
-    ixpath = [];
-    while ixcix(ixcc) ~= 0 && S.ixc(ixcix(ixcc)) ~= ixend;
+    ixpath = ix;
+    while ixcix(ixcc) ~= 0 && ixcc ~= ixend; %S.ixc(ixcix(ixcc)) ~= ixend;
         ixpath(end+1) = S.ixc(ixcix(ixcc));
         ixcc = ixpath(end);
     end
@@ -347,7 +431,6 @@ function drawpath(pos)
         hpath = plot(S.x(ixpath),S.y(ixpath),'r','LineWidth',1.5);
         hold off
     end
-
 end 
 
         
