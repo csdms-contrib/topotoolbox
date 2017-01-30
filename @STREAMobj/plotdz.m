@@ -94,11 +94,14 @@ function h = plotdz(S,DEM,varargin)
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. October, 2016
+% Date: 30. January, 2017
 
 nrnodes = numel(S.x);
 ax      = gca;
-colororderindex = max(mod(ax.ColorOrderIndex, size(ax.ColorOrder,1)),1);
+
+colororderindex = mod(ax.ColorOrderIndex, size(ax.ColorOrder,1));
+if colororderindex==0; colororderindex=size(ax.ColorOrder,1); end
+
 % check input
 p = inputParser;         
 p.FunctionName = 'plotdz';
