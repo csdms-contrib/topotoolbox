@@ -98,7 +98,7 @@ function h = plotdz(S,DEM,varargin)
 
 nrnodes = numel(S.x);
 ax      = gca;
-colororderindex = mod(ax.ColorOrderIndex, size(ax.ColorOrder,1));
+colororderindex = max(mod(ax.ColorOrderIndex, size(ax.ColorOrder,1)),1);
 % check input
 p = inputParser;         
 p.FunctionName = 'plotdz';
@@ -115,6 +115,7 @@ addParameter(p,'linewidth',1);
 addParameter(p,'colormethod','line');
 addParameter(p,'colorbar',true);
 addParameter(p,'cbarlabel','');
+
 
 parse(p,S,DEM,varargin{:});
 S   = p.Results.S;
