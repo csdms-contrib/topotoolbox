@@ -29,7 +29,7 @@ function DEM = excesstopography(DEM,varargin)
 %    'unit'          deg (degrees = default) or tan (tangens). Applies to
 %                    'maxgradient' and 'tol'.
 %    'kernelsize'    side length in pixels used by the kernel. Must be 
-%                    integer and odd (default: 7)
+%                    integer and odd (default: 11)
 %    'output'        'difference' (default) or 'elevation'. Latter returns
 %                    the eroded DEM without calculating the difference.
 %    'iterate'       true (default) or false. A small kernel may not
@@ -69,9 +69,8 @@ function DEM = excesstopography(DEM,varargin)
 %
 % See also: GRIDobj/localtopography 
 %     
-%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. January, 2014
+% Date: 7. February, 2017
 
 
 
@@ -81,12 +80,13 @@ p.FunctionName = 'excesstopography';
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj'));
 addParamValue(p,'maxgradient',30,@(x) isscalar(x) && (x >= 0));
 addParamValue(p,'gradtype','G8', @(x) ischar(validatestring(x,{'G8','central'})));
-addParamValue(p,'kernelsize',101, @(x) isscalar(x) && (rem(x,2)==1) && (x>=3));
+addParamValue(p,'kernelsize',11, @(x) isscalar(x) && (rem(x,2)==1) && (x>=3));
 addParamValue(p,'output','difference', @(x) ischar(validatestring(x,{'difference','elevation'})));
 addParamValue(p,'iterate',true);
 addParamValue(p,'maxiter',100);
 addParamValue(p,'tol',6e-4);
 addParamValue(p,'unit','deg', @(x) ischar(validatestring(x,{'deg','tan'})));
+addParamValue(p,'verbose',false, @(x) isscalar(x));
 
 parse(p,DEM,varargin{:});
 
@@ -135,7 +135,12 @@ offset = offset * DEM.cellsize * maxgradient;
 % do the calculation
 DEMcopy = DEM;
 
-mG = getmaximumgradient(DEMcopy,gradtype);
+mG = getmaximumgradient(DEMcopy,gradtype,INAN);
+
+if p.Results.verbose
+    disp([datestr(clock) ' -- Maximum gradient: ' num2str(atand(mG))])
+end
+
 if mG > maxg;
     
     if iterate
@@ -143,7 +148,12 @@ if mG > maxg;
         while ((mG-maxg) > tol) && (iter<= p.Results.maxiter);
             iter = iter+1;
             DEMcopy.Z = ordfilt2(double(DEMcopy.Z)-m,1,domain,double(offset),'zeros') + m;
-            mG = getmaximumgradient(DEMcopy,gradtype);
+            mG = getmaximumgradient(DEMcopy,gradtype,INAN);
+            
+            if p.Results.verbose
+                disp([datestr(clock) ' -- Iteration ' num2str(iter,'%d') ', Maximum gradient: ' num2str(atand(mG))])
+            end
+            
         end
     else
         DEMcopy.Z = ordfilt2(double(DEMcopy.Z)-m,1,domain,double(offset),'zeros') + m;
@@ -164,12 +174,13 @@ DEM.Z(INAN) = nan;
 DEM.name = 'excess topography';
 end
 
-function mG = getmaximumgradient(DEM,gradtype)
+function mG = getmaximumgradient(DEM,gradtype,INAN)
+DEM.Z(INAN) = nan;
 switch gradtype
     case 'G8'
         G  = gradient8(DEM);
         mG = max(G);
-    case 'central';
+    case 'central'
         [Gx,Gy] = gradient(DEM.Z,DEM.cellsize);
         G  = sqrt(Gx.^2 + Gy.^2);
         mG = max(G(:));
