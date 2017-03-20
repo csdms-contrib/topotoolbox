@@ -6,26 +6,33 @@ function [CS,locS] = STREAMobj2cell(S,ref,n)
 %
 %     CS = STREAMobj2cell(S)
 %     CS = STREAMobj2cell(S,ref)
-%     CS = STREAMobj2cell(S,ref,n)
+%     CS = STREAMobj2cell(S,'outlets',n)
 %     [CS,locS] = ...
 %
 % Description
 %
-%     STREAMobj2cell places individual STREAMobj in elements of a cell
-%     array. These individual STREAMobjs may either be derived as
-%     individual trees of the stream network, e.g. individual drainage
-%     basins. This is the default. In this case, CS has as many elements as
-%     there are outlets in the stream network. Individual STREAMobjs can
-%     also be derived as single streams emanating from each channelhead. In
-%     this case, CS has as many elements as there are channelheads in the
-%     stream network.
+%     STREAMobj2cell divides a STREAMobj into a number of STREAMobj stored
+%     in a cell array. 
+%
+%     STREAMobj2cell(S,'outlets') divides a STREAMobj into its strongly
+%     connected components. This means that individual STREAMobjs are
+%     derived as individual trees of the stream network, e.g. individual
+%     drainage basins. This is the default. In this case, CS has as many
+%     elements as there are outlets in the stream network.
 %     
+%     STREAMobj2cell(S,'channelheads') derives individual STREAMobj as
+%     single streams emanating from each channelhead. In this case, CS has
+%     as many elements as there are channelheads in the stream network.
+%
+%     STREAMobj2cell(S,'tributaries') derives individual STREAMobj as
+%     tributaries. A stream is a tributary until it reaches a stream with a 
+%     longer downstream flow distance.     
 %     
 % Input arguments
 %
 %     S     instance of STREAMobj
 %     ref   reference for deriving individual STREAMobj. Either 'outlets'
-%           (default) or 'channelheads'
+%           (default) or 'channelheads', or 'tributaries'
 %     n     if ref is 'outlets', n determines the number of n largest trees
 %           to be placed in elements of CS.
 %
@@ -47,18 +54,18 @@ function [CS,locS] = STREAMobj2cell(S,ref,n)
 % See also: FLOWobj2cell
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. October, 2016
+% Date: 5. March, 2017
 
 if nargin == 1;
     ref = 'outlets';
     getall = true;
     n   = inf;
 elseif nargin == 2;
-    ref = validatestring(ref,{'outlets','channelheads'},'STREAMobj2cell','ref',2);
+    ref = validatestring(ref,{'outlets','channelheads','tributaries'},'STREAMobj2cell','ref',2);
     getall = true;
     n   = inf;
 elseif nargin == 3;
-    ref = validatestring(ref,{'outlets','channelheads'},'STREAMobj2cell','ref',2);
+    ref = validatestring(ref,{'outlets'},'STREAMobj2cell','ref',2);
     validateattributes(n,{'numeric'},{'>',1},'STREAMobj2cell','n',3);
     getall = false;
 end
@@ -174,6 +181,19 @@ switch lower(ref)
             
         end
         
+    case 'tributaries'
+        CS = tributaries(S);
+        if nargout == 2;
+            locS = cell(size(CS));
+            for r = 1:numel(CS);
+                [~,locS{r}] = ismember(CS{r}.IXgrid,S.IXgrid);
+            end
+        end
+        
+        return
+        
+
+        
 end
 
 % check for validity of Ss
@@ -187,5 +207,24 @@ CS = CS(valid);
 
 if nargout == 2;
     locS = locS(valid);
+end
+end
+
+function Ctribs = tributaries(S)
+
+
+C = STREAMobj2cell(S);
+Ctribs = cell(0);
+
+for r = 1:numel(C);
+    St = trunk(C{r});
+    S2 = modify(C{r},'tributaryto2',St);
+    if isempty(S2.ix)
+        % do nothing
+        Ctribs = [Ctribs {St}];
+    else
+        Ctribs = [Ctribs {St} tributaries(S2)];
+    end
+end
 end
 

@@ -18,6 +18,8 @@ function OUT = streampoi(S,type,outformat)
 %     type        'channelheads' (default), 'confluences', 'bconfluences' 
 %                 or 'outlets'. bconfluences returns the stream pixels that 
 %                 are located immediately upstream to confluences.
+%                 type can also be a cell array of strings with the
+%                 different types listed above.
 %     outformat   'xy': nx2 coordinate matrix with x and y coordinates of 
 %                       n points (default)
 %                 'ix': nx1 vector with linear indices into an instance of
@@ -30,21 +32,32 @@ function OUT = streampoi(S,type,outformat)
 %     V           output as specified in outformat
 %
 % Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'mex',true,'preprocess','carve');
+%     S  = STREAMobj(FD,'minarea',1000);
+%     xy = streampoi(S,'confluence');
+%     plot(S);
+%     hold on
+%     plot(xy(:,1),xy(:,2),'s')
+%     hold off
 % 
 % See also: STREAMobj, FLOWobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 20. May, 2015
+% Date: 20. March, 2017
 
 
 %% check input arguments
 narginchk(1,3)
 
-if nargin == 1;
-    type = 'channelheads';
+if nargin == 1
+    type = {'channelheads'};
     outformat = 'xy';
-else 
-    type = validatestring(type,{'channelheads','confluences','bconfluences','outlets'},'streampoi','type',2);
+else
+    if ischar(type)
+        type = {type};
+    end
     if nargin > 2
         outformat = validatestring(outformat,{'xy','ix','logical'},'streampoi','outformat',3);
     else       
@@ -52,33 +65,44 @@ else
     end  
 end
 
+% Sparse matrix
 ix  = S.ix;
 ixc = S.ixc;
-
 nrc = numel(S.x);
-
 M  = sparse(double(ix),double(ixc),true,nrc,nrc);
 
-switch type
-    case 'channelheads'
-        
-        V = (sum(M,1)'==0) & (sum(M,2) ~= 0);
-        
-    case 'confluences'
-        
-        V = sum(M,1)'>1;
-        
-    case 'bconfluences'
-        
-        V = sum(M,1)'>1;
-        V = any(M(:,V),2);
+% Output logical array
+V = false(nrc,1);
 
-    case 'outlets'
-
-        V = (sum(M,2)==0) & (sum(M,1)'~=0);
+% Go through types of points of interest
+for r = 1:numel(type)
+    t = validatestring(type{r},...
+        {'channelheads','confluences','bconfluences','outlets'},...
+        'streampoi','type',2);
+    
+    
+    switch t
+        case 'channelheads'
+            
+            V = (sum(M,1)'==0) & (sum(M,2) ~= 0) | V;
+            
+        case 'confluences'
+            
+            V = sum(M,1)'>1 | V;
+            
+        case 'bconfluences'
+            
+            V2 = sum(M,1)'>1;
+            V2 = any(M(:,V2),2);
+            V  = V | V2;
+            
+        case 'outlets'
+            
+            V = (sum(M,2)==0) & (sum(M,1)'~=0) | V;
+    end
 end
 
-
+% prepare output
 switch outformat
     case 'xy'      
         ix   = find(V);

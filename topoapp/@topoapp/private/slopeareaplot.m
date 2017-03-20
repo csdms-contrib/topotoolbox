@@ -201,7 +201,6 @@ end
                     
                     updateaxis(gca)
                     title(name)
-                    SA
                     str = sprintf('S = %1.2f A ^{%1.3f}',SA.ks,SA.theta);
                     xlims = get(gca,'Xlim'); ylims = get(gca,'Ylim');
                     text(xlims(1)*10,ylims(1)*10,str);

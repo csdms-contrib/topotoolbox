@@ -15,12 +15,12 @@ Wolfgang Schwanghart
 w.schwanghart[at]geo.uni-potsdam.de
 
 Dirk Scherler
-scherler[at]caltech.edu
+scherler[at]gfz-potsdam.de
 
 ## Requirements
 
 TopoToolbox is plat-form independent and requires
-Matlab 2011b or higher and the Image Processing Toolbox.
+Matlab 2014b or higher and the Image Processing Toolbox.
 
 ## References
 
@@ -53,6 +53,7 @@ of each function (help function).
 ## Version History
 
 2.2 pre
+- TTLEM is part of TopoToolbox
 - modification: GRIDobj way to store referencing information was changed
 - modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
@@ -63,6 +64,8 @@ of each function (help function).
 - new function: GRIDobj/pad
 - new function: STREAMobj/distance
 - new function: STREAMobj/plotc
+- new function: STREAMobj/plotdzshaded
+- new function: STREAMobj/meanupstream
 - new function: STREAMobj/plot3
 - new function: STREAMobj/chitransform
 - new function: STREAMobj/cumtrapz
@@ -73,6 +76,7 @@ of each function (help function).
 - new function: STREAMobj/plotstreamorder
 - new function: STREAMobj/split
 - new function: STREAMobj/networksegment
+- new function: STREAMobj/maplateral
 - new function: STREAMobj/plotsegmentgeometry
 - new function: STREAMobj/randlocs
 - modification: STREAMobj/streamorder plotting option removed

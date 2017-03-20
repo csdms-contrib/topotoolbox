@@ -161,14 +161,10 @@ end
             % tool options
             h(1) = uicontrol('Style','pushbutton',...
                 'units','normalized','position',[Lft2,.275,Wpb,Hpb],...
-                'String','Hypsometry - abs',...
+                'String','Hypsometry',...
                 'Callback',{@catchmentstat,app});
             h(2) = uicontrol('Style','pushbutton',...
                 'units','normalized','position',[Lft2,.2,Wpb,Hpb],...
-                'String','Hypsometry - rel',...
-                'Callback',{@catchmentstat,app});
-            h(3) = uicontrol('Style','pushbutton',...
-                'units','normalized','position',[Lft2,.125,Wpb,Hpb],...
                 'String','Basic',...
                 'Callback',{@catchmentstat,app});
         userdata.handles = h;
@@ -362,7 +358,7 @@ end
                             [GS,~,~] = STREAMobj2mapstruct(app.objects.(objectname).data{ix(i)});
                             for j = 1 : length(GS)
                                 name = [app.objects.(objectname).names{ix(i)},' - ',num2str(j)];
-                                [lat,lon] = projinv(app.DEM.georef,GS(j).X,GS(j).Y);
+                                [lat,lon] = minvtran(app.DEM.georef.mstruct,GS(j).X,GS(j).Y);
                                 k.plot(lon(~isnan(lon)),lat(~isnan(lat)),'name',name);
                             end
                         end
@@ -374,7 +370,7 @@ end
                             for j = 1 : length(UTMX)
                                 utmx = reshape(UTMX{j},numel(UTMX{j}),1);
                                 utmy = reshape(UTMY{j},numel(UTMY{j}),1);
-                                [lat,lon] = projinv(app.DEM.georef,utmx,utmy);
+                                [lat,lon] = minvtran(app.DEM.georef.mstruct,utmx,utmy);
                                 k.scatter(lon,lat,'iconColor',[1 0 0 1],'iconScale',0.2);
                             end
                         end
@@ -385,7 +381,7 @@ end
                             name = app.objects.(objectname).names{ix(i)};
                             utmx = app.objects.(objectname).data{ix(i)}.x;
                             utmy = app.objects.(objectname).data{ix(i)}.y;
-                            [lat,lon] = projinv(app.DEM.georef,utmx',utmy');
+                            [lat,lon] = minvtran(app.DEM.georef.mstruct,utmx',utmy');
                             k.plot(lon,lat,'name',name);
                         end
                 end
@@ -541,8 +537,7 @@ end
                     case 'STREAMobj'
                         SObj = app.objects.(classname).data{ix(i)};
                         [SObj] = limit2strahler(SObj);
-                        streamorder(SObj), hold on
-
+                        plotstreamorder(SObj); hold on
                     case 'WATERSHEDobj'
                         x = app.objects.(classname).data{ix(i)}.x;
                         y = app.objects.(classname).data{ix(i)}.y;
@@ -584,7 +579,7 @@ end
                     Sgrid.Z = imdilate(Sgrid.Z,SE);
                     INO = find(Sgrid.Z==1);
 
-                    fprintf(1,'\nName\t\t\tArea(km^2)\tMinZ(m)\tMaxZ(m)\tMeanZ(m)\tMeanSlope(deg)\tSDSlope(deg)\tMeanSlopeBuff(deg)\tSDSlopeBuff(deg)\n');
+                    fprintf(1,'\nName\t\t\tArea(km^2)\tMinZ(m)\tMaxZ(m)\tMeanZ(m)\tMeanSlope(deg)\tMeanSlopeBuff(deg)\n');
                     fprintf(1,'%s\n',repmat('-',1,100));
                     for i = 1:length(ix)
                         IX = app.objects.WATERSHEDobj.data{ix(i)}.ix;
@@ -593,14 +588,14 @@ end
                         IY = setdiff(IX,INO);
                         gb = app.G.Z(IY);
 
-                        fprintf(1,'%s\t\t%1.2f\t\t%i\t\t%i\t%i\t\t%1.1f\t%1.1f\t%1.1f\t%1.1f\n',...
+                        fprintf(1,'%s\t\t%1.2f\t\t%i\t\t%i\t%i\t\t%1.1f\t%1.1f\n',...
                             app.objects.WATERSHEDobj.names{ix(i)},...
                             numel(z)*app.DEM.cellsize*app.DEM.cellsize/1e6,...
-                            min(z),max(z),round(mean(z)),mean(g),std(g),mean(gb),std(gb));
+                            min(z),max(z),round(mean(z)),mean(g),mean(gb));
                     end
                     fprintf(1,'\n');
 
-                case 'Hypsometry - abs'
+                case 'Hypsometry'
                     figure
                     for i = 1:length(ix)
                         IX = app.objects.WATERSHEDobj.data{ix(i)}.ix;
@@ -612,25 +607,6 @@ end
                     hold off
                     xlabel('Area (%)')
                     ylabel('Elevation (m)')
-                    wsnames = app.objects.WATERSHEDobj.names(ix);
-                    legend(h,wsnames)
-                    updateaxis(gca)
-                    
-                case 'Hypsometry - rel'
-                    figure
-                    for i = 1:length(ix)
-                        IX = app.objects.WATERSHEDobj.data{ix(i)}.ix;
-                        tDEM = crop(app.DEM,IX);
-                        minz = min(min(tDEM.Z));
-                        maxz = max(max(tDEM.Z));
-                        tDEM.Z = (tDEM.Z-minz)./(maxz-minz).*100;
-                        [rf,elev] = hypscurve(tDEM);
-                        h(i) = plot(rf,elev,'-','Color',rand(1,3));
-                        hold on
-                    end
-                    hold off
-                    xlabel('Area (%)')
-                    ylabel('Relative elevation (%)')
                     wsnames = app.objects.WATERSHEDobj.names(ix);
                     legend(h,wsnames)
                     updateaxis(gca)

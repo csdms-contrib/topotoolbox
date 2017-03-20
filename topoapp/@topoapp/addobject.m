@@ -8,9 +8,9 @@ function [app] = addobject(app,objdata,varargin)
 p = inputParser;
 p.FunctionName = 'addobject';
 addRequired(p,'app',@(x) isa(x,'topoapp'));
-addParamValue(p,'name','',@(x) ischar(x))
-addParamValue(p,'visible',false,@(x) islogical(x))
-addParamValue(p,'handle',[],@(x) isnumeric(x))
+addParameter(p,'name','',@(x) ischar(x))
+addParameter(p,'visible',false,@(x) islogical(x))
+addParameter(p,'handle',[]);%,@(x) isnumeric(x))
 parse(p,app,varargin{:});
 
 objectname = class(objdata);
