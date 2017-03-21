@@ -58,6 +58,7 @@ of each function (help function).
 - modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
 - new function: FLOWobj/dbentropy 
+- new function: FLOWobj/updatetoposort
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
 - new function: GRIDobj/zscore
