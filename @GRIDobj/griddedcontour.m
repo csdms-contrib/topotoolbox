@@ -1,4 +1,4 @@
-function C = griddedcontour(DEM,level)
+function C = griddedcontour(DEM,level,fourconn)
 
 % plot contours on grid
 %
@@ -6,6 +6,7 @@ function C = griddedcontour(DEM,level)
 %
 %     C = griddedcontour(DEM,n)
 %     C = griddedcontour(DEM,levels)
+%     C = griddedcontour(...,fourconn)
 %
 % Description
 %
@@ -18,6 +19,8 @@ function C = griddedcontour(DEM,level)
 %     n         number of contour levels
 %     levels    vector with levels (if only one specific level should be 
 %               returned, use [level level]).
+%     fourconn  true or false (default). If true, gridded contours will be
+%               modified to be four-connected lines.
 %  
 % Output arguments
 %
@@ -32,7 +35,7 @@ function C = griddedcontour(DEM,level)
 %
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. August, 2013
+% Date: 27. April, 2017
 
 [x,y] = contour(DEM,level);
 
@@ -43,3 +46,9 @@ C.name = 'griddedcontour';
 I = ~isnan(x);
 
 C.Z(coord2ind(DEM,x(I),y(I))) = true;
+
+if nargin == 3
+    if fourconn
+        C.Z = bwmorph(C.Z,'diag');
+    end
+end

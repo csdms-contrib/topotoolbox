@@ -30,7 +30,7 @@ function [DEMc,MASK] = crop(DEM,varargin)
 % See also: IND2SUB, SUBVOLUME
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 20. February, 2013
+% Date: 8. May, 2017
 
 
 narginchk(1,3);
@@ -141,14 +141,6 @@ if nargout == 2
 end
 
 
-% get coordinate vectors and matrix
-[dem,x,y] = GRIDobj2mat(DEM);
-
-% ensure that x is row vector and y is col vector
-x = x(:)';
-y = y(:);
-
-
 % nr of dimensions
 siz  = DEM.size;
 k    = [1 cumprod(siz(1:end-1))];
@@ -169,21 +161,19 @@ for r = 2:-1:1;
     IX        = IX2;   
 end
 
-demc = reshape(subsref(dem,S),sizout);
-y    = y(S.subs{1});
-x    = x(S.subs{2});
+DEMc      = DEM;
+DEMc.Z    = reshape(subsref(DEM.Z,S),sizout);
+DEMc.size = sizout;
+[x,y]     = sub2coord(DEM,S.subs{1}(1),S.subs{2}(1));
+DEMc.refmat(3,:) = [x y];
 
-DEMc       = GRIDobj(x,y,demc);
-DEMc.name  = [DEM.name ' (cropped)'];
-DEMc.zunit = DEM.zunit;
+DEMc.name   = [DEM.name ' (cropped)'];
+DEMc.zunit  = DEM.zunit;
 DEMc.xyunit = DEM.xyunit;
 
 if ~isempty(DEM.georef)
+    % Copy all referencing information
     DEMc.georef = DEM.georef;
-%     DEMc.georef.RefMatrix = DEMc.refmat;
-%     DEMc.georef.Height = DEMc.size(1);
-%     DEMc.georef.Width  = DEMc.size(2);
-    
     DEMc.georef.SpatialRef = refmatToMapRasterReference(DEMc.refmat, DEMc.size);
     
 end
