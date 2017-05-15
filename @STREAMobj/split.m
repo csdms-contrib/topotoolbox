@@ -4,8 +4,9 @@ function S = split(S,varargin)
 %
 % Syntax
 %
-%     S = split(S)
-%     S = split(S,ix)
+%     Ss = split(S)
+%     Ss = split(S,ix)
+%     Ss = split(S,ix,removeedge)
 %
 % Description
 %
@@ -13,13 +14,19 @@ function S = split(S,varargin)
 %     only the STREAMobj as input argument, the stream network will be
 %     split at all confluences. Otherwise, the network will be split at ix 
 %     which is a vector of linear indices into the DEM from which S was 
-%     derived. 
+%     derived. The function does not delete nodes in the network but edges
+%     between nodes. Whether these are the incoming or outgoing edges of ix
+%     can be controlled with setting removeedge to 'incoming' or
+%     'outgoing'.
 %
 % Input arguments
 %
 %     S     STREAMobj
 %     ix    linear index into DEM. The indexed pixels must be located on 
 %           the channel network, e.g. ismember(ix,S.IXgrid).
+%     removeedge {'incoming'} or 'outgoing'. 'incoming' removes the edge or
+%           edges between ix and its upstream neighbor(s). 'outgoing'
+%           removes the downstream edge.
 % 
 % Output arguments
 %
@@ -45,16 +52,27 @@ function S = split(S,varargin)
 %           STREAMobj/STREAMobj2cell
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. May, 2016
+% Date: 15. May, 2017
 
 
-narginchk(1,2)
-if nargin == 1;
+narginchk(1,3)
+if nargin == 1
     V = streampoi(S,'confluences','logical');
-    I = V(S.ixc);
 else
-    I = ismember(S.IXgrid,varargin{1});
-    I = I(S.ixc);
+    V = ismember(S.IXgrid,varargin{1});
+end
+
+if nargin <= 2
+    method = 'incoming';
+else
+    method = validatestring(varargin{2},{'outgoing','incoming'},'STREAMobj/split','removeedge',3);
+end
+
+switch method
+    case 'outgoing'
+        I = V(S.ix);
+    case 'incoming'
+        I = V(S.ixc);
 end
 
 S.ix(I) = [];
