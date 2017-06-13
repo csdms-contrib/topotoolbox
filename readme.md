@@ -86,6 +86,7 @@ of each function (help function).
   STREAMobj
 - modification: STREAMobj/STREAMobj2cell
 - modification: STREAMobj/STREAMobj2mapstruct
+- new function: STREAMobj/transformcoords
 - new function: FLOWobj/FLOWobj2cell
 - update to several FLOWobj methods to avoid speed loss for MATLAB versions newer
   than R2015b
