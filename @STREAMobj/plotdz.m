@@ -33,7 +33,7 @@ function h = plotdz(S,DEM,varargin)
 %
 %     'distance': {S.distance}
 %     node attribute list with custom distances (see STREAMobj/distance) or
-%     STREAMobj (see function distance(S,S2))
+%     STREAMobj (see function distance(S,S2)). 
 %
 %     'dunit': {'m'} 'km'
 %     distance unit. plotdz assumes that distance is given in meter. 
@@ -94,13 +94,20 @@ function h = plotdz(S,DEM,varargin)
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. January, 2017
+% Date: 12. July, 2017
 
 nrnodes = numel(S.x);
 ax      = gca;
 
-colororderindex = mod(ax.ColorOrderIndex, size(ax.ColorOrder,1));
-if colororderindex==0; colororderindex=size(ax.ColorOrder,1); end
+if verLessThan('matlab','8.4')
+    % For MATLAB versions before 2014b
+    clr = 'b';
+else
+    % For MATLAB versions with the new graphics engine
+    colororderindex = mod(ax.ColorOrderIndex, size(ax.ColorOrder,1));
+    if colororderindex==0; colororderindex=size(ax.ColorOrder,1); end
+    clr = ax.ColorOrder(colororderindex,:);
+end
 
 % check input
 p = inputParser;         
@@ -108,9 +115,9 @@ p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParameter(p,'annotation',[])
-addParameter(p,'color',ax.ColorOrder(colororderindex,:));
+addParameter(p,'color',clr);
 addParameter(p,'annotationtext',{});
-addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
+addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
 addParameter(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
 addParameter(p,'doffset',0,@(x) isscalar(x));
 addParameter(p,'colormap','parula');
@@ -118,11 +125,19 @@ addParameter(p,'linewidth',1);
 addParameter(p,'colormethod','line');
 addParameter(p,'colorbar',true);
 addParameter(p,'cbarlabel','');
+addParameter(p,'type','plot');
 
+% only relevant for 'type' = 'area' or 'stairsarea'
+addParameter(p,'EdgeColor',[.3 .3 .3]);
+addParameter(p,'FaceColor',[.7 .7 .7]);
+addParameter(p,'FaceAlpha',1);
+addParameter(p,'EdgeAlpha',1);
+addParameter(p,'BaseValue',[]);
 
 parse(p,S,DEM,varargin{:});
 S   = p.Results.S;
 DEM = p.Results.DEM;
+type = validatestring(p.Results.type,{'plot','area','stairs','stairsarea'});
 
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
@@ -146,6 +161,9 @@ if isempty(p.Results.distance);
 else
     if isa(p.Results.distance,'STREAMobj');
         dist = distance(S,p.Results.distance);
+    elseif ischar(p.Results.distance)
+        dist = S.distance;
+        dist = dist./max(dist);
     else
         dist = p.Results.distance;
     end
@@ -169,8 +187,40 @@ z(I)  = zz(order(I));
 
 % plot
 if ~isnal(S,p.Results.color)
-    ht = plot(ax,d,z,'-','Color',p.Results.color,'LineWidth',p.Results.linewidth);
+    switch type
+        case 'plot'
+            ht = plot(ax,d,z,'-','Color',p.Results.color,...
+                'LineWidth',p.Results.linewidth);
+        case 'stairs'
+            ht = stairs(ax,d,z,'-','Color',p.Results.color,...
+                'LineWidth',p.Results.linewidth);
+        case 'area'
+            if isempty(p.Results.BaseValue)
+                basevalue = min(z);
+            else
+                basevalue = p.Results.BaseValue;
+            end
+            ht = area(ax,d,z,'EdgeColor',p.Results.EdgeColor,...
+                'FaceColor',p.Results.FaceColor,...
+                'FaceAlpha',p.Results.FaceAlpha,...
+                'EdgeAlpha',p.Results.EdgeAlpha,...
+                'BaseValue',basevalue);
+        case 'stairsarea'
+            if isempty(p.Results.BaseValue)
+                basevalue = min(z);
+            else
+                basevalue = p.Results.BaseValue;
+            end
+            [xb,yb] = stairs(ax,d,z);
+            ht = area(ax,flipud(xb),flipud(yb),'EdgeColor',p.Results.EdgeColor,...
+                'FaceColor',p.Results.FaceColor,...
+                'FaceAlpha',p.Results.FaceAlpha,...
+                'EdgeAlpha',p.Results.EdgeAlpha,...
+                'BaseValue',basevalue);
+    end
+    
 else
+    
     meth = validatestring(p.Results.colormethod,{'line','surface'});
     switch meth
         case 'line'

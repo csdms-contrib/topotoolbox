@@ -63,6 +63,8 @@ of each function (help function).
 - new function: GRIDobj/GRIDobj2pm
 - new function: GRIDobj/zscore
 - new function: GRIDobj/pad
+- new function: STREAMobj/aggregate
+- new function: STREAMobj/labelreach
 - new function: STREAMobj/distance
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plotdzshaded
