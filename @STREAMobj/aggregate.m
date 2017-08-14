@@ -4,9 +4,9 @@ function zs = aggregate(S,DEM,varargin)
 %
 % Syntax
 %
-%     as = smooth(S,A)
-%     as = smooth(S,a)
-%     as = smooth(...,pn,pv,...)
+%     as = aggregate(S,A)
+%     as = aggregate(S,a)
+%     as = aggregate(...,pn,pv,...)
 %
 % Description
 %
@@ -28,7 +28,8 @@ function zs = aggregate(S,DEM,varargin)
 %                  the parallel processing toolbox).
 %     'seglength'  segment length (default 10*S.cellsize)
 %     'aggfun'     anonymous function as aggregation function. Default is
-%                  @mean. The function must take a vector and must return
+%                  @mean. The function must take a vector and return a scalar
+%                  (e.g. @max, @min, @std, @(x) prctile(x,25), ...)
 %
 % Output parameters
 %

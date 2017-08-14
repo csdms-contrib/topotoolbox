@@ -54,6 +54,9 @@ of each function (help function).
 
 2.2 pre
 - TTLEM is part of TopoToolbox
+- new functions for smoothing and hydrological correction: 
+  STREAMobj/crs, STREAMobj/crsapp, STREAMobj/smooth, STREAMobj/crslin, 
+  STREAMobj/quantcarve, FLOWobj/quantcarve
 - modification: GRIDobj way to store referencing information was changed
 - modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
