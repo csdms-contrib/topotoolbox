@@ -1,6 +1,6 @@
 function theta = orientation(S,varargin)
 
-% stream orientation
+%ORIENTATION stream orientation
 %
 % Syntax
 %
@@ -42,7 +42,7 @@ function theta = orientation(S,varargin)
 % See also: STREAMobj, SWATHobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. March, 2017
+% Date: 17. August, 2017
 
 
 % Input checking and parsing

@@ -1,6 +1,6 @@
 function k = curvature(S,varargin)
 
-% curvature or 2nd derivative of a STREAMobj
+%CURVATURE curvature or 2nd derivative of a STREAMobj
 %
 % Syntax
 %
@@ -46,7 +46,8 @@ function k = curvature(S,varargin)
 %     k = curvature(S,x,y);
 %     plotc(S,k);
 %     caxis(repmat(min(abs(caxis)),1,2).*[-1 1])
-%
+%     h = colorbar;
+%     h.Label.String = 'Curvature';
 %
 %
 % See also: STREAMobj/gradient, STREAMobj/smooth

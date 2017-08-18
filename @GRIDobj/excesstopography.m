@@ -1,6 +1,6 @@
 function DEM = excesstopography(DEM,varargin)
 
-% difference between actual elevations and elevations with threshold slope
+%EXCESSTOPOGRAPHY reconstruct surface with threshold-slope surface
 % 
 % Syntax
 %
@@ -65,12 +65,17 @@ function DEM = excesstopography(DEM,varargin)
 %    DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %    EXT = excesstopography(DEM,'maxgradient',30,'kernelsize',31);
 %    imageschs(DEM,EXT)
-%  
+%
+% Reference
+%
+%    Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie
+%    low: Excess topography in the Himalaya-Karakoram ranges. Geology 43, 6, 
+%    523-526.
 %
 % See also: GRIDobj/localtopography 
 %     
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. February, 2017
+% Date: 17. August, 2017
 
 
 

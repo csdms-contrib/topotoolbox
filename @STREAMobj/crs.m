@@ -1,6 +1,6 @@
 function [zs,exitflag,output] = crs(S,DEM,varargin)
 
-% constrained regularized smoothing of the channel length profile
+%CRS constrained regularized smoothing of the channel length profile
 %
 % Syntax
 %
@@ -75,7 +75,7 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %           STREAMobj/crsapp
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. July, 2017
+% Date: 17. August, 2017
 
 
 % check and parse inputs
@@ -83,13 +83,13 @@ narginchk(2,inf)
 
 p = inputParser;
 p.FunctionName = 'STREAMobj/crs';
-addParameter(p,'K',2,@(x) (isscalar(x) && x>0) || isa(x,'GRIDobj'));
-addParameter(p,'tau',0.5,@(x) isscalar(x) && x>0 && x<1)
-addParameter(p,'nonstifftribs',true,@(x) isscalar(x));
-addParameter(p,'mingradient',0,@(x) (isscalar(x) && (x>=0 || isnan(x))));
-addParameter(p,'knickpoints',[]);
-addParameter(p,'fixedoutlet',false);
-addParameter(p,'split',2);
+addParamValue(p,'K',2,@(x) (isscalar(x) && x>0) || isa(x,'GRIDobj'));
+addParamValue(p,'tau',0.5,@(x) isscalar(x) && x>0 && x<1)
+addParamValue(p,'nonstifftribs',true,@(x) isscalar(x));
+addParamValue(p,'mingradient',0,@(x) (isscalar(x) && (x>=0 || isnan(x))));
+addParamValue(p,'knickpoints',[]);
+addParamValue(p,'fixedoutlet',false);
+addParamValue(p,'split',2);
 parse(p,varargin{:});
 
 % get node attribute list with elevation values
@@ -173,13 +173,17 @@ d  = S.distance;
 % nr of nodes
 nr = numel(S.IXgrid);
 
-if nr <= 2
-    % a special case. The stream network needs at least three nodes. If
-    % there are less, all nodes will have the mean as value.
-    zs = z;
-    zs(S.ix(1)) = zs(S.ixc(1));
+if nr < 3
+    % a special case. The stream network needs at least three nodes in a row. If
+    % there are less, the second derivative matrix is empty, and crs uses
+    % quantile carving instead
+    zs = quantcarve(S,z,p.Results.tau,...
+                        'split',p.Results.split,...
+                        'mingradient',p.Results.mingradient,...
+                        'fixedoutlet',p.Results.fixedoutlet);
     return
 end
+
 
 %% Second-derivate matrix
 %
@@ -213,6 +217,18 @@ end
 nrrows = size(colix,1);
 rowix  = repmat((1:nrrows)',1,3);
 Asd    = sparse(rowix(:),colix(:),val(:),nrrows,nr);
+
+if isempty(Asd)
+    % a special case. The stream network needs at least three nodes in a row. If
+    % there are less, the second derivative matrix is empty, and crs uses
+    % quantile carving instead
+    zs = quantcarve(S,z,p.Results.tau,...
+                        'split',p.Results.split,...
+                        'mingradient',p.Results.mingradient,...
+                        'fixedoutlet',p.Results.fixedoutlet);
+    return
+end
+
 
 %% Setup linear system
 % balance stiffness and fidelity

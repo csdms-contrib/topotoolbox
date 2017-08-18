@@ -1,6 +1,6 @@
 function [X,ix,txt,txtname] = GRIDobj2pm(varargin)
 
-% combine several GRIDobj into a predictor matrix
+%GRIDobj2pm combine several GRIDobj into a predictor matrix
 %
 % Syntax
 %
@@ -43,7 +43,7 @@ function [X,ix,txt,txtname] = GRIDobj2pm(varargin)
 %     
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. March, 2016
+% Date: 17. August, 2017
 
 
 

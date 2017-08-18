@@ -1,6 +1,6 @@
 function varargout = getoutline(DEM,nnan)
 
-% get or plot extent of GRIDobj
+%GETOUTLINE get or plot extent of GRIDobj
 %
 % Syntax
 %
@@ -70,6 +70,11 @@ else
     end
 end
 
+% simplify lines
+xy = dpsimplify([x(:) y(:)],100*eps);
+x = xy(:,1);
+y = xy(:,2);
+
 
 if nargout == 0
     % No output. Plot outline
@@ -83,6 +88,11 @@ if nargout == 0
 elseif nargout == 1
     % One output argument, create mapping structure
     % split at nans
+    if ~isnan(x(end));
+        x = [x;nan];
+        y = [y;nan];
+    end
+            
     I = isnan(x);
     nrlines = nnz(I);
     ix = find(I)';

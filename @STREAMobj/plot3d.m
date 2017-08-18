@@ -1,6 +1,6 @@
 function h = plot3d(S,DEM)
 
-% 3D plot of a stream network
+%PLOT3D 3D plot of a stream network
 %
 % Syntax
 %
@@ -21,6 +21,13 @@ function h = plot3d(S,DEM)
 %
 %     h     patch handle
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S);
+%     plot3d(S,DEM)
 %
 % See also: STREAMobj, STREAMobj/plot, STREAMobj/plotdz
 %
@@ -29,7 +36,6 @@ function h = plot3d(S,DEM)
 
 
 [x,y,z] = STREAMobj2XY(S,DEM);
-z       = double(z);
 
 baselevel = min(z);
 baselevel = repmat(baselevel,size(z));

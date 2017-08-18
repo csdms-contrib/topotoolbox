@@ -1,6 +1,6 @@
 function N = flowconvergence(FD)
 
-% compute flow convergence of a digital elevation model
+%FLOWCONVERGENCE compute flow convergence of a digital elevation model
 % 
 % Syntax
 %
@@ -24,12 +24,15 @@ function N = flowconvergence(FD)
 %
 % Example
 % 
-% 
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     C  = flowconvergence(FD);
+%     imageschs(DEM,C)
 %
 % See also: FLOWOBJ
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 14. November, 2016
+% Date: 18. August, 2017
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 

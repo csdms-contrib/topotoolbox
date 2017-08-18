@@ -1,6 +1,6 @@
 function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 
-% convert instance of STREAMobj to mapstruct
+%STREAMOBJ2MAPSTRUCT convert instance of STREAMobj to mapstruct
 %
 % Syntax
 %

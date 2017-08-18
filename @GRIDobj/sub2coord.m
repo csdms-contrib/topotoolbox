@@ -1,6 +1,6 @@
 function [x,y] = sub2coord(DEM,r,c)
 
-% convert subscripts to x and y coordinates
+%SUB2COORD convert subscripts to x and y coordinates
 %
 % Syntax
 %

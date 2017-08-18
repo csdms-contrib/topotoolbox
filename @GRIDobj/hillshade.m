@@ -1,6 +1,6 @@
 function OUT2 = hillshade(DEM,varargin)
 
-% create hillshading from a digital elevation model (GRIDobj)
+%HILLSHADE create hillshading from a digital elevation model (GRIDobj)
 %
 % Syntax
 %    
@@ -23,10 +23,15 @@ function OUT2 = hillshade(DEM,varargin)
 %
 % Parameter name/value pairs
 %
-%     azimuth        azimuth angle, (default=315)
-%     altitude       altitude angle, (default=60)
-%     exaggerate     elevation exaggeration (default=1). Increase to
-%                    pronounce elevation differences in flat terrain
+%     'azimuth'         azimuth angle, (default=315)
+%     'altitude'        altitude angle, (default=60)
+%     'exaggerate'      elevation exaggeration (default=1). Increase to
+%                       pronounce elevation differences in flat terrain
+%     'useblockproc'    true or {false}: use block processing 
+%                       (see function blockproc)
+%     'useparallel'     true or {false}: use parallel computing toolbox
+%     'blocksize'       blocksize for blockproc (default: 5000)
+%
 %
 % Output
 %
@@ -47,7 +52,7 @@ function OUT2 = hillshade(DEM,varargin)
 % See also: SURFNORM, IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 24. May, 2016
+% Date: 18. August, 2017
 
 
 
@@ -61,6 +66,7 @@ addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
 addParamValue(p,'blocksize',2000);
+addParamValue(p,'useblockproc',true,@(x) isscalar(x));
 parse(p,varargin{:});
 
 OUT     = DEM;
@@ -72,7 +78,7 @@ altitude = p.Results.altitude;
 exaggerate = p.Results.exaggerate;
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(10001*10001);
+if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc;
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     Z      = DEM.Z;

@@ -1,6 +1,6 @@
 function z = cumtrapz(S,G)
 
-% Cumulative trapezoidal numerical integration along a stream network
+%CUMTRAPZ Cumulative trapezoidal numerical integration along a stream network
 %
 % Syntax
 %

@@ -1,6 +1,6 @@
 function OUT = upslopestats(FD,VAR,meth)
 
-% upslope statistics of a variable based on the flow direction matrix
+%UPSLOPESTATS upslope statistics of a variable based on the flow direction matrix
 %
 % Syntax
 %
@@ -27,7 +27,11 @@ function OUT = upslopestats(FD,VAR,meth)
 %
 % Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     G  = gradient8(DEM);
+%     Gup = upslopestats(FD,G,'mean');
+%     imageschs(DEM,Gup,'caxis',[0 1])
 %
 % References
 %

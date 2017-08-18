@@ -1,6 +1,6 @@
 function zs = aggregate(S,DEM,varargin)
 
-% aggregating values of reaches
+%AGGREGATE aggregating values of reaches
 %
 % Syntax
 %
@@ -12,7 +12,7 @@ function zs = aggregate(S,DEM,varargin)
 %
 %     Values along stream networks are frequently affected by scatter.
 %     This function removes scatter by averaging over values in reaches
-%     between confluences or within reaches of equal length.
+%     between confluences or reaches of equal length.
 %
 % Input parameters
 %
@@ -22,7 +22,7 @@ function zs = aggregate(S,DEM,varargin)
 %
 % Parameter name/value pairs
 %
-%     'method'     {'block'}, 'reach'
+%     'method'     {'reach'}, 'betweenconfluences'
 %     'split'      {false} or true. True will identify individual drainage
 %                  basins and process each individually in parallel (requires
 %                  the parallel processing toolbox).
@@ -51,7 +51,7 @@ function zs = aggregate(S,DEM,varargin)
 %     colormap(jet)
 %     colorbar
 %
-% See also: STREAMobj/labelreach
+% See also: STREAMobj/labelreach, STREAMobj/smooth
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 19. June, 2017
@@ -62,14 +62,14 @@ narginchk(2,inf)
 
 p = inputParser;
 p.FunctionName = 'STREAMobj/aggregate';
-addParameter(p,'method','block'); 
+addParameter(p,'method','reach'); 
 addParameter(p,'split',false);
 % parameters for block and reach
 addParameter(p,'seglength',S.cellsize*11);
 addParameter(p,'aggfun',@mean);
 
 parse(p,varargin{:});
-method = validatestring(p.Results.method,{'reach','block'});
+method = validatestring(p.Results.method,{'betweenconfluences','reach'});
 
 % get node attribute list with elevation values
 if isa(DEM,'GRIDobj')
@@ -102,12 +102,12 @@ end
 %% Aggregating starts here
 
 switch method
-    case 'reach'
+    case 'betweenconfluences'
         S2 = split(S);
         [c,n] = conncomps(S2);
         za = accumarray(c,z,[n 1],p.Results.aggfun,nan,false);
         zs = za(c);
-    case 'block'
+    case 'reach'
         label = labelreach(S,'seglength',p.Results.seglength);   
         zm    = accumarray(label,z,[max(label) 1],p.Results.aggfun,nan);
         zs    = zm(label);

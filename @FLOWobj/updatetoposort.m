@@ -1,6 +1,6 @@
 function FD = updatetoposort(FD)
 
-% update topological sorting
+%UPDATETOPOSORT update topological sorting
 %
 % Syntax
 %

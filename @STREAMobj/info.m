@@ -1,6 +1,6 @@
 function val = info(S,m)
 
-% meta information about STREAMobj
+%INFO meta information about STREAMobj
 %
 % Syntax
 %

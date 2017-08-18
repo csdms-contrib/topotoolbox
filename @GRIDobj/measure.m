@@ -1,6 +1,6 @@
 function measure(DEM,varargin)
 
-% take interactive measurements along a polyline
+%MEASURE take interactive measurements along a polyline
 %
 % Syntax
 %
@@ -85,10 +85,10 @@ switch p.Results.slopeunit
         slopesign = '';
     case 'degree'
         slopefun = @(x) atand(x);
-        slopesign = '°';
+        slopesign = '';
     case 'percent'
         slopefun = @(x) 100*x;
-        slopesign = '%';
+        slopesign = '';
 end
 
 

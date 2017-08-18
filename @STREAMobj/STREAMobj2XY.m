@@ -1,6 +1,6 @@
 function [x,y,varargout] = STREAMobj2XY(S,varargin)
 
-% convert instance of STREAMobj to NaN-separated X and Y coordinates
+%STREAMOBJ2XY convert instance of STREAMobj to NaN-separated X and Y coordinates
 %
 % Syntax
 %
@@ -25,6 +25,14 @@ function [x,y,varargout] = STREAMobj2XY(S,varargin)
 %
 %     x,y     coordinate vectors
 %     a,b,... grid values at locations specified by x and y.
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     [x,y,d] = STREAMobj2XY(S,S.distance);
+%     plot(x,y)
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 30. January, 2013

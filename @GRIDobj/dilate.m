@@ -1,6 +1,6 @@
 function DEM = dilate(DEM,SE)
 
-% morphological dilation
+%DILATE morphological dilation
 %
 % Syntax
 %

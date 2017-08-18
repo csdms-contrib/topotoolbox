@@ -1,6 +1,6 @@
 function varargout = hypscurve(DEM,bins)
 
-% plot hypsometric curve of a digital elevation model
+%HYPSCURVE plot hypsometric curve of a digital elevation model
 %
 % Syntax
 %
@@ -18,7 +18,7 @@ function varargout = hypscurve(DEM,bins)
 %
 % Input
 %
-%     dem       elevation data (matrix or GRIDobj)
+%     DEM       digital elevation model (GRIDobj)
 %     nrbins    number of bins
 %
 % Output
@@ -30,10 +30,9 @@ function varargout = hypscurve(DEM,bins)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     hypscurve(dem,50)
+%     hypscurve(DEM,50)
 %
-% See also: hist
-%
+% See also: hist, histogram
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 8. January, 2013

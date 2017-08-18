@@ -1,6 +1,6 @@
 function h = plotdzshaded(S,zz,varargin)
 
-% plot upstream distance version elevation of a stream network
+%PLOTDZSHADED plot upstream distance version elevation of a stream network
 %
 % Syntax
 %
@@ -10,7 +10,9 @@ function h = plotdzshaded(S,zz,varargin)
 %
 % Description
 %
-%     Plot stream distance from the outlet versus elevation. 
+%     Plot stream distance from the outlet versus elevation. PLOTDZSHADED
+%     plots a filled area between the higher and lower values for each
+%     element contained in two node-attribute lists.
 %
 % Input arguments
 %
@@ -69,7 +71,7 @@ p = inputParser;
 p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'zz', @(x) isequal(size(x),[nrnodes 2]));
-addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj'));
+addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
 addParameter(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
 addParameter(p,'doffset',0,@(x) isscalar(x));
 
@@ -86,15 +88,19 @@ addParameter(p,'LineWidth',0.5);
 parse(p,S,zz,varargin{:});
 S   = p.Results.S;
 
-if isempty(p.Results.distance)
+if isempty(p.Results.distance);
     dist = S.distance;
 else
-    if isa(p.Results.distance,'STREAMobj')
+    if isa(p.Results.distance,'STREAMobj');
         dist = distance(S,p.Results.distance);
+    elseif ischar(p.Results.distance)
+        dist = S.distance;
+        dist = dist./max(dist);
     else
         dist = p.Results.distance;
     end
 end
+
 
 
 switch lower(p.Results.dunit)
@@ -109,7 +115,11 @@ dist = dist + p.Results.doffset;
 %% get tributaries
 [Ctribs,locS] = STREAMobj2cell(S,'tributaries');
 
-hold on
+%% Plot
+keephold = ishold;
+if ~keephold
+    cla
+end
 
 ph = [];
 for r = 1:numel(Ctribs)
@@ -133,9 +143,13 @@ for r = 1:numel(Ctribs)
                 'LineStyle',p.Results.LineStyle,...
                 'EdgeAlpha',p.Results.EdgeAlpha,...
                 'LineWidth',p.Results.LineWidth)];
+    hold on
     
 end
-hold off
+
+if ~keephold
+    hold off
+end
 
 xlabel(['Distance upstream [' lower(p.Results.dunit) ']'])
 ylabel('Elevation [m]')

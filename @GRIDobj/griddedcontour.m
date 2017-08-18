@@ -1,6 +1,6 @@
 function C = griddedcontour(DEM,level,fourconn)
 
-% plot contours on grid
+%GRIDDEDCONTOUR plot contours on grid
 %
 % Syntax
 %

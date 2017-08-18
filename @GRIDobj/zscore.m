@@ -1,6 +1,6 @@
 function X = zscore(X)
 
-% standardized z-scores for GRIDobj
+%ZSCORE standardized z-scores for GRIDobj
 %
 % Syntax
 %
@@ -19,7 +19,12 @@ function X = zscore(X)
 % Output arguments
 %
 %     Y     GRIDobj
+% 
+% Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     Z = zscore(DEM);
+%     imagesc(Z); colorbar
 % 
 % See also: GRIDobj, zscore
 % 

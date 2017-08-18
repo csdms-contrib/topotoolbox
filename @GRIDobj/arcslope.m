@@ -1,14 +1,15 @@
 function SLP = arcslope(DEM,unit)
 
-% mean gradient from a digital elevation model sensu ArcGIS
+%ARCSLOPE mean gradient from a digital elevation model sensu ArcGIS
 %
 % Syntax
 %
+%     SLP = arcslope(DEM)
 %     SLP = arcslope(DEM,unit)
 %
 % Description
 %
-%     arcslope returns the gradient as calculated by ArgGIS (mean slope of
+%     ARCSLOPE returns the gradient as calculated by ArcGIS (mean slope of
 %     8 connected neighborhood). Default unit is as tangent, but you can 
 %     specify alternative units identical to gradient8 function.
 %

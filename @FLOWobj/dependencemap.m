@@ -1,7 +1,7 @@
 function OUT = dependencemap(FD,varargin)
 
 
-% upslope area for specific locations in a digital elevation model
+%DEPENDENCEMAP upslope area for specific locations in a DEM
 %
 % Syntax
 %
@@ -11,8 +11,10 @@ function OUT = dependencemap(FD,varargin)
 %
 % Description
 %
-%     dependencemap returns a logical matrix masking the upslope part
-%     of the digital elevation model that drain into the specified cells.
+%     dependencemap returns a GRIDobj with true values masking the upslope
+%     part of the digital elevation model that contributes to the specified
+%     area in the region in L or pixels with the linear index ix or
+%     coordinates x,y.
 %
 % Input
 %
@@ -27,11 +29,17 @@ function OUT = dependencemap(FD,varargin)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     I   = GRIDobj(DEM,'logical');
+%     I.Z(300:500,300:500) = true;
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     D  = dependencemap(FD,I);
+%     imageschs(DEM,I+D)
 %
 % See also: FLOWobj, FLOWobj/INFLUENCEMAP
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 17. August, 2017
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 

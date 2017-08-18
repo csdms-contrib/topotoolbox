@@ -1,14 +1,14 @@
-function [ totalarea, DEM ] = demarea(DEM,correctEdges)
+function [DEM, totalarea] = demarea(DEM,correctEdges)
 
-% Calculate the corrected surface area of a DEM
+%DEMAREA Calculate the corrected surface area of a DEM
 %
 % Syntax
 %
-%     [totalarea,cellareas] = demarea(DEM,correctEdges)
+%     [CA,totalarea] = demarea(DEM,correctEdges)
 %
 % Description
 %
-%     demarea takes a matrix of elevation values and calculates the total
+%     demarea takes a GRIDobj of elevation values and calculates the total
 %     corrected surface area and the corrected surface area in each cell.
 %     correctEdges is a boolean indicating whether to correct the surface
 %     area in edge cells. The correction works by increasing the calculated
@@ -41,8 +41,14 @@ function [ totalarea, DEM ] = demarea(DEM,correctEdges)
 %
 % Output arguments
 %
+%     CA             GRIDobj that contains the area of each cell
 %     totalarea      total area returned as scalar
-%     cellareas      GRIDobj that contains the area of each cell
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     CA = demarea(DEM);
+%     imagesc(CA)
 %
 % References
 %

@@ -1,6 +1,6 @@
 function [D,L] = distance(DEM,varargin)
 
-% distance transform
+%DISTANCE distance transform
 %
 % Syntax
 %
@@ -111,3 +111,9 @@ else
     [D.Z,L] = bwdist(MASK,'e');
 end
 D = D.*DEM.cellsize;
+                
+        
+        
+        
+    
+    

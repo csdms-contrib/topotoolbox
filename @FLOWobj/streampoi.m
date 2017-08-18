@@ -1,6 +1,6 @@
 function OUT = streampoi(FD,WW,type,outformat)
 
-% stream points of interest
+%STREAMPOI stream points of interest
 %
 % Syntax
 %
@@ -31,11 +31,17 @@ function OUT = streampoi(FD,WW,type,outformat)
 %     V         output as specified in the option 'outformat'
 %
 % Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     W  = flowacc(FD)>1000;
+%     P  = streampoi(FD,W,'confl');
+%     imageschs(DEM,dilate(W+P,ones(5)))
 % 
 % See also: FLOWobj, FLOWobj/flowacc, FLOWobj, STREAMobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 18. August, 2017
 
 
 %% check input arguments

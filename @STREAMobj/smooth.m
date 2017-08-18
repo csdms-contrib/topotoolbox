@@ -1,6 +1,6 @@
 function zs = smooth(S,DEM,varargin)
 
-% smoothing of node-attribute lists
+%SMOOTH smoothing of node-attribute lists
 %
 % Syntax
 %

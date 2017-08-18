@@ -1,6 +1,6 @@
 function G = FLOWobj2gradient(FD,DEM)
 
-% gradient along flow direction
+%FLOWOBJ2GRADIENT gradient along flow direction
 %
 % Syntax 
 %
@@ -14,8 +14,23 @@ function G = FLOWobj2gradient(FD,DEM)
 %     GRIDobj that contains the gradient along the flow paths.
 %
 %     If FLOWobj has been derived using a multiple or Dinf flow direction
-%     algorithm, then G is calculated as the weighted mean gradient. 
+%     algorithm, then G is calculated as the weighted mean gradient.
 %
+% Input arguments
+%
+%     FD     FLOWobj
+%     DEM    digital elevation model (GRIDobj)
+%
+% Output arguments
+%
+%     G      along-flow gradient
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     G  = FLOWobj2gradient(FD,DEM);
+%     imageschs(DEM,G)
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)

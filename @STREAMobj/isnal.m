@@ -25,7 +25,7 @@ function tf = isnal(S,nal)
 % See also: STREAMobj, STREAMobj/getnal
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 22. June, 2015
+% Date: 17. May, 2016
 
 
 tf = isequal(numel(S.IXgrid),numel(nal));

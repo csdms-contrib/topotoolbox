@@ -1,6 +1,6 @@
 function m = meanupstream(S,val,varargin)
 
-% mean (weighted) upstream  values
+%MEANUPSTREAM mean (weighted) upstream  values
 %
 % Syntax
 %

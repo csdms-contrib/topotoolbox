@@ -1,6 +1,6 @@
 function [CFD,D,A,cfix] = FLOWobj2cell(FD,IX)
 
-% Return cell array of FLOWobjs for individual drainage basins
+%FLOWOBJ2CELL return cell array of FLOWobjs for individual drainage basins
 %
 % Syntax
 %
@@ -31,6 +31,13 @@ function [CFD,D,A,cfix] = FLOWobj2cell(FD,IX)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     [CFD,~,a] = FLOWobj2cell(FD);
+%     [~,ix] = max(a);
+%     A = flowacc(CFD{ix});
+%     imageschs(DEM,log(A))
+%
 % See also: FLOWobj, STREAMobj/STREAMobj2cell
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
@@ -48,6 +55,8 @@ end
 if nargin == 1 && nargout == 4
     error('a forth output argument is only allowed for two input arguments');
 end
+
+
 
 FDcopy = FD;
 FDcopy.ix = [];

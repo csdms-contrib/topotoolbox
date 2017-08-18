@@ -1,6 +1,6 @@
 function h = plotdz(S,DEM,varargin)
 
-% plot upstream distance version elevation of a stream network
+%PLOTDZ plot upstream distance version elevation of a stream network
 %
 % Syntax
 %
@@ -94,7 +94,7 @@ function h = plotdz(S,DEM,varargin)
 % See also: STREAMobj, STREAMobj/plot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 12. July, 2017
+% Date: 18. August, 2017
 
 nrnodes = numel(S.x);
 ax      = gca;
@@ -114,25 +114,25 @@ p = inputParser;
 p.FunctionName = 'plotdz';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
-addParameter(p,'annotation',[])
-addParameter(p,'color',clr);
-addParameter(p,'annotationtext',{});
-addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
-addParameter(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
-addParameter(p,'doffset',0,@(x) isscalar(x));
-addParameter(p,'colormap','parula');
-addParameter(p,'linewidth',1);
-addParameter(p,'colormethod','line');
-addParameter(p,'colorbar',true);
-addParameter(p,'cbarlabel','');
-addParameter(p,'type','plot');
+addParamValue(p,'annotation',[])
+addParamValue(p,'color',clr);
+addParamValue(p,'annotationtext',{});
+addParamValue(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
+addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
+addParamValue(p,'doffset',0,@(x) isscalar(x));
+addParamValue(p,'colormap','parula');
+addParamValue(p,'linewidth',1);
+addParamValue(p,'colormethod','line');
+addParamValue(p,'colorbar',true);
+addParamValue(p,'cbarlabel','');
+addParamValue(p,'type','plot');
 
 % only relevant for 'type' = 'area' or 'stairsarea'
-addParameter(p,'EdgeColor',[.3 .3 .3]);
-addParameter(p,'FaceColor',[.7 .7 .7]);
-addParameter(p,'FaceAlpha',1);
-addParameter(p,'EdgeAlpha',1);
-addParameter(p,'BaseValue',[]);
+addParamValue(p,'EdgeColor',[.3 .3 .3]);
+addParamValue(p,'FaceColor',[.7 .7 .7]);
+addParamValue(p,'FaceAlpha',1);
+addParamValue(p,'EdgeAlpha',1);
+addParamValue(p,'BaseValue',[]);
 
 parse(p,S,DEM,varargin{:});
 S   = p.Results.S;

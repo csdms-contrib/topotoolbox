@@ -1,10 +1,12 @@
-function G = gradient8(DEM,unit)
+function G = gradient8(DEM,unit,varargin)
 
-% 8-connected neighborhood gradient and aspect of a digital elevation model
+%GRADIENT8 8-connected neighborhood gradient of a digital elevation model
 %
 % Syntax
 %
+%     G = gradient8(DEM)
 %     G = gradient8(DEM,unit)
+%     G = gradient8(DEM,unit,pn,pv,...)
 %
 % Description
 %
@@ -19,6 +21,13 @@ function G = gradient8(DEM,unit)
 %               'deg' --> degree
 %               'sin' --> sine
 %               'per' --> percent
+%
+%     Parameter name value/pairs (pn,pv,...)
+%     
+%     'useblockproc'    true or {false}: use block processing 
+%                       (see function blockproc)
+%     'useparallel'     true or {false}: use parallel computing toolbox
+%     'blocksize'       blocksize for blockproc (default: 5000)
 % 
 % Output
 %
@@ -34,16 +43,24 @@ function G = gradient8(DEM,unit)
 %     imagesc(G)
 %
 %
-% See also: GRIDobj, CURVATURE, ASPECT
+% See also: GRIDobj, GRIDobj/CURVATURE, GRIDobj/ASPECT, GRIDobj/arcslope
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. November, 2015
+% Date: 18. August, 2017
 
 if nargin == 1;
     unit = 'tangent';
 else
     unit = validatestring(unit,{'tangent' 'degree' 'radian' 'percent' 'sine'},'gradient8','unit',2);
 end
+
+p = inputParser;
+p.FunctionName = 'GRIDobj/gradient8';
+addParamValue(p,'useblockproc',false,@(x) isscalar(x));
+addParamValue(p,'blocksize',5000,@(x) isscalar(x));
+addParamValue(p,'useparallel',false,@(x) isscalar(x));
+parse(p,varargin{:});
+
 
 % create a copy of the DEM instance
 G = DEM;
@@ -61,8 +78,8 @@ end
 % avoid calling blockproc.
 % Large matrix support. Break calculations in chunks using blockproc.
 
-if numel(DEM.Z)>(20001*20001);
-    blksiz = bestblk(size(DEM.Z),5000);
+if p.Results.useblockproc
+    blksiz = bestblk(size(DEM.Z),p.Results.blocksize);
     c   = class(DEM.Z);
     
     switch c
@@ -78,7 +95,7 @@ if numel(DEM.Z)>(20001*20001);
     G.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod',padval,...
-           'UseParallel',true);
+           'UseParallel',p.Results.useparallel);
 else
     G.Z = steepestgradient(DEM.Z,G.cellsize,c);
 end

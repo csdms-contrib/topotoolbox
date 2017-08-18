@@ -1,6 +1,6 @@
 function OUT = streampoi(S,type,outformat)
 
-% stream points of interest
+%STREAMPOI stream points of interest
 %
 % Syntax
 %

@@ -1,5 +1,5 @@
 function FD = multi2single(FD)
-% converts multiple to single flow direction
+%MULTI2SINGLE converts multiple to single flow direction
 %
 % Syntax
 %

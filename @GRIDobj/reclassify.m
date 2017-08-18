@@ -1,6 +1,6 @@
 function DEM = reclassify(DEM,varargin)
 
-% generate univariate class intervals for an instance of GRIDobj
+%RECLASSIFY generate univariate class intervals for an instance of GRIDobj
 %
 % Syntax
 %
@@ -42,7 +42,7 @@ function DEM = reclassify(DEM,varargin)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     C   = reclassify(DEM,'equalq',10);
+%     C   = reclassify(DEM,'equalquantiles',10);
 %     imageschs(DEM,C)
 %
 % See also: k_means, graythresh
@@ -106,7 +106,7 @@ switch method
         end
     case 'definedintervals'
         validateattributes(num,{'numeric'},{'vector'});
-        num(end) = inf;
+        num(end+1) = inf;
         num = [-inf; num(:)];
         siz = size(DEM.Z);
         [~,DEM.Z] = histc(DEM.Z(:),num);

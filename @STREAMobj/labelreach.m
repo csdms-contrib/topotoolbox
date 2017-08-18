@@ -1,6 +1,6 @@
 function [label,varargout] = labelreach(S,varargin)
 
-% create node-attribute list with labelled reaches
+%LABELREACH create node-attribute list with labelled reaches
 %
 % Syntax
 %
@@ -30,15 +30,25 @@ function [label,varargout] = labelreach(S,varargin)
 %     ix      linear index into GRIDobj of split locations
 %     x,y     coordinates of split locations
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     [l,x,y] = labelreach(S,'seglength',1000,'shuffle',true);
+%     plotc(S,l)
+%     hold on
+%     plot(x,y,'k+')
+%
 % See also: STREAMobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. June, 2017
+% Date: 17. August, 2017
 
 p = inputParser;
 p.FunctionName = 'STREAMobj/labelreach';
-addParameter(p,'seglength',inf,@(x) isscalar(x) && x>0);
-addParameter(p,'shuffle',false,@(x) isscalar(x));
+addParamValue(p,'seglength',inf,@(x) isscalar(x) && x>0);
+addParamValue(p,'shuffle',false,@(x) isscalar(x));
 parse(p,varargin{:});
 
 label = streampoi(S,{'bconfl','out'},'logical');

@@ -1,6 +1,6 @@
 function OUT = flowdistance(FD,varargin) 
 
-% flow distance in upstream and downstream direction
+%FLOWDISTANCE flow distance in upstream and downstream direction
 %
 % Syntax
 %

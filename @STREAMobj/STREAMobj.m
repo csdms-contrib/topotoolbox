@@ -1,6 +1,6 @@
 classdef STREAMobj
     
-% Create stream object (STREAMobj)
+%STREAMobj Create stream object (STREAMobj)
 %
 % Syntax
 %
@@ -23,11 +23,13 @@ classdef STREAMobj
 %
 % Parameter name/value pairs
 %
-%     minarea    upslope area threshold for channel initiation (default =
-%                1000)
-%     unit       'pixels' (default), 'mapunits'. If you choose mapunits 
-%                provide minimum area in mapunits^2 (e.g. 1e6 m^2)
-%     outlets    linear indices of drainage basin outlets (default = [])
+%     minarea      upslope area threshold for channel initiation (default =
+%                  1000)
+%     unit         'pixels' (default), 'mapunits'. If you choose mapunits 
+%                  provide minimum area in mapunits^2 (e.g. 1e6 m^2)
+%     outlets      linear indices of drainage basin outlets (default = [])
+%     channelheads linear indices of channelheads (this argument can only
+%                  be used when no other parameters are set).
 %
 % Output arguments
 %
@@ -72,6 +74,9 @@ methods
     function S = STREAMobj(FD,varargin)
         
         narginchk(2,inf)
+        if ismulti(FD,true);
+            error('TopoToolbox:STREAMobj','STREAMobj supports only single flow directions');
+        end
         
         if nargin == 2;
             % Two input arguments: FD, W
@@ -91,19 +96,24 @@ methods
             addParamValue(p,'unit','pixels',@(x) ischar(validatestring(x, ...
                             {'pixels', 'mapunits'}))); 
             addParamValue(p,'outlets',[],@(x) isnumeric(x));
+            addParamValue(p,'channelheads',[],@(x) isnumeric(x));
             
             parse(p,FD,varargin{:});
             % required
-            unit = validatestring(p.Results.unit,{'pixels', 'mapunits'});
-            IX   = p.Results.outlets;
+            unit    = validatestring(p.Results.unit,{'pixels', 'mapunits'});
+            IX      = p.Results.outlets;
             minarea = p.Results.minarea;
+            channelheads = p.Results.channelheads;
+            
             
             switch unit
                 case 'mapunits';
                     minarea = minarea/(FD.cellsize.^2);
             end
             
-            if ~isempty(IX)
+            if ~isempty(channelheads);
+                W = influencemap(FD,channelheads);
+            elseif ~isempty(IX) && isempty(channelheads)
                 W = drainagebasins(FD,IX)>0 & flowacc(FD)>minarea;
             else
                 W = flowacc(FD)>=minarea;

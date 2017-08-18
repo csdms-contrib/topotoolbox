@@ -1,11 +1,12 @@
-function C = curvature(DEM,ctype)
+function C = curvature(DEM,ctype,varargin)
 
-% 8-connected neighborhood curvature of a digital elevation model 
+%CURVATURE 8-connected neighborhood curvature of a digital elevation model 
 %
 % Syntax
 %
 %     C = curvature(DEM)
-%     C = curvature(DEM,'type')
+%     C = curvature(DEM,type)
+%     C = curvature(DEM,type,pn,pv,...)
 %
 % Description
 %     
@@ -21,6 +22,13 @@ function C = curvature(DEM,ctype)
 %            'tangc' : tangential curvature [m^(-1)]
 %            'meanc' : mean curvature [m^(-1)]
 %            'total' : total curvature [m^(-2)]
+%
+%     Parameter name value/pairs
+%     
+%     'useblockproc'    true or {false}: use block processing 
+%                       (see function blockproc)
+%     'useparallel'     true or {false}: use parallel computing toolbox
+%     'blocksize'       blocksize for blockproc (default: 5000)
 %
 % Output arguments
 %
@@ -40,24 +48,34 @@ function C = curvature(DEM,ctype)
 %     C = curvature(DEM,'planc');
 %     imageschs(DEM,C,'percentclip',0.1)
 %
-% Reference: Schmidt, J., Evans, I.S., Brinkmann, J., 2003. Comparison of 
-% polynomial models for land surface curvature calculation. International 
-% Journal of Geographical Information Science 17, 797-814. 
-% doi:10.1080/13658810310001596058
+% Reference
+%
+%     Schmidt, J., Evans, I.S., Brinkmann, J., 2003. Comparison of
+%     polynomial models for land surface curvature calculation.
+%     International Journal of Geographical Information Science 17,
+%     797-814. doi:10.1080/13658810310001596058
 %
 % See also: GRIDobj/gradient8
 %        
 % Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. April, 2016
+% Date: 17. August, 2017
 
 
 % check input arguments
-narginchk(1,2);
+narginchk(1,inf);
 if nargin == 1
     ctype = 'profc';
 else
     ctype = validatestring(ctype,{'profc','planc','tangc','meanc','total'});
 end
+
+p = inputParser;
+p.FunctionName = 'GRIDobj/curvature';
+addParamValue(p,'useblockproc',false,@(x) isscalar(x));
+addParamValue(p,'blocksize',5000,@(x) isscalar(x));
+addParamValue(p,'useparallel',false,@(x) isscalar(x));
+parse(p,varargin{:});
+
 
 % create a copy of the DEM instance
 C = DEM;
@@ -72,14 +90,14 @@ end
 % Large matrix support. Break calculations in chunks using blockproc
 % Parallisation for large grids using blockproc does in my experience with
 % four cores hardly increase the speed. 
-if numel(DEM.Z)>(20001*20001);
-    blksiz = bestblk(size(DEM.Z),5000); 
+if p.Results.useblockproc
+    blksiz = bestblk(size(DEM.Z),p.Results.blocksize); 
     cs  = C.cellsize;
     fun = @(x) curvaturesub(x,cs,ctype); 
     C.Z = blockproc(DEM.Z,blksiz,fun,...
            'BorderSize',[1 1],...
            'Padmethod','symmetric',...
-           'UseParallel',true);
+           'UseParallel',p.Results.useparallel);
 else
     C.Z = curvaturesub(DEM.Z,C.cellsize,ctype);
 end

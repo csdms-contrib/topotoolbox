@@ -1,6 +1,6 @@
 function c = chitransform(S,A,varargin)
 
-% Coordinate transformation using the integral approach
+%CHITRANSFORM Coordinate transformation using the integral approach
 %
 % Syntax
 %
@@ -9,7 +9,7 @@ function c = chitransform(S,A,varargin)
 %
 % Description
 %
-%     chitransform transforms the horizontal spatial coordinates of a river
+%     CHITRANSFORM transforms the horizontal spatial coordinates of a river
 %     longitudinal profile using an integration in upstream direction of
 %     drainage area (chi, see Perron and Royden, 2013).
 %
@@ -31,6 +31,13 @@ function c = chitransform(S,A,varargin)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S);
+%     A = flowacc(FD);
+%     c = chitransform(S,A,'mn',0.45);
+%     plotc(S,c)    
 %
 % See also: chiplot
 %
@@ -39,6 +46,9 @@ function c = chitransform(S,A,varargin)
 %     Perron, J. & Royden, L. (2013): An integral approach to bedrock river 
 %     profile analysis. Earth Surface Processes and Landforms, 38, 570-576.
 %     [DOI: 10.1002/esp.3302]
+%
+%     TopoToolbox blog posts >>Chimaps in a few lines of codes<<
+%     <a href="https://topotoolbox.wordpress.com/2017/08/18/chimaps-in-a-few-lines-of-code-final/">See overview here.</a>
 %     
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 29. December, 2015

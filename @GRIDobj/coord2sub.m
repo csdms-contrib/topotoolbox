@@ -1,10 +1,11 @@
 function [r,c,res] = coord2sub(DEM,x,y)
 
-% convert x and y coordinates to subscripts into a GRIDobj
+%COORD2SUB convert x and y coordinates to subscripts into a GRIDobj
 %
 % Syntax
 %
 %     [r,c] = coord2sub(DEM,x,y)
+%     [r,c,res] = ...
 %
 % Description
 %
@@ -18,12 +19,14 @@ function [r,c,res] = coord2sub(DEM,x,y)
 %
 % Output arguments
 %
-%     r,c     row and column indices
+%     r,c     row and column subscripts
+%     res     residual distance between coordinates and nearest grid cell
+%             centers for coordinate pair x, y
 %
 % See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. January, 2013
+% Date: 17. August, 2017
 
 
 

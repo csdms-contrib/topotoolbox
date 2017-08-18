@@ -1,10 +1,10 @@
 function varargout = identifyflats(DEM)
 
-% identify flat terrain in a digital elevation model
+%IDENTIFYFLATS identify flat terrain in a digital elevation model
 %
 % Syntax
 %
-%     [FLATS,SILLS,CLOSEDBASINS] = identifyflats(DEM)
+%     [FLATS,SILLS,CLOSED] = identifyflats(DEM)
 %
 % Description
 %
@@ -25,17 +25,20 @@ function varargout = identifyflats(DEM)
 %                where true cells indicate flat terrain (GRIDobj). 
 %     SILLS      instance of GRIDobj that contains logical matrix 
 %                where true cells indicate sill locations (GRIDobj).
-%     CLOSEDBASINS instance of GRIDobj that contains the lowest 
+%     CLOSED     instance of GRIDobj that contains the lowest 
 %                locations in closed basins as logical grid.
 %                
+% Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     DEM = fillsinks(DEM);
+%     [FLATS,SILLS] = identifyflats(DEM);
+%     imageschs(DEM,FLATS+2*SILLS,'colormap','parula')
 % 
 % See also: ROUTEFLATS, CROSSFLATS
 %
-%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 26. November, 2013
+% Date: 17. August, 2017
 
 
 narginchk(1,1)

@@ -1,6 +1,6 @@
 function [OUT,Pc] = dbentropy(FD,ix)
 
-% entropy of drainage basin delineation
+%DBENTROPY entropy of drainage basin delineation
 %
 % Syntax
 %

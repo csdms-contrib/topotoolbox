@@ -1,6 +1,6 @@
 function d = distance(S,type)
 
-% return node attribute list with distances along the stream network
+%DISTANCE return node attribute list with distances along the stream network
 %
 % Syntax
 %
@@ -28,6 +28,8 @@ function d = distance(S,type)
 %             'node_to_node'     distance between each node and its
 %                                downstream neighbor
 %             'accumdownstream'  downstream accumulated distance
+%             'from_trunk'       distance in upstream direction from trunk
+%                                stream
 %     S2      STREAMobj of which S is a subset.
 %
 % See also: STREAMobj
@@ -49,6 +51,7 @@ if ischar(type)
         'nr_of_ch'...
         'node_to_node'...
         'accumdownstream' ...
+        'from_trunk' ...
         };
     
     type = validatestring(type,validtypes,'distance','type',2);
@@ -104,6 +107,16 @@ if ischar(type)
             for r = 1:numel(S.ix);
                 d(S.ixc(r)) = d(S.ix(r))+dedge(r) + d(S.ixc(r));
             end
+        case 'from_trunk'
+            d(:) = 0;
+            St   = trunk(S);
+            I    = ~ismember(S.IXgrid,St.IXgrid);
+            for r = numel(S.ix):-1:1
+                if I(S.ix(r))
+                    d(S.ix(r)) = d(S.ixc(r)) + dedge(r);
+                end
+            end
+                    
     end
     
 else

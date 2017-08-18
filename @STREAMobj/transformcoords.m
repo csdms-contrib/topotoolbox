@@ -1,6 +1,6 @@
 function varargout = transformcoords(S,varargin)
 
-% transform coordinates of stream network
+%TRANSFORMCOORDS transform coordinates of stream network
 %
 % Syntax
 %
@@ -16,13 +16,17 @@ function varargout = transformcoords(S,varargin)
 %     coordinate transformation will be performed automatically using a
 %     principal component analysis.
 %
+%     transformcoords changes the properties S.x and S.y of the stream
+%     network, but retains all other properties. The method 'inv' changes
+%     the coordinates back to their original values.
+%
 % Input arguments
 %     
 %     S      STREAMobj
 %     
 %     Parameter name/value pairs {default}
 %
-%     'method'         {'interactive'} or 'pca'
+%     'method'         {'interactive'}, 'pca' or 'inv'
 %     'nonnegcoords'   true or {false}. Setting to true will set minimum x
 %                      and y values to zero.
 %
@@ -31,6 +35,17 @@ function varargout = transformcoords(S,varargin)
 %     St     transformed STREAMobj
 %     xt,yt  node-attribute lists of transformed coordinates
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S);
+%     St = transformcoords(S,'method','pca');
+%     subplot(2,1,1)
+%     plot(S)
+%     subplot(2,1,2)
+%     plot(St)
 %
 % See also: STREAMobj
 %

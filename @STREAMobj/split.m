@@ -1,6 +1,6 @@
 function S = split(S,varargin)
 
-% split drainage network at predefined locations
+%SPLIT split drainage network at predefined locations
 %
 % Syntax
 %
@@ -10,7 +10,7 @@ function S = split(S,varargin)
 %
 % Description
 %
-%     split disconnects the channel network at predefined locations. With
+%     SPLIT disconnects the channel network at predefined locations. With
 %     only the STREAMobj as input argument, the stream network will be
 %     split at all confluences. Otherwise, the network will be split at ix 
 %     which is a vector of linear indices into the DEM from which S was 

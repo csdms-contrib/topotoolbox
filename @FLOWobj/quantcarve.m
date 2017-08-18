@@ -1,6 +1,6 @@
 function DEM = quantcarve(FD,DEM,tau)
 
-% quantile carving
+%QUANTCARVE quantile carving
 %
 % Syntax
 %
@@ -17,6 +17,13 @@ function DEM = quantcarve(FD,DEM,tau)
 %     horizontal distance of the river profile.
 %
 %     The function uses linprog from the Optimization Toolbox.
+%
+%     Applying quantile carving to entire DEMs is computationally
+%     intense. Although this function will be run in parallel, it might
+%     take a long while to execute, sometimes it will even throw an error.
+%     In this case, consider to derive a stream network (STREAMobj) and
+%     apply quantile carving to the stream network only (see
+%     STREAMobj/quantcarve). Then map the carved values back to the DEM.
 %
 % Input parameters
 %
@@ -35,14 +42,6 @@ function DEM = quantcarve(FD,DEM,tau)
 %     DEMc = quantcarve(FD,DEM,0.1);
 %     imageschs(DEMc,DEM-DEMc)
 %
-% Notes
-%
-%     Applying quantile carving to entire DEMs is computationally
-%     intense. Although this function will be run in parallel, it might
-%     take a long while to execute, sometimes it will even throw an error.
-%     In this case, consider to derive a stream network (STREAMobj) and
-%     apply quantile carving to the stream network only (see
-%     STREAMobj/quantcarve). Then map the carved values back to the DEM.
 %
 % See also: STREAMobj/quantcarve, FLOWobj/imposemin, STREAMobj/crs
 % 

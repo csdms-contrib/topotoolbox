@@ -1,6 +1,6 @@
 function MS = zonalstats(MS,attributes,varargin)
 
-% Zonal statistics
+%ZONALSTATS Zonal statistics
 %
 % Syntax
 %

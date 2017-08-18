@@ -1,6 +1,6 @@
 function OUT = flowacc(FD,W0,RR)
 
-% flow accumulation (upslope area, contributing area)
+%FLOWACC flow accumulation (upslope area, contributing area)
 %
 % Syntax
 %

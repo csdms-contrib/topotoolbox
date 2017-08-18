@@ -1,6 +1,6 @@
 function P = polygon2GRIDobj(DEM,MS,field)
 
-% convert polygon to a grid
+%POLYGON2GRIDobj convert polygon to a grid
 %
 % Syntax
 %

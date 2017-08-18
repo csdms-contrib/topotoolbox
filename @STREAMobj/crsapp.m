@@ -1,14 +1,14 @@
 function crsapp(S,DEM)
 
-% interactive smoothing of river long profiles
+%CRSAPP interactive smoothing of river long profiles
 %
 % Syntax
 %
-%     smoothapp(S,DEM)
+%     crsapp(S,DEM)
 %
 % Description
 %
-%     smoothapp is an interactive tool to visually assess the results of
+%     CRSAPP is an interactive tool to visually assess the results of
 %     the function STREAMobj/crs. You can export the results and the
 %     parameters to the workspace.
 %
@@ -28,7 +28,7 @@ function crsapp(S,DEM)
 % See also: STREAMobj/crs
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. September, 2015
+% Date: 17. August, 2017
 
 % get node attribute list with elevation values
 if isa(DEM,'GRIDobj')

@@ -1,6 +1,6 @@
 classdef GRIDobj
     
-% Create instance of a GRIDobj
+%GRIDobj Create instance of a GRIDobj
 %
 % Syntax
 %
@@ -59,7 +59,7 @@ classdef GRIDobj
 % See also: FLOWobj, STREAMobj, GRIDobj/info
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 20. February, 2015
+% Date: 17. August, 2017
 
     
     properties
@@ -120,8 +120,9 @@ classdef GRIDobj
         xyunit    
         
 %GEOREF additional information on spatial referencing (structure array)
-%    The georef property stores all spatial referencing information
-%    returned by geotiffinfo. 
+%    The georef property stores an instance of map.rasterref.MapCellsReference, 
+%    a structure array GeoKeyDirectoryTag, and a mapping structure
+%    (mstruct).
 %
 %    See also GRIDobj, geotiffinfo        
         georef    
@@ -132,16 +133,16 @@ classdef GRIDobj
         function DEM = GRIDobj(varargin)
             % GRIDobj constructor
           
-            if nargin == 3;                
-                % GRIDobj is created from three matrices
+            if nargin == 3                
+                %% GRIDobj is created from three matrices
                 % GRIDobj(X,Y,dem)
                 X = varargin{1};
                 Y = varargin{2};
                 
-                if min(size(X)) > 1;
+                if min(size(X)) > 1
                     X = X(1,:);
                 end
-                if min(size(Y)) > 1;
+                if min(size(Y)) > 1
                     Y = Y(:,1);
                 end
                 
@@ -165,7 +166,7 @@ classdef GRIDobj
                 dy = Y(2)-Y(1);
                 dx = X(2)-X(1);
                 
-                if abs(abs(dx)-abs(dy))>1e-9;
+                if abs(abs(dx)-abs(dy))>1e-9
                     error('TopoToolbox:GRIDobj',...
                           'The resolution in x- and y-direction must be the same');
                 end
@@ -180,11 +181,11 @@ classdef GRIDobj
                 DEM.name   = [];
             
                 
-            elseif nargin <= 2;
+            elseif nargin <= 2
                 
                 
                 if nargin == 0
-                    % No input arguments. File dialog box will open and ask
+                    %% No input arguments. File dialog box will open and ask
                     % for a txt or tiff file as input
                     FilterSpec  = {'*.txt;*.asc;*.tif;*.tiff','supported file types (*.txt,*.asc,*.tif,*.tiff)';...
                                    '*.txt',   'ESRI ASCII grid (*.txt)';...
@@ -196,29 +197,31 @@ classdef GRIDobj
                     DialogTitle = 'Select ESRI ASCII grid or GeoTiff';
                     [FileName,PathName] = uigetfile(FilterSpec,DialogTitle);
                 
-                    if FileName == 0;
+                    if FileName == 0
                         error('TopoToolbox:incorrectinput',...
                                 'no file was selected')
                     end
                 
                     filename = fullfile(PathName, FileName);
                     
-                elseif nargin > 0;
+                elseif nargin > 0
                     % One input argument
                     if isempty(varargin{1})
                         % if empty array than return empty GRIDobj
                         return
-                    elseif isa(varargin{1},'GRIDobj') || isa(varargin{1},'FLOWobj') || isa(varargin{1},'STREAMobj') 
+                    elseif isa(varargin{1},'GRIDobj') || ...
+                           isa(varargin{1},'FLOWobj') || ...
+                           isa(varargin{1},'STREAMobj') 
                         % empty GRIDobj
                         DEM = GRIDobj([]);
                         % find common properties of F and G and from F to G
                         pg = properties(DEM);
                         pf = properties(varargin{1});
                         p  = intersect(pg,pf);
-                        for r = 1:numel(p);
+                        for r = 1:numel(p)
                             DEM.(p{r}) = varargin{1}.(p{r});
                         end
-                        if nargin == 1;
+                        if nargin == 1
                             cl = 'double';
                         else
                             cl = varargin{2};
@@ -254,31 +257,25 @@ classdef GRIDobj
                         % try to read using geotiffread (requires mapping
                         % toolbox)
                         [DEM.Z, DEM.refmat, ~] = geotiffread(filename);
-                        gtiffinfo  = geotiffinfo(filename);
-                        DEM.georef.SpatialRef = gtiffinfo.SpatialRef; 
+                        gtiffinfo              = geotiffinfo(filename);
+                        DEM.georef.SpatialRef  = gtiffinfo.SpatialRef; 
                         DEM.georef.GeoKeyDirectoryTag = gtiffinfo.GeoTIFFTags.GeoKeyDirectoryTag;
+                        georef_enabled = true;
                         
-                        try
-                            % try to create an mstruct array using the
-                            % geotiffinfo. This will not work if the DEM is
-                            % in a geographic coordinate system
+                    catch ME
                         
-                            DEM.georef.mstruct = geotiff2mstruct(gtiffinfo);
-                        catch 
-                            DEM.georef.mstruct = [];
-                            warning('TopoToolbox:GRIDobj:projection',...
-                                ['The grid is in a geographic coordinate system. TopoToolbox \n'...
-                                 'assumes that horizontal and vertical units of DEMs are the \n'...
-                                 'same. It is recommended to use a projected coordinate system,\n' ...
-                                 'preferably UTM WGS84. Use the function GRIDobj/reproject2utm\n' ...
-                                 'to reproject your grid.'])
-                        end
-
-                    catch err
-                        % if this doesn't work, try reading the world-file
+                        % mapping toolbox is not available. Will try to
+                        % read the tif file together with the tfw file
+                        georef_enabled = false;
                         
+                        % the tfw file has the same filename but a tfw
+                        % extension
                         tfwfile = fullfile(pathstr,[DEM.name '.tfw']);
-                        if exist(tfwfile,'file');
+                        
+                        % check whether file exists. If it exists then read
+                        % it using worldfileread or own function
+                        tfwfile_exists = exist(tfwfile,'file');
+                        if tfwfile_exists
                             try 
                                 % prefer builtin worldfileread, if
                                 % available
@@ -291,15 +288,41 @@ classdef GRIDobj
                                 DEM.refmat(3,1) = W(5,1)-W(1);
                                 DEM.refmat(3,2) = W(6,1)-W(4);
                             end
-                                
-                                
+                            
                             DEM.Z = imread(filename);
                         else
-                            rethrow(err)
+                            if ~tfwfile_exists
+                                error('TopoToolbox:GRIDobj:read',...
+                                    'GRIDobj cannot read the TIF-file because it does not have a tfw-file.');
+                            else
+                                throw(ME)
+                            end
+                            
                         end
                     end
                     
-                    % check whether no_data tag is available. This tag is
+                    
+                    % Unless any error occurred, we now attempt to generate
+                    % an mapping projection structure. This will not work
+                    % if the DEM is in a geographic coordinate system or if
+                    % the projection is not supported by mstruct.
+                    if georef_enabled
+                        try
+                            DEM.georef.mstruct = geotiff2mstruct(gtiffinfo);
+                        catch
+                            DEM.georef.mstruct = [];
+                            warning('TopoToolbox:GRIDobj:projection',...
+                                ['GRIDobj cannot derive a map projection structure. This is either\n' ...
+                                 'because the grid is in a geographic coordinate system or because\n' ...
+                                 'geotiff2mstruct cannot identify the projected coordinate system used.\n' ...
+                                 'TopoToolbox assumes that horizontal and vertical units of DEMs are \n'...
+                                 'the same. It is recommended to use a projected coordinate system,\n' ...
+                                 'preferably UTM WGS84. Use the function GRIDobj/reproject2utm\n' ...
+                                 'to reproject your grid.'])
+                        end
+                    end
+     
+                    % Finally, check whether no_data tag is available. This tag is
                     % not accessible using geotiffinfo (nice hack by Simon
                     % Riedl)
                     tiffinfo = imfinfo(filename);
@@ -308,17 +331,16 @@ classdef GRIDobj
                     end
         
                 else
-                    % it is a ESRI ascii grid
-                    [DEM.Z,DEM.refmat] = rasterread(filename);
+                    [DEM.Z,R] = rasterread(filename);
+                    DEM.refmat = R;
                     DEM.georef = [];
                 end
+                
                 DEM.size = size(DEM.Z);
                 DEM.cellsize = abs(DEM.refmat(2));
                 
-                
                 % remove nans
                 demclass = class(DEM.Z);
-                
                 nodata_val_exists = exist('nodata_val','var');
                 
                 switch demclass
@@ -404,6 +426,8 @@ refmat = [0 -header.cellsize;...
           (header.yllcorner+(0.5*header.cellsize))+((header.nrows)*header.cellsize)];
 
 end
+
+
 
     
     

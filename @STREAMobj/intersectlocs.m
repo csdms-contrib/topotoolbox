@@ -1,6 +1,6 @@
 function varargout = intersectlocs(S1,S2)
 
-% Derive locations where two STREAMobj start to have a common network
+%INTERSECTLOCS Derive locations where two STREAMobj start to have a common network
 %
 % Syntax
 %

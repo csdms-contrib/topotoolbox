@@ -1,5 +1,5 @@
 function OUT = toposhielding(DEM,varargin)
-% topographic shielding from cosmic rays
+%TOPOSHIELDING topographic shielding from cosmic rays
 %
 % Syntax
 %     

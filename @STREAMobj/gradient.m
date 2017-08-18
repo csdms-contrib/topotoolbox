@@ -1,6 +1,6 @@
 function s = gradient(S,DEM,varargin)
 
-% along-stream gradient
+%GRADIENT along-stream gradient
 %
 % Syntax
 %
@@ -11,10 +11,10 @@ function s = gradient(S,DEM,varargin)
 %
 % Description
 %
-%     gradient calculates the stream slope for each node in the stream
+%     GRADIENT calculates the stream slope for each node in the stream
 %     network S based on the associated digital elevation model DEM.
 %     Different methods (see parameter name value pairs) can be applied to
-%     calculate the slope.
+%     calculate the slope. The function returns a node-attribute list.
 %
 % Input arguments
 %
@@ -43,12 +43,18 @@ function s = gradient(S,DEM,varargin)
 %
 % Output arguments
 %
-%     s      stream gradient as vector (node attibutes of STREAMobj)
+%     s      stream gradient as node-attribute list
 %
 % 
 % Example
 %
-%     
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     S  = klargestconncomps(trunk(S));
+%     g  = gradient(S,DEM,'method','robust');
+%     subplot(2,1,1); plotdz(S,DEM);
+%     subplot(2,1,2); plotdz(S,g); ylabel('Gradient [-]')
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)

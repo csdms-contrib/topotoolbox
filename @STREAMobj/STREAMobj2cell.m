@@ -1,6 +1,6 @@
 function [CS,locS] = STREAMobj2cell(S,ref,n)
 
-% convert instance of STREAMobj to cell array of stream objects
+%STREAMOBJ2CELL convert instance of STREAMobj to cell array of stream objects
 %
 % Syntax
 %

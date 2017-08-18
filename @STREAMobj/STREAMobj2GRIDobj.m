@@ -1,6 +1,6 @@
 function G = STREAMobj2GRIDobj(S,nal)
 
-% convert an instance of STREAMobj to an instance of GRIDobj
+%STREAMOBJ2GRIDOBJ convert an instance of STREAMobj to an instance of GRIDobj
 %
 % Syntax 
 %

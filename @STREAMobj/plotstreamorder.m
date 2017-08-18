@@ -1,6 +1,6 @@
 function [st,hs] = plotstreamorder(S,varargin)
 
-% calculate Strahler Stream Order from STREAMobj
+%PLOTSTREAMORDER calculate stream order from STREAMobj
 %
 % Syntax
 %
@@ -52,15 +52,16 @@ function [st,hs] = plotstreamorder(S,varargin)
 %
 % Example:
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     plotstreamorder(S,'colormap',[0 0 0],...
+%                       'LineWidth',max([1 2 3 4 5]/2,1));
 % 
 % See also: STREAMobj, FLOWobj/streamorder, STREAMobj/streamorder
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. January, 2013
-
-
-
+% Date: 17. August, 2017
 
 p = inputParser;
 p.FunctionName = 'STREAMobj/plotstreamorder';

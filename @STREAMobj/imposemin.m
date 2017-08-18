@@ -1,6 +1,6 @@
 function DEM = imposemin(S,DEM,sl)
 
-% minima imposition (carving) along stream network
+%IMPOSEMIN minima imposition (carving) along stream network
 %
 % Syntax
 %
@@ -41,12 +41,21 @@ function DEM = imposemin(S,DEM,sl)
 %     DEMc      carved DEM
 %     zc        node attribute list of elevation values
 %
-% 
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     S  = klargestconncomps(trunk(S));
+%     plotdz(S,DEM)
+%     hold on
+%     DEMc = imposemin(S,DEM);
+%     plotdz(S,DEMc)
 %
 % See also: FLOWobj/imposemin
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. June, 2014
+% Date: 17. August, 2017
 
 
 narginchk(2,3)

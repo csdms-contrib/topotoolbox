@@ -1,6 +1,6 @@
 function Lgrid = shufflelabel(Lgrid,r)
 
-% shufflelabel randomly relabels a label matrix
+%SHUFFLELABEL shufflelabel randomly relabels a label matrix
 %
 % Syntax
 %
@@ -29,13 +29,16 @@ function Lgrid = shufflelabel(Lgrid,r)
 %
 % Example
 % 
-%     
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     L   = reclassify(DEM,'equalquantiles',10);
+%     L   = shufflelabel(L);
+%     imagesc(L)
 %
 %
 % See also: RANDPERM, BWLABEL, LABELMATRIX
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. February, 2013
+% Date: 18. August, 2017
 
 
 

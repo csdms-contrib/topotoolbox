@@ -1,6 +1,6 @@
 classdef FLOWobj
     
-% Create flow direction object
+%FLOWOBJ create flow direction object
 %
 % Syntax
 %
@@ -584,8 +584,13 @@ methods
                     error('unknown flow direction type')
             end
             
-            p = toposort(digraph(M));
-            p = uint32(p);
+            try
+                p = toposort(digraph(M));
+                p = uint32(p);
+            catch
+                [p,~] = dmperm(speye(size(M))-M);
+                p = uint32(p);
+            end
             
             [FD.ix,FD.ixc,FD.fraction] = find(M(p,p));
             

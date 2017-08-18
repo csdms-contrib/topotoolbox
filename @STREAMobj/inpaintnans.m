@@ -1,11 +1,12 @@
-function z = inpaintnans(S,DEM)
+function z = inpaintnans(S,DEM,extrap)
 
-% inpaint missing values (nans) in a node attribute list
+%INPAINTNANS inpaint missing values (nans) in a node attribute list
 %
 % Syntax
 %
 %     a = inpaintnans(S,A)
 %     a = inpaintnans(S,an)
+%     a = inpaintnans(...,extrap)
 %
 % Description
 %
@@ -18,6 +19,7 @@ function z = inpaintnans(S,DEM)
 %     A      GRIDobj (must have the same coordinate system as S, but needs  
 %            not be spatially aligned)
 %     an     node attribute list with missing values
+%     extrap true or false. 
 %
 % Output arguments
 %  
@@ -58,10 +60,14 @@ if isa(DEM,'GRIDobj')
     else
         z = interp(DEM,S.x,S.y);
     end
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
+end
+
+if nargin == 2;
+    extrap = false;
 end
 
 z = double(z(:));
@@ -101,8 +107,10 @@ A = spdiags(s,0,nr,nr)*A;
 A = speye(nr)-A;
 
 % solve  
-I = (streampoi(S,'channelhead','logical') | streampoi(S,'outlet','logical')) & inan;
 z(inan) = 0;
-z(I) = nan;
+if ~extrap
+    I = (streampoi(S,'channelhead','logical') | streampoi(S,'outlet','logical')) & inan;
+    z(I) = nan;
+end
 z = A\z;
 

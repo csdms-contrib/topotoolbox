@@ -1,6 +1,6 @@
 function S = klargestconncomps(S,k)
 
-% retain k largest connected components in an instance of STREAMobj
+%KLARGESTCONNCOMPS retain k largest connected components in an instance of STREAMobj
 %
 % Syntax
 %
@@ -22,6 +22,17 @@ function S = klargestconncomps(S,k)
 %
 %     S2       new instance of STREAMobj that contains only the k largest
 %              components of S
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     S2 = klargestconncomps(S,2);
+%     plot(S)
+%     hold on
+%     plot(S2)
+%     legend('Stream network','2 largest conn. components')
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)

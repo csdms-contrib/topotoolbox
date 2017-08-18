@@ -1,6 +1,6 @@
 function ht = surf(DEM,varargin)
 
-% surface plot for GRIDobj
+%SURF surface plot for GRIDobj
 %
 % Syntax
 %
@@ -27,8 +27,14 @@ function ht = surf(DEM,varargin)
 %     'exaggerate'   height exaggeration, default = 1
 %      
 %     and all property name/value pairs allowed by surface objects.
-% 
-% 
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     surf(DEM)
+%     camlight
+%
+% See also: imageschs
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 30. January, 2013
@@ -36,15 +42,15 @@ function ht = surf(DEM,varargin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % change threshold (maximum number of rows or cols) here 
-maxrowsorcols = 1000;
+maxrowsorcols = 2000;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if max(DEM.size)>maxrowsorcols;
+if max(DEM.size)>maxrowsorcols
     
     resamplecellsize = max(DEM.size)/(maxrowsorcols-1) * DEM.cellsize;
     DEM = resample(DEM,resamplecellsize);
     
-    if ~isempty(varargin) && isa(varargin{1},'GRIDobj');
+    if ~isempty(varargin) && isa(varargin{1},'GRIDobj')
         A = varargin{1};
         varargin(1) = [];
         A = resample(A,DEM);
@@ -55,7 +61,7 @@ if max(DEM.size)>maxrowsorcols;
          
     
 else
-    if ~isempty(varargin) && isa(varargin{1},'GRIDobj');
+    if ~isempty(varargin) && isa(varargin{1},'GRIDobj')
         A = varargin{1};
         varargin(1) = [];
         validatealignment(DEM,A);

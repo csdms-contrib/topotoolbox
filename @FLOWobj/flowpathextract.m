@@ -1,6 +1,6 @@
 function [ixchannel,d,x,y] = flowpathextract(FD,ixchannel,A,stopcrit)
 
-% extract linear indices of a single flowpath in a DEM
+%FLOWPATHEXTRACT extract linear indices of a single flowpath in a DEM
 %
 % Syntax
 %
@@ -52,7 +52,10 @@ function [ixchannel,d,x,y] = flowpathextract(FD,ixchannel,A,stopcrit)
 %
 % Example
 % 
-% 
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     [IXc,d] = flowpathextract(FD,473962);
+%     plot(d,DEM.Z(IXc))
 %
 % See also: FlowDirObj, GRIDobj/coord2ind
 %

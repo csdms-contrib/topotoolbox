@@ -1,6 +1,6 @@
 function [OUT,varargout] = drainagebasins(FD,varargin)
 
-% drainage basin delineation/catchments
+%DRAINAGEBASINS drainage basin delineation/catchments
 %
 % Syntax
 %

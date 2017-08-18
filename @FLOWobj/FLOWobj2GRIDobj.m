@@ -1,10 +1,10 @@
 function G = FLOWobj2GRIDobj(F)
 
-% create ESRI ArcGIS flow direction grid from FLOWobj
+%FLOWOBJ2GRIDOBJ create ESRI ArcGIS flow direction grid from FLOWobj
 %
 % Syntax
 %
-%     G = FLOWobj2GRIDobj(F)
+%     AF = FLOWobj2GRIDobj(FD)
 %
 % Description
 %
@@ -15,12 +15,19 @@ function G = FLOWobj2GRIDobj(F)
 %     
 % Input arguments
 %
-%     F     instance of FLOWobj
+%     FD    instance of FLOWobj
 %
 % Output arguments
 %
-%     G     instance of GRIDobj that stores the flow directions in the
+%     AF    instance of GRIDobj that stores the flow directions in the
 %           format used by ESRI ArcGIS.
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     ArcFlow = FLOWobj2GRIDobj(FD);
+%     imagesc(ArcFlow)
 %
 % 
 % See also: GRIDobj, GRIDobj2geotiff
@@ -28,7 +35,10 @@ function G = FLOWobj2GRIDobj(F)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 5. October, 2013
 
-
+switch lower(F.type)
+    case {'multi' 'dinf'}
+        error('not possible for multiple flow directions')
+end
 
 G = copy2GRIDobj(F);
 

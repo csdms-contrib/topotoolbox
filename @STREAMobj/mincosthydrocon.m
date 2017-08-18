@@ -1,6 +1,6 @@
 function z = mincosthydrocon(S,DEM,method,fillp)
 
-% minimum cost hydrological conditioning
+%MINCOSTHYDROCON minimum cost hydrological conditioning
 %
 % Syntax
 %

@@ -1,6 +1,6 @@
 function [A,x,y] = GRIDobj2mat(DEM)
 
-% convert GRIDobj to matrix and coordinate vectors
+%GRIDobj2mat convert GRIDobj to matrix and coordinate vectors
 %
 % Syntax
 %
@@ -19,9 +19,18 @@ function [A,x,y] = GRIDobj2mat(DEM)
 %     dem       matrix 
 %     x,y       coordinate vectors
 %                  
-% 
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     [Z,x,y] = GRIDobj2mat(DEM);
+%     plot(x,Z(20,:))
+%     xlabel('x-coordinate [m]')
+%     ylabel('Elevation [m]')
+%
+% See also: GRIDobj 
+%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 27. December, 2012
+% Date: 17. August, 2017
 
 A = DEM.Z;
 [x,y] = refmat2XY(DEM.refmat,DEM.size);

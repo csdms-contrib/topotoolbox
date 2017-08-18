@@ -1,6 +1,6 @@
 function plotsegmentgeometry(S,segment)
 
-% Plot segment geometry obtained using the function networksegment
+%PLOTSEGMENTGEOMETRY Plot segment geometry obtained from the function networksegment
 %
 % Syntax
 %

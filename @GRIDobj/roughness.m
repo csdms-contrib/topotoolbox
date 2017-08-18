@@ -1,6 +1,6 @@
 function OUT = roughness(DEM,type,ks)
 
-% terrain ruggedness, position and roughness indices of DEMs
+%ROUGHNESS terrain ruggedness, position and roughness indices of DEMs
 %
 % Syntax
 %

@@ -1,6 +1,6 @@
 function S = modify(S,varargin)
 
-% modify instance of STREAMobj to meet user-defined criteria
+%MODIFY modify instance of STREAMobj to meet user-defined criteria
 %
 % Syntax
 %
@@ -13,7 +13,8 @@ function S = modify(S,varargin)
 %
 %     demo_modifystreamnet
 %
-%     for an overview of the function's scope.
+%     for an (incomplete) overview of the function's scope. See input
+%     arguments below for an overview on the functionality of the function.
 %
 % Input arguments
 %
@@ -64,7 +65,7 @@ function S = modify(S,varargin)
 %     less or equal the number of channel heads 
 %
 %     'rmnodes' STREAMobj
-%     removes nodes in S that belong another stream network S2.
+%     removes nodes in S that belong to another stream network S2.
 %
 %     'tributaryto' instance of STREAMobj
 %     returns the stream network that is tributary to a stream (network) 
@@ -83,6 +84,10 @@ function S = modify(S,varargin)
 %        'reachselect': select a reach based on two locations on the network
 %        'channelheadselect': select a number of channel heads and derive 
 %                      stream network from them.
+%
+%     'nal' logical node-attribute list
+%     takes a logical node attribute list and returns a network with only
+%     those nodes that are true. 
 %
 %
 % Output arguments
@@ -139,6 +144,7 @@ addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
 addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'nal',[],@(x) isnal(x,'STREAMobj'));
 
 parse(p,S,varargin{:});
 S   = p.Results.S;
@@ -284,6 +290,9 @@ elseif ~isempty(p.Results.rmconncomps_ch)
 elseif ~isempty(p.Results.rmnodes)
     I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
     
+elseif ~isempty(p.Results.nal)
+    I = p.Results.nal;
+    
 elseif ~isempty(p.Results.interactive);
 %% interactive    
     figure
@@ -300,19 +309,20 @@ elseif ~isempty(p.Results.interactive);
             xys   = [];
             while true
                 try
-                    hpstart = impoint('PositionConstraintFcn',@getnearestchanhead);
-                    
+                    hpstart = impoint('PositionConstraintFcn',@getnearestchanhead);                    
                     setColor(hpstart,[0 1 0])
-%                     idstart = addNewPositionCallback(hpstart,@drawpath);
                     setPosition(hpstart,getPosition(hpstart))
-                    xys = [xys; getPosition(hpstart)];
+                    xys = [xys; getPosition(hpstart)]; %#ok<AGROW>
                 catch
                     break
                 end
             end
             
-%             IX = coord2ind(S,xys(:,1),xys(:,2));
-            I = ismember([S.x S.y],xys,'rows');
+            if ~isempty(xys)
+                I = ismember([S.x S.y],xys,'rows');
+            else
+                error('You must choose at least one channelhead')
+            end
             
             for r = 1:numel(S.ix)
                 I(S.ixc(r)) = I(S.ix(r)) || I(S.ixc(r));

@@ -1,6 +1,6 @@
 function DEM = pad(DEM,varargin)
 
-% add or remove a border of pixels around a GRIDobj
+%PAD add or remove a border of pixels around a GRIDobj
 %
 % Syntax
 %
@@ -29,13 +29,18 @@ function DEM = pad(DEM,varargin)
 %
 % Example
 %
-%
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     DEMp20 = pad(DEM,20);
+%     DEMm100 = pad(DEM,-100);
+%     subplot(1,2,1)
+%     imageschs(DEMp20)
+%     subplot(1,2,2)
+%     imageschs(DEMm100)
 % 
 % See also: GRIDobj/crop, padarray
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 8. January, 2015
+% Date: 18. August, 2017
 
 
 % check input arguments

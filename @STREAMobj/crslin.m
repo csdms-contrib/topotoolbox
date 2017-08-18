@@ -1,6 +1,6 @@
 function [zs,exitflag,output] = crslin(S,DEM,varargin)
 
-% constrained regularized smoothing of the channel length profile
+%CRSLIN constrained regularized smoothing of the channel length profile
 %
 % Syntax
 %

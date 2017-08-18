@@ -1,6 +1,6 @@
 function S = trunk(S)
 
-% extract trunk stream (longest stream) 
+%TRUNK extract trunk stream (longest stream) 
 %
 % Syntax
 %
@@ -24,11 +24,20 @@ function S = trunk(S)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     St = trunk(S);
+%     plot(S)
+%     hold on
+%     plot(St)
+%     legend('Stream network','Trunk rivers')
+%
 %
 % See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps
 %  
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. May, 2013
+% Date: 17. August, 2017
 
 narginchk(1,1);
 % downstream distance

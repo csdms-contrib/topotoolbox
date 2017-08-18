@@ -1,6 +1,6 @@
 function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 
-% Reproject DEM with WGS84 coordinate system to UTM-WGS84 
+%REPROJECT2UTM Reproject DEM with WGS84 coordinate system to UTM-WGS84 
 %
 % Syntax
 % 

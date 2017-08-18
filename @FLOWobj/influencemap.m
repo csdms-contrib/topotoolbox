@@ -1,7 +1,6 @@
 function OUT = influencemap(FD,varargin)
 
-
-% downslope area for specific locations in a digital elevation model
+%INFLUENCEMAP downslope area for specific locations in a digital elevation model
 %
 % Syntax
 %
@@ -11,8 +10,8 @@ function OUT = influencemap(FD,varargin)
 %
 % Description
 %
-%     influencemap returns a logical matrix masking the downslope part
-%     of the digital elevation model that is drained by specified cells.
+%     influencemap returns a GRIDobj with true values for those pixels that
+%     are downstream of the locations in L, ix, or x and y.
 %
 % Input
 %

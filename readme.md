@@ -43,6 +43,8 @@ path of Matlab. Enter following code into the command line:
 
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\utilities
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\IOtools
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\GIStools
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\ttlem
@@ -66,8 +68,11 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - modification: several new options for imageschs
 - new function: FLOWobj/dbentropy 
 - new function: FLOWobj/updatetoposort
+- new function: GRIDobj/aggregate
+- new function: GRIDobj/createmask
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
+- new function: GRIDobj/minmaxnorm
 - new function: GRIDobj/zscore
 - new function: GRIDobj/pad
 - new function: STREAMobj/aggregate
@@ -80,7 +85,11 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: STREAMobj/chitransform
 - new function: STREAMobj/cumtrapz
 - modification: STREAMobj/modify includes option rmconncomps
+- new function: STREAMobj/mchi
 - new function: STREAMobj/conncomps
+- modification: STREAMobj/extractconncomps (new GUI and behavior)
+- modification: STREAMobj/union (new syntax)
+- modification: STREAMobj/intersect (new syntax)
 - new function: STREAMobj/isnal
 - new function: STREAMobj/info
 - new function: STREAMobj/orientation
