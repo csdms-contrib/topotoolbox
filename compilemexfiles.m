@@ -1,6 +1,6 @@
 function compilemexfiles
 
-% compile mex-functions that come with TopoToolbox 2
+%COMPILEMEXFILES compile mex-functions that come with TopoToolbox 2
 %
 % Syntax 
 %

@@ -1,6 +1,6 @@
 function slopeareatool(FD,DEM,varargin)
 
-% Interactively create slope area plots and fit power laws
+%SLOPEAREATOOL Interactively create slope area plots and fit power laws
 %
 % Syntax
 %     
@@ -9,7 +9,7 @@ function slopeareatool(FD,DEM,varargin)
 %
 % Description
 %
-%     slopeareatool is an interactive tool to map streams and flowpaths and
+%     SLOPEAREATOOL is an interactive tool to map streams and flowpaths and
 %     simultaneously plot area vs. gradient. Mapping can be done using up
 %     to five different plot colors so that user-defined groups of streams
 %     can be created. A curve-fitting scheme allows to fit group-specific

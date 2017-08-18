@@ -60,7 +60,9 @@ for r = 1:numel(m)
             methodstr = [methodstr repmat(' ',1,maxmethcharacter - numel(methodstr))]; %#ok<AGROW>
         end
         
-        h1str = tline(3:end);
+        h1str = tline(2:end);
+        ix    = strfind(h1str,' ');
+        h1str = h1str(ix(1)+1:end);
                         
         disp([ upper(methodstr) ' : ' h1str]);
         fclose(fileID);

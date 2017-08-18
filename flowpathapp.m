@@ -1,6 +1,6 @@
 function flowpathapp(FD,DEM,S)
 
-% Map, visualize and export flowpaths that start at manually set channelheads
+%FLOWPATHAPP Map, visualize and export flowpaths that start at manually set channelheads
 %
 % Syntax
 %     
@@ -59,7 +59,6 @@ function flowpathapp(FD,DEM,S)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 30. January, 2013
 
-
 % Default line color
 props.linecolor = 'k';
 
@@ -90,14 +89,20 @@ hButtonColors(5) = uimenu(hButtonMenuColor,'Label','red','Checked','off','Callba
 
 hButtonClear = uimenu(hMenuView,'Label','Clear','Callback',@(src,event) clearvectorplots);  
 
-hMenuExport  = uimenu(hFig,'Label','Export'); 
+hMenuExport   = uimenu(hFig,'Label','Export'); 
 hButtonExport = uimenu(hMenuExport,'Label','Export STREAMobj to workspace','Callback',@(src,event) exporttoworkspace);    
 hButtonExportXLS = uimenu(hMenuExport,'Label','Export streams to Excel','Callback',@(src,event) writetoexcel); 
 hButtonExportTXT = uimenu(hMenuExport,'Label','Export streams to ASCII','Callback',@(src,event) writetotxtfile);
 hButtonExportSHP = uimenu(hMenuExport,'Label','Export streams to Shapefile','Callback',@(src,event) writetoshape);
 
 % calculate hillshade
-RGB  = imageschs(DEM,DEM);
+
+hs = true;
+if hs;
+    RGB  = imageschs(DEM,DEM);
+else
+    RGB  = DEM.Z;
+end
 % create empty axes in figure
 % hAx = axes('parent',hFig);
 hAx = imgca(hFig);
@@ -105,8 +110,9 @@ hAx = imgca(hFig);
 if nargin == 3;
     WW = false(DEM.size);
     WW(S.IXgrid) = true;
-    
-    RGB(repmat(WW,[1 1 3])) = 150;    
+    [rr,cc] = ind2sub(DEM.size,S.IXgrid);
+    [~,~,rr,cc] = STREAMobj2XY(S,rr,cc);
+%     RGB(repmat(WW,[1 1 3])) = 150;    
     [~,SNAPRASTER] = bwdist(WW,'q');
     
     FD.ixcix(~WW) = 0;
@@ -133,6 +139,11 @@ imoverview(hIm)
 % create figure for profiles
 [hFigProfiles,hAxProfiles] = getprofilefig;
 
+if nargin == 3
+    hold(hAx,'on')
+    plot(hAx,cc,rr,'color',[.7 .7 .7]);
+    hold(hAx,'off')
+end
 
 
 %% add callbacks

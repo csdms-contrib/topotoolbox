@@ -1,11 +1,12 @@
 function OUT = slopearea(S,DEM,A,varargin)
 
-% slope-area relation of a stream network
+%SLOPEAREA slope-area relation of a stream network
 %
 % Syntax
 %
 %     SA = slopearea(S,DEM,A)
-%     SA = slopearea(S,DEM,A,pn,pv,...)
+%     SA = slopearea(S,z,a)
+%     SA = slopearea(...,pn,pv,...)
 % 
 % Description
 %
@@ -22,6 +23,8 @@ function OUT = slopearea(S,DEM,A,varargin)
 %     DEM  digital elevation model (class: GRIDobj)
 %     A    flow accumulation as derived from the function flowacc
 %          (class: GRIDobj). 
+%     z    node-attribute list (nal) with elevations
+%     a    node-attribute list with flow accumulation
 %     
 %     parameter name/value pairs {default}
 %
@@ -111,7 +114,7 @@ function OUT = slopearea(S,DEM,A,varargin)
 % See also: slopearea, chiplot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. June, 2015
+% Date: 19. June, 2013
 
 
 narginchk(3,inf)
@@ -132,6 +135,7 @@ addParamValue(p,'areabins',100,@(x) isscalar(x) || isempty(x));
 addParamValue(p,'areabinlocs','median',@(x) ischar(validatestring(x,validareabinlocs)));
 addParamValue(p,'gradaggfun','mean',@(x) ischar(validatestring(x,validgradaggfun)));
 addParamValue(p,'fitmethod','ls',@(x) ischar(validatestring(x,validfitmethods)));
+addParamValue(p,'fitlims',[0 inf]);
 addParamValue(p,'theta',[],@(x) isscalar(x) && x>0);
 addParamValue(p,'hist2',false,@(x) isscalar(x));
 addParamValue(p,'plot',true,@(x) isscalar(x));
@@ -144,18 +148,32 @@ areabinlocs = validatestring(p.Results.areabinlocs,validareabinlocs);
 gradaggfun  = validatestring(p.Results.gradaggfun,validgradaggfun);
 fitmethod   = validatestring(p.Results.fitmethod,validfitmethods);
 
-% validate alignment
-validatealignment(S,DEM)
-validatealignment(DEM,A);
+% get node attribute list with elevation values
+if isa(DEM,'GRIDobj')
+    validatealignment(S,DEM);
+    z = getnal(S,DEM);
+elseif isnal(S,DEM);
+    z = DEM;
+else
+    error('Imcompatible format of second input argument')
+end
 
-
-g = gradient(S,DEM,'unit','tangent',...
+% get node attribute list with elevation values
+if isa(A,'GRIDobj')
+    validatealignment(S,A);
+    a = getnal(S,A);
+elseif isnal(S,A);
+    a = A;
+else
+    error('Imcompatible format of second input argument')
+end
+a = a*(S.cellsize.^2);
+g = gradient(S,z,'unit','tangent',...
                    'method',gradmeth,...
                    'drop',p.Results.drop,...
                    'imposemin',p.Results.imposemin);
 
 % evaluate               
-a    = A.Z(S.IXgrid).*(A.cellsize).^2;
 mina = min(a);
 maxa = max(a);
 
@@ -241,11 +259,22 @@ end
 % gradient 
 g = max(g,p.Results.mingradient);
 
+if ~isequal(p.Results.fitlims,[0 inf])
+    I    = a>=p.Results.fitlims(1) & a<p.Results.fitlims(2);
+    afit = a(I);
+    gfit = g(I);
+else
+    afit = a;
+    gfit = g;
+end
+
 if isempty(p.Results.theta) 
     % Both parameters may vary
     
+        
+    
     % find starting values using a least squares fit on log transformed data
-    beta0 = [ones(numel(a),1) log(a(:))]\log(g);
+    beta0 = [ones(numel(afit),1) log(afit(:))]\log(gfit);
     beta0(1) = exp(beta0(1));
     
     % fit power law S = k*A^(-mn)
@@ -253,9 +282,9 @@ if isempty(p.Results.theta)
         case 'logtrls'
             beta = beta0;
         case 'ls'
-            beta = fminsearch(@(beta) sum((g - beta(1)*a.^beta(2)).^2),beta0);
+            beta = fminsearch(@(beta) sum((gfit - beta(1)*afit.^beta(2)).^2),beta0);
         case 'lad'
-            beta = fminsearch(@(beta) sum(abs(g - beta(1)*a.^beta(2))),beta0);
+            beta = fminsearch(@(beta) sum(abs(gfit - beta(1)*afit.^beta(2))),beta0);
     end
     
     OUT.ks = beta(1);
@@ -266,7 +295,7 @@ else
     
     % slope residuals
     theta = -p.Results.theta;
-    gres  = g./(a.^theta);
+    gres  = gfit./(afit.^theta);
     
     % find starting values using a least squares fit on log transformed data
     beta0 = mean(gres);
@@ -276,9 +305,9 @@ else
         case 'logtrls'
             beta = beta0;
         case 'ls'
-            beta = fminsearch(@(beta) sum((g - beta*a.^theta).^2),beta0);
+            beta = fminsearch(@(beta) sum((gfit - beta*afit.^theta).^2),beta0);
         case 'lad'
-            beta = fminsearch(@(beta) sum(abs(g - beta*a.^theta)),beta0);
+            beta = fminsearch(@(beta) sum(abs(gfit - beta*afit.^theta)),beta0);
     end
     
     OUT.ks = beta(1);
@@ -288,7 +317,7 @@ end
 %% Plot
 if p.Results.plot
     hold on
-    aeval = logspace(log10(min(a)),log10(max(a)),10);
+    aeval = logspace(log10(min(afit)),log10(max(afit)),10);
     geval = OUT.ks(1)*aeval.^OUT.theta;
     OUT.hLine = plot(ax,aeval,geval,'k-','LineWidth',1.5);
     

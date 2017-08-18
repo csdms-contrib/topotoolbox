@@ -1,6 +1,6 @@
 function OUT = chiplot(S,DEM,A,varargin)
 
-% CHI plot for bedrock river analysis
+%CHIPLOT CHI analysis for bedrock river analysis
 %
 % Syntax
 %
@@ -90,7 +90,7 @@ function OUT = chiplot(S,DEM,A,varargin)
 %     c   = chiplot(S,DEM,flowacc(FD));
 %
 % See also: flowpathapp, STREAMobj, FLOWobj/flowacc, STREAMobj/trunk,
-%           STREAMobj/modify, STREAMobj/getnal  
+%           STREAMobj/modify, STREAMobj/getnal, STREAMobj/chitransform
 %
 %
 % References:
