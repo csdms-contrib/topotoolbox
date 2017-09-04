@@ -39,7 +39,7 @@ classdef FLOWobj
 %
 %  Applicable only, if calculated from GRIDobj
 %
-%     'preprocess' --  {'fill'}, 'carve', 'none'
+%     'preprocess' --  {'carve'}, 'fill', 'none'
 %            set DEM preprocessing that determines flow behavior in
 %            topographic depressions and flat areas 
 %     'sinks' -- logical matrix same size as dem
@@ -116,7 +116,7 @@ classdef FLOWobj
 %     https://www.mathworks.com/matlabcentral/fileexchange/15818-upslope-area-functions
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 07. October, 2016
+% Date: 02. September, 2017
 
 
 % Update 
@@ -124,6 +124,7 @@ classdef FLOWobj
 % R2015b
 % 2016-10-07: added support for multiple flow directions
 % 2016-11-14: added support for Dinf
+% 2017-09-02: default preprocessing option is carve
 
 properties(GetAccess = 'public', SetAccess = 'public')
     size      % size of instance of GRIDobj from which STREAMobj was derived
@@ -160,7 +161,7 @@ methods
             addParamValue(p,'size',[],@(x) isempty(x) || numel(x)==2);
             addParamValue(p,'cellsize',1,@(x) isscalar(x));
             addParamValue(p,'refmat',[]);
-            addParamValue(p,'preprocess','none',@(x) ischar(validatestring(x,expectedPreProcess)));
+            addParamValue(p,'preprocess','carve',@(x) ischar(validatestring(x,expectedPreProcess)));
             addParamValue(p,'tweight',2,@(x) isscalar(x));
             addParamValue(p,'cweight',1,@isnumeric);
             addParamValue(p,'sinks',[],@(x) isa(x,'GRIDobj'));
