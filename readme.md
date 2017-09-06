@@ -78,6 +78,7 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: STREAMobj/aggregate
 - new function: STREAMobj/labelreach
 - new function: STREAMobj/distance
+- new function: STREAMobj/drainagedensity
 - new function: STREAMobj/plotc
 - new function: STREAMobj/plotdzshaded
 - new function: STREAMobj/meanupstream
