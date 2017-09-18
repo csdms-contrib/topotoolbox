@@ -64,14 +64,14 @@ function DEM = inpaintnans(DEM,varargin)
 % See also: ROIFILL, FILLSINKS, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 18. September, 2017
 
 if nargin == 1
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif ischar(varargin{1})
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif isa(varargin{1},'GRIDobj')
-    if nargin == 3;
+    if nargin == 2
         method = 'linear';
     else
         method = varargin{2};
@@ -114,9 +114,9 @@ switch lower(type)
         [~,L] = bwdist(~I);
         dem = dem(L);
     case 'laplace'
-        % use roifill
-%         dem = roifill(dem,imdilate(I,ones(3)));
-        % use regionfill
+        % -- use roifill (Code before 2015a)    
+        % dem = roifill(dem,imdilate(I,ones(3)));
+        % -- use regionfill (Code after and including 2015a)
         dem = regionfill(dem,I);
     case 'fill'
         % fill to lowest surrounding neighbor
@@ -137,7 +137,7 @@ else
     CC = bwconncomp(I);
     STATS = regionprops(CC,'SubarrayIdx','Image');
    
-    for r = 1:numel(STATS);
+    for r = 1:numel(STATS)
         rows = STATS(r).SubarrayIdx{1};
         rows = [min(rows)-1 max(rows)+1];
         cols = STATS(r).SubarrayIdx{2};
@@ -145,9 +145,9 @@ else
         
         demtemp = dem(rows(1):rows(2),cols(1):cols(2));
         inatemp = padarray(STATS(r).Image,[1 1],false);
-        % Code before 2015a        
-%         demtemp = roifill(demtemp,imdilate(inatemp,ones(3)));   
-        % Code since 2015a
+        % -- Code before 2015a        
+        % demtemp = roifill(demtemp,imdilate(inatemp,ones(3)));   
+        % -- Code after and including 2015a
         demtemp = regionfill(demtemp,inatemp);  
         dem(rows(1):rows(2),cols(1):cols(2)) = demtemp;
     end

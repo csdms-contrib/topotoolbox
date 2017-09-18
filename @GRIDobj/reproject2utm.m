@@ -38,7 +38,8 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 %     zone     utm zone (string)
 %
 %
-% See also: GRIDobj, imtransform, maketform, mfwdtran, minvtran, utmzone
+% See also: GRIDobj, imtransform, maketform, mfwdtran, minvtran, utmzone,
+%           GRIDobj/projectGRIDobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 12. January, 2017
@@ -67,8 +68,8 @@ p.FunctionName = 'GRIDobj/reproject2UTM';
 addRequired(p,'DEM',@(x) isa(x,'GRIDobj'));
 addRequired(p,'res',@(x) (~isa(x,'GRIDobj') && isscalar(x) && x > 0) || isa(x,'GRIDobj'));
 % optional
-addParameter(p,'zone',zone,@(x) ischar(x));
-addParameter(p,'method','bilinear',@(x) ischar(validatestring(x,validmethods)));
+addParamValue(p,'zone',zone,@(x) ischar(x));
+addParamValue(p,'method','bilinear',@(x) ischar(validatestring(x,validmethods)));
 
 parse(p,DEM,res,varargin{:});
 

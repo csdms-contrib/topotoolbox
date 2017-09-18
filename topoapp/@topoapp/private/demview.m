@@ -27,7 +27,7 @@ else
             set(hObject,'Userdata',2)
         case 2
             % display elevation-colored hillshade
-            set(app.gui.himg,'Cdata',app.RGB.Cdata)
+            set(app.gui.himg,'Cdata',app.RGB)
             colormap(jet)
             set(hObject,'Userdata',3)
             

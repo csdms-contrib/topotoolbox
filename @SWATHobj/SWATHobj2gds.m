@@ -1,5 +1,5 @@
 function [MS] = SWATHobj2gds(SW,type)
-% SWATHOBJ2GDS creates a geographic data structure from a SWATHobj
+% SWATHOBJ2GDS create a geographic data structure from a SWATHobj
 %
 % Syntax
 %
@@ -8,7 +8,16 @@ function [MS] = SWATHobj2gds(SW,type)
 %
 % Description
 %
-%     SWATHobj2gds 
+%     SWATHobj2gds creates a geographic data structure from a SWATHobj.
+%     The geographic data structure can be exported as a shapefile. The
+%     contents of the data structure are either points or lines, as
+%     specified by the variable 'type'. If 'points' are selected, then the
+%     position of all the elements of the matrix Z in the SWATHobj will be 
+%     exported. If 'lines' are selected, then three lines are included: the
+%     line that was used to create the swath (called 'Center' in the data
+%     structure), the smoothened line (called 'CenterFilt' in the data
+%     structure), and the outline of the swath (called 'Outline' in the data
+%     structure).
 %
 %
 % Input arguments

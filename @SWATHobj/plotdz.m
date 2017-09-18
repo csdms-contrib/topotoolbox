@@ -4,7 +4,7 @@ function h = plotdz(SW,varargin)
 % Syntax
 %
 %     plotdz(SW)
-%     plotdz(SW,...)
+%     plotdz(SW,'pn','pv',...)
 %     h = ...;
 %
 % Description
@@ -15,7 +15,7 @@ function h = plotdz(SW,varargin)
 %
 % Input arguments
 %
-%     S     instance of SWATHobj
+%     SW     instance of SWATHobj
 %
 %     Parameter name/value pairs
 %
@@ -29,8 +29,8 @@ function h = plotdz(SW,varargin)
 %
 %     'distadjust'   {0}, scalar
 %     allows shifting the x-axis by a scalar value. This is useful when
-%     alligning SWATHobj that were obtained along, e.g., a certain reach of
-%     a drainage network, with the STREAMobj it was derived from
+%     alligning a SWATHobj that was obtained along, e.g., a reach of
+%     a drainage network, with the STREAMobj that it was derived from
 %
 %     'boundedline'   true, {false}
 %     allows the plot to be created with the 'boundedline' plotting
@@ -43,21 +43,19 @@ function h = plotdz(SW,varargin)
 %     h    handle object of the plotted features. h contains several
 %          handles to the different parts of the plot
 %
-% Examples
+% Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     SW = SWATHobj(DEM,'dx',200,'dy',200);
 %     G = gradient8(DEM,'degree');
 %     SWG = mapswath(SW,G);
-%     figure, plotdz(SWG);  
+%     figure, plotdz(SWG)
+%     title('Slope angle along swath')
 %
 %
-% Author: Dirk Scherler (scherler[at]caltech.edu)
+% Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
 % Date: June, 2013
 
-
-% ADD: plot min, max only...
-% plotdz(SW,DEM,'stats','min',... oder , {'min','max','median',@myfct}
 
 % Parse inputs
 p = inputParser;
@@ -75,39 +73,38 @@ left       = p.Results.left;
 right      = p.Results.right;
 boundedl   = p.Results.boundedline;
 
-
 if ~left && ~right
     warning('Empty SWATHobj: nothing to plot')
     return;
 end
 
-% for i = 1 : length(SW.xy0)
-    %figure
-    if ~left
-        ny = ceil(length(SW.disty)/2)+1; % assume all disty are the same
-        SW.Z = SW.Z(ny:end,:);
-    elseif ~right
-        ny = floor(length(SW.disty)/2);
-        SW.Z = SW.Z(1:ny,:);
-    end
-    
-    z_min = nanmin(SW.Z,[],1);
-    z_max = nanmax(SW.Z,[],1);
-    z_mean = nanmean(SW.Z,1)';
-    z_std = nanstd(SW.Z,0,1)';
-    dist = SW.distx+distadjust;
-    if exist('boundedline','file') && (boundedl)
-        % Use plotting function 'boundedline', by Kelley Kearny, if
-        % found in search path. Available from Matlab Central.
-        [hp(1), hp(2)] = boundedline(dist,z_mean,z_std,'alpha'); hold on
-        hp(3) = plot(dist,z_min,'c-');
-        plot(dist,z_max,'c-')
-    else
-        hp(1) = plot(dist,z_mean,'r-'); hold on
-        hp(2) = plot([dist;nan;dist],[z_mean-z_std;nan;z_mean+z_std],'b-');
-        hp(3) = plot([dist;nan;dist],[z_min nan z_max],'c-');
-    end
-% end
+
+if ~left
+    ny = ceil(length(SW.disty)/2)+1;
+    SW.Z = SW.Z(ny:end,:);
+elseif ~right
+    ny = floor(length(SW.disty)/2);
+    SW.Z = SW.Z(1:ny,:);
+end
+
+z_min = nanmin(SW.Z,[],1);
+z_max = nanmax(SW.Z,[],1);
+z_mean = nanmean(SW.Z,1)';
+z_std = nanstd(SW.Z,0,1)';
+dist = SW.distx+distadjust;
+
+if exist('boundedline','file') && (boundedl)
+    % Use plotting function 'boundedline', by Kelley Kearny, if
+    % found in search path. Available from Matlab Central.
+    [hp(1), hp(2)] = boundedline(dist,z_mean,z_std,'alpha'); hold on
+    hp(3) = plot(dist,z_min,'c-');
+    plot(dist,z_max,'c-')
+else
+    hp(1) = plot(dist,z_mean,'r-'); hold on
+    hp(2) = plot([dist;nan;dist],[z_mean-z_std;nan;z_mean+z_std],'b-');
+    hp(3) = plot([dist;nan;dist],[z_min nan z_max],'c-');
+end
+
 drawnow
 xlabel(sprintf('Distance along profile (%s)',SW.xyunit))
 ylabel(sprintf('Z (%s)',SW.zunit))

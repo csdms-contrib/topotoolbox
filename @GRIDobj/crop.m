@@ -26,11 +26,18 @@ function [DEMc,MASK] = crop(DEM,varargin)
 %     ix       linear index into the DEM
 %     x,y      coordinate vectors
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     MASK = createmask(DEM);
+%     DEMc = crop(DEM,MASK,NaN);
+%     imagesc(DEMc)
+%
 %
 % See also: IND2SUB, GRIDobj/pad, GRIDobj/resample
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 2. September, 2017
+% Date: 18. September, 2017
 
 
 narginchk(1,3);

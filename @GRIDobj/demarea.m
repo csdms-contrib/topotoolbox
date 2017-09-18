@@ -8,14 +8,14 @@ function [DEM, totalarea] = demarea(DEM,correctEdges)
 %
 % Description
 %
-%     demarea takes a GRIDobj of elevation values and calculates the total
+%     DEMAREA takes a GRIDobj of elevation values and calculates the total
 %     corrected surface area and the corrected surface area in each cell.
 %     correctEdges is a boolean indicating whether to correct the surface
 %     area in edge cells. The correction works by increasing the calculated
 %     cell surface area by a factor of (1 + (8-n)/8), where n is the number
 %     of neighbouring cells without valid elevation data. By default, the
 %     edge correction is switched off. The surface area for each cell is
-%     calculated as 1/8 of the sum of the the surface areas of the eight
+%     calculated as 1/8 of the sum of the surface areas of the eight
 %     triangles formed by the centres of the cell and two of its
 %     neighbours. In the diagram below, each number represents a cell in
 %     the elevation matrix, and the corrected surface area A(0) of cell 0
@@ -59,7 +59,7 @@ function [DEM, totalarea] = demarea(DEM,correctEdges)
 % Author: Jürnjakob Dugge 
 % see original contribution here:
 % http://www.mathworks.com/matlabcentral/fileexchange/42204-calculate-dem-surface-area
-% Date: 01. April, 2014
+% Date: 18. September, 2017
 
 if nargin == 1;
     correctEdges = true;

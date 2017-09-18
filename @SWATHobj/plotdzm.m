@@ -1,6 +1,5 @@
 function h = plotdzm(SW,M,varargin)
-% PLOTDZM creates a color-coded distance-elevation plot from SWATHobj and
-% GRIDobj
+%PLOTDZM create color-coded distance-elevation plot from SWATHobj and GRIDobj
 %
 % Syntax
 %
@@ -102,7 +101,7 @@ function h = plotdzm(SW,M,varargin)
 %          (trace, outline, points) is plotted, h contains more than one
 %          handle
 %
-% Examples
+% Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','carve');
@@ -110,14 +109,16 @@ function h = plotdzm(SW,M,varargin)
 %     S = STREAMobj(FD,FA>1e6/FA.cellsize/FA.cellsize);
 %     S = klargestconncomps(S);
 %     S = trunk(S);
-%     SW = SWATHobj(DEM,S,'dx',100,'dy',100,'width',2000,'smooth',11,'plot',false);
-%     imagesc(DEM), hold on, plot(SW)
+%     [x,y] = STREAMobj2XY(S);
+%     ix = ~isnan(x);
+%     SW = SWATHobj(DEM,x(ix),y(ix),'dx',100,'dy',100,'width',4000,'smooth',2000);
 %     G = gradient8(DEM,'degree');
-%     plotdzm(SW,G,'colorrange',[0 35]);
+%     figure,plotdzm(SW,G,'colorrange',[0 35],'ystretch',0.1), colorbar
+%     title('Hillslope angles within 2 km of the river')
 %
 %
-% Author: Dirk Scherler (scherler[at]caltech.edu)
-% Date: June, 2013
+% Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
+% Date: June, 2013; updated August, 2017
 
 
 cmaps = {'bone','colorcube','cool','copper','flag',...
@@ -135,8 +136,8 @@ addParamValue(p,'direction','x',@(x) ismember(x,{'x','y'}))
 addParamValue(p,'distadjust',0,@(x) isnumeric(x))
 addParamValue(p,'distance',[],@(x) isnumeric(x))
 addParamValue(p,'zmode','absolute',@(x) ismember(x,{'absolute','relative'}))
-addParamValue(p,'colormap','gray',@(x) ismember(x,cmaps))
-addParamValue(p,'colormode','normal',@(x) ismember(x,{'normal','inverse'}))
+addParamValue(p,'colormap','pink',@(x) ismember(x,cmaps))
+addParamValue(p,'colormode','inverse',@(x) ismember(x,{'normal','inverse'}))
 addParamValue(p,'colorrange',[-inf,inf],@(x) isnumeric(x))
 addParamValue(p,'colorbar',false, @(x) islogical(x))
 addParamValue(p,'sortm','descend',@(x) ismember(x,{'ascend','descend','none'}))

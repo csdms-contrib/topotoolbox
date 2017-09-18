@@ -70,9 +70,12 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: FLOWobj/updatetoposort
 - new function: GRIDobj/aggregate
 - new function: GRIDobj/createmask
+- new function: GRIDobj/dist2line
+- new function: GRIDobj/dist2curve
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
 - new function: GRIDobj/minmaxnorm
+- new function: GRIDobj/reclabel
 - new function: GRIDobj/zscore
 - new function: GRIDobj/pad
 - new function: STREAMobj/aggregate
@@ -96,6 +99,7 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: STREAMobj/orientation
 - new function: STREAMobj/plotstreamorder
 - new function: STREAMobj/split
+- new function: STREAMobj/streamproj
 - new function: STREAMobj/networksegment
 - new function: STREAMobj/maplateral
 - new function: STREAMobj/plotsegmentgeometry

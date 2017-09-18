@@ -71,7 +71,7 @@ else
 end
 
 
-F     = griddedInterpolant({x,y},flipud(DEM.Z)',method,'none');
+F     = griddedInterpolant({x,y},flipud(DEM.Z)',method); 
 
 % interpolate
 zi     = F(xi,yi);

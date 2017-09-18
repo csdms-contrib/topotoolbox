@@ -8,9 +8,19 @@ function crsapp(S,DEM)
 %
 % Description
 %
-%     CRSAPP is an interactive tool to visually assess the results of
-%     the function STREAMobj/crs. You can export the results and the
-%     parameters to the workspace.
+%     CRSAPP is an interactive tool to visually assess the results of the
+%     function STREAMobj/crs. You can export the results and the parameters
+%     to the workspace.
+%
+%     The graphical user interface allows you to adjust the crs-parameter
+%     K, tau, and mingradient with a number of sliders. The K-slider
+%     adjusts the degree of smoothing and uses a logarithmic scaling.
+%     Common values range between 1 and 10. mingradient adjust the minimum
+%     gradient that a profile must go downward in downstream directions.
+%     Choose values so that they do not exceed the true downstream
+%     gradients. tau-values range between 0.0001 and 0.9999 and refer to
+%     the quantile along which the smoothed profile should run along the
+%     measured profile.
 %
 % Input parameters
 %
@@ -25,7 +35,7 @@ function crsapp(S,DEM)
 %     S = klargestconncomps(S);
 %     crsapp(S,DEM);    
 %
-% See also: STREAMobj/crs
+% See also: STREAMobj/crs, STREAMobj/quantcarve, STREAMobj/smooth
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 17. August, 2017
@@ -118,7 +128,7 @@ cTau = uicontrol(hp,'Style','slider',...
 
 s = sprintf('Remove curvature penalty at tributary junctions.');              
 cnst = uicontrol(hp,'Style','checkbox',...
-                'String','Knickpoints at tributary junctions',...
+                'String','Knicks at tributary junctions',...
                 'Units','normalized',...
                 'Position',[0 .55 1 .045],...
                 'TooltipString',s);            

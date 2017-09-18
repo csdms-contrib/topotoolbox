@@ -503,8 +503,8 @@ end
                         if ~isempty(SObj.ix)
                             hold on
                             plotdz(SObj,app.DEM,'Color',[.7 .7 .7],'doffset',distadjust);
-                            plotdz(SObj,app.DEMc,'Color','k','doffset',distadjust,'smooth',false);
-                            plotdz(SObj,app.DEMc,'Color','r','doffset',distadjust,'smooth',true,'kernelsize',11);
+                            plotdz(SObj,app.DEMc,'Color','k','doffset',distadjust);%,'smooth',false);
+                            %plotdz(SObj,app.DEMc,'Color','r','doffset',distadjust,'smooth',true,'kernelsize',11);
                             if get(findobj('String','Highlight trunkstream'),'Value')
                                 ht = plotdz(trunk(SObj),app.DEMc,'Color','r','doffset',distadjust,'smooth',true,'kernelsize',11);
                                 set(ht,'LineWidth',1.5)

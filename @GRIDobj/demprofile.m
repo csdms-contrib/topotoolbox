@@ -74,16 +74,6 @@ end
 
 
 function cumdxy = getdistance(x,y)
-
-% cumulative distance along path defined by vertice coordinates
-%
-% Syntax
-%
-%      D = getdistance(x,y)
-%
-%
-% Author: Dirk Scherler (scherler[at]@caltech.edu)
-% Date: June 2013
     x = x(:);
     y = y(:);
 

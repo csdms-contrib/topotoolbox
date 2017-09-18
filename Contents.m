@@ -1,5 +1,5 @@
 % TopoToolbox
-% Version 2.2 (Prerelease) 27-Jul-2016
+% Version 2.2  18-Sep-2017
 %
 % TopoToolbox provides a set of Matlab functions that support the analysis
 % of relief and flow pathways in digital elevation models. The major 
@@ -13,7 +13,7 @@
 % w.schwanghart[at]geo.uni-potsdam.de
 %
 % Dirk Scherler
-% scherler[at]caltech.edu
+% scherler[at]gfz-potsdam.de
 % 
 % When you use TopoToolbox in your work, please reference one of these 
 % publications:
@@ -32,6 +32,7 @@
 %     GRIDobj         - object for gridded, geospatial data
 %     FLOWobj         - object for flow direction
 %     STREAMobj       - object for stream (channel) networks
+%     SWATHobj        - object for swath profiles
 %
 % Graphical user interfaces
 %
@@ -60,6 +61,8 @@
 %     DEMPROFILE        : get profile along path
 %     DILATE            : morphological dilation
 %     DISTANCE          : distance transform
+%     DIST2CURVE        : labels pixels in a GRIDobj by their directed distance to a curved line
+%     DIST2LINE         : labels pixels in a GRIDobj by their directed distance to a straight line
 %     ELEVATEMINIMA     : elevate regional minima in a DEM to their lowest neighbor
 %     ERODE             : morphological erosion
 %     EXCESSTOPOGRAPHY  : difference between actual elevations and elevations with threshold slope
@@ -88,6 +91,8 @@
 %     MTIMES            : overloaded multiplication for GRIDobj
 %     PAD               : add or remove a border of pixels around a GRIDobj
 %     POSTPROCFLATS     : postprocess flat terrain for visualization purpose
+%     PROJECTGRIDOBJ    : reprojects a GRIDobj
+%     RECLABEL          : label GRIDobj by rectangular fields
 %     RECLASSIFY        : generate univariate class intervals for an instance of GRIDobj
 %     REPROJECT2UTM     : Reproject DEM with WGS84 coordinate system to UTM-WGS84 
 %     RESAMPLE          : resample grid to alter spatial resolution
@@ -169,6 +174,7 @@
 %     SPLIT               : split drainage network at predefined locations
 %     STREAMORDER         : calculate Strahler Stream Order from STREAMobj
 %     STREAMPOI           : stream points of interest
+%     STREAMPROJ          : project stream elevations based on slope-area scaling
 %     TRUNK               : extract trunk stream (longest stream) 
 %     UNION               : merge different instances of STREAMobj into a new instance
 %     VALIDATEALIGNMENT   : is an instance of STREAMobj is spatially aligned with another object of TopoToolbox
@@ -176,16 +182,15 @@
 % 
 % SWATHobj methods
 % 
-%     SWATHOBJ2GRIDOBJ : SWATHOBJ2GRIDOBJ creates a GRIDobj with Swath-specific information
-%     SWATHOBJ2GDS     : SWATHOBJ2GDS creates a geographic data structure from a SWATHobj
-%     CONVERT2LATLON   : CONVERT2LATLON converts spatial fields in SWATHobj to lat,lon
-%     MAPSWATH         : MAPSWATH obtains Z values along a SWATHobj from an arbitrary GRIDobj
+%     SWATHOBJ2GRIDOBJ : create a GRIDobj with swath-specific information
+%     SWATHOBJ2GDS     : create a geographic data structure from a SWATHobj
+%     CONVERT2LATLON   : convert spatial fields in SWATHobj to lat,lon
+%     MAPSWATH         : obtain Z values along a SWATHobj from an arbitrary GRIDobj
 %     PLOT             : plot instance of SWATHobj
-%     PLOTDZ           : PLOTDZ creates distance-elevation plot of SWATHobj
-%     PLOTDZM          : PLOTDZM creates a color-coded distance-elevation plot from SWATHobj and
-%     PROFILES         : PROFILES obtains profiles from a SWATHobj at distinct positions
-%     SWATH2LATLON     : convert spatial fields in SWATHobj to geographic coordinates
-%     TIDY             : TIDYS removes overlapping points from SWATHobj
+%     PLOTDZ           : create distance-elevation plot of SWATHobj
+%     PLOTDZM          : create color-coded distance-elevation plot from SWATHobj and GRIDobj
+%     PROFILES         : obtain profiles from a SWATHobj
+%     TIDY             : remove overlapping points from SWATHobj
 %
 % TTLEM (TopoToolbox Landscape Evolution Model)
 %

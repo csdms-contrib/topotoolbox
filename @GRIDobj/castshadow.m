@@ -27,7 +27,7 @@ function SH = castshadow(DEM,varargin)
 %     
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     C   = castshadow(DEM,135,20);
-%     imageschs(DEM,C,'colormap',flipud(parula))
+%     imageschs(DEM,C,'colormap',flipud(gray))
 %
 % 
 % See also: GRIDobj/imageschs, GRIDobj/hillshade  
