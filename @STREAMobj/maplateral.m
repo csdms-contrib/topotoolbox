@@ -5,6 +5,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 % Syntax
 %
 %     a = maplateral(S,A,dist,aggfun)
+%     [a,mask] = ...
 %     
 %
 % Description

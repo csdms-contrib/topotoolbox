@@ -1,6 +1,6 @@
 function varargout = contour(DEM,varargin)
 
-% contour plot of an instance of GRIDobj
+%CONTOUR contour plot of an instance of GRIDobj
 %
 % Syntax
 %
@@ -25,7 +25,7 @@ function varargout = contour(DEM,varargin)
 %
 %     MS        structure array (can be exported using shapewrite or
 %               plotted using mapshow, requires the Mapping Toolbox)
-%     [x,y,z]   nan-punctuated vector for 2d and 3d plotting
+%     [x,y,z]   nan-punctuated vectors for 2d and 3d plotting
 %
 % Example
 % 
@@ -44,11 +44,11 @@ function varargout = contour(DEM,varargin)
 
 [Z,x,y] = GRIDobj2mat(DEM);
 if nargout == 0;   
-    contour(x,y,double(Z),varargin{:});
+    contour(x,y,double(Z),double(varargin{:}));
     return
 end
 
-c = contourc(x,y,double(DEM.Z),varargin{:});
+c = contourc(double(x),double(y),double(Z),double(varargin{:}));
 IXs = 2;
 counter = 1;
 while IXs(counter) < size(c,2);

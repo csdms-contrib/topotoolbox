@@ -1,4 +1,4 @@
-function S = modify(S,varargin)
+function [S,nalix] = modify(S,varargin)
 
 %MODIFY modify instance of STREAMobj to meet user-defined criteria
 %
@@ -388,6 +388,10 @@ S.ixc = IX(S.ixc);
 S.x   = S.x(L);
 S.y   = S.y(L);
 S.IXgrid   = S.IXgrid(L);
+
+if nargout == 2
+    nalix = find(L);
+end
 
 % if ~isempty(p.Results.interactive) && p.Results.interactive;
 %     hold on

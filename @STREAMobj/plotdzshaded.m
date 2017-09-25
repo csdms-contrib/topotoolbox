@@ -68,7 +68,7 @@ if colororderindex==0; colororderindex=size(ax.ColorOrder,1); end
 
 % check input
 p = inputParser;         
-p.FunctionName = 'plotdz';
+p.FunctionName = 'plotdzshaded';
 addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addRequired(p,'zz', @(x) isequal(size(x),[nrnodes 2]));
 addParameter(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));

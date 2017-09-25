@@ -1,6 +1,6 @@
 function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 
-% Conversion from drainage basin grid to polygon or polyline
+%GRIDobj2polygon Conversion from drainage basin grid to polygon or polyline
 %
 % Syntax
 %
@@ -67,7 +67,7 @@ function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 % See also: bwboundaries, bwtraceboundary, regionprops
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 13. October, 2016
+% Date: 17. August, 2017
 
 
 
