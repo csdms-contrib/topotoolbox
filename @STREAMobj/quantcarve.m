@@ -61,10 +61,10 @@ function [zs,output] = quantcarve(S,DEM,tau,varargin)
 %     hold off
 %
 %
-% See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify
+% See also: STREAMobj/mincosthydrocon, STREAMobj/crs, STREAMobj/imposemin
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. July, 2017
+% Date: 25. September, 2017
 
 % check and parse inputs
 narginchk(2,inf)
@@ -86,13 +86,13 @@ validateattributes(tau,{'numeric'},{'>',0,'<',1},'STREAMobj/quantcarve','tau',3)
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
 end
 
-if any(isnan(z));
+if any(isnan(z))
     error('DEM or z may not contain any NaNs')
 end
 
@@ -123,35 +123,30 @@ if p.Results.split == 1
     
 elseif p.Results.split == 2
     
+    [CS,locb,CID] = STREAMobj2cell(S,'trib');
+    
     params = p.Results;
-    params.split = 1;
-    
-    St = trunk(S);    
-    [~,locb]  = ismember(St.IXgrid,S.IXgrid);
-    zt = z(locb);
-    
-    zst = quantcarve(St,zt,tau,params);
-    z(locb) = zst;
-    
     params.split = 0;
-    
-    params.fixedoutlet = true;
-    Stribs = modify(S,'tributaryto2',St);
-    Stribs = STREAMobj2cell(Stribs);
-    [~,locb]   = cellfun(@(Stt) ismember(Stt.IXgrid,S.IXgrid),Stribs,'UniformOutput',false);
-    ztribs = cellfun(@(ix) z(ix),locb,'UniformOutput',false);
-    
-    Czs = cell(size(Stribs));
-    
-    n   = numel(Stribs);
-    
-    parfor r = 1:n
-        Czs{r} = quantcarve(Stribs{r},ztribs{r},tau,params);
+    params.fixedoutlet = false;
+    for r = 1:max(CID)
+        ii = CID == r;
+        if r > 1
+            params.fixedoutlet = true;
+        end
+        CStemp   = CS(ii);
+        locbtemp = locb(ii);
+        ztribs    = cellfun(@(ix) z(ix),locbtemp,'UniformOutput',false);
+        Czstemp   = cell(numel(ii),1);
+        
+        parfor r2 = 1:numel(CStemp)
+            % quantcarve(Stribs{r},ztribs{r},tau,params);
+            Czstemp{r2} = quantcarve(CStemp{r2},ztribs{r2},tau,params);
+        end
+        for r2 = 1:numel(CStemp)
+            z(locbtemp{r2}) = Czstemp{r2};
+        end
     end
     
-    for r = 1:numel(Stribs)
-        z(locb{r}) = Czs{r};
-    end
     zs = z;
     return
     

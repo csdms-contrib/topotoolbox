@@ -215,7 +215,131 @@ methods
         
         order = order(:);
     end
+    
+    
+    function S = rmnode(S,nal)
+    %RMNODE remove nodes in a stream network
+    % 
+    % Syntax
+    %
+    %     Snew = rmnode(S,nal)
+    %
+    % Description
+    %
+    %     rmnode takes a logical node-attribute list (nal) and removes the 
+    %     nodes in the stream network where elements in nal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     nal     logical node-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     d = S.distance;
+    %     nal = d>10000 & d<30000;
+    %     Sn = rmnode(S,~nal);
+    %     plot(S)
+    %     hold on
+    %     plot(Sn)
+    %     hold off
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmnode';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
+    parse(p,S,nal);
+    
+    nal = ~nal;
+    I = nal(S.ix) & nal(S.ixc);
 
+    S.ix  = S.ix(I);
+    S.ixc = S.ixc(I);
+
+    IX    = cumsum(nal);
+
+    S.ix  = IX(S.ix);
+    S.ixc = IX(S.ixc);
+
+    S.x   = S.x(nal);
+    S.y   = S.y(nal);
+    S.IXgrid   = S.IXgrid(nal);
+     
+    end
+        
+    function S = rmedge(S,eal)
+    %RMEDGE remove edges in a stream network
+    % 
+    % Syntax
+    %
+    %     Snew = rmedge(S,eal)
+    %
+    % Description
+    %
+    %     RMEDGE takes a logical edge-attribute list (eal) and removes the 
+    %     edges in the stream network where elements in eal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     eal     logical edge-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example: Plot the stream network without zero gradient sections
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);    
+    %     z = imposemin(S,getnal(S,DEM));
+    %     I = (z(S.ix)-z(S.ixc)) == 0;
+    %     Snew = rmedge(S,I);
+    %     plot(Snew)
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmedge';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'eal',@(x) isequal(size(x),size(S.ix)) && islogical(x)); %#ok<CPROPLC>
+    parse(p,S,eal);
+    
+    eal   = ~eal;
+    
+    S.ix  = S.ix(eal);
+    S.ixc = S.ixc(eal);
+    
+    nal   = false(numel(S.IXgrid),1);
+    nal(S.ix)  = true;
+    nal(S.ixc) = true;
+
+    IX    = cumsum(nal);
+
+    S.ix  = IX(S.ix);
+    S.ixc = IX(S.ixc);
+
+    S.x   = S.x(nal);
+    S.y   = S.y(nal);
+    S.IXgrid   = S.IXgrid(nal);
+     
+    end
 
 end
 end

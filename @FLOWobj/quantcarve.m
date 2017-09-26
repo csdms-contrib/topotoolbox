@@ -68,7 +68,7 @@ S = STREAMobj(FD,I);
 disp(['The total number of nodes is ' num2str(numel(S.IXgrid))])
 
 % quantile carving
-zs = quantcarve(S,DEM,tau,'split',1);
+zs = quantcarve(S,DEM,tau,'split',2);
 
 % map values back to DEM
 DEM.Z(S.IXgrid) = cast(zs,class(DEM.Z));

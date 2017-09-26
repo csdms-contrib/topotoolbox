@@ -75,7 +75,7 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %           STREAMobj/crsapp
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 25. September, 2017
 
 
 % check and parse inputs
@@ -132,38 +132,33 @@ if p.Results.split == 1
     end
     
 elseif p.Results.split == 2
+        
+    [CS,locb,CID] = STREAMobj2cell(S,'trib');
     
     params = p.Results;
-    params.split = 1;
-    
-    St = trunk(S);    
-    [~,locb]  = ismember(St.IXgrid,S.IXgrid);
-    zt = z(locb);
-    
-    zst = crs(St,zt,params);
-    z(locb) = zst;
-    
-    params.split = 0;   
-    params.fixedoutlet = true;
-    
-    Stribs = modify(S,'tributaryto2',St);
-    Stribs = STREAMobj2cell(Stribs);
-    [~,locb]   = cellfun(@(Stt) ismember(Stt.IXgrid,S.IXgrid),Stribs,'UniformOutput',false);
-    ztribs = cellfun(@(ix) z(ix),locb,'UniformOutput',false);
-    
-    Czs = cell(size(Stribs));
-    
-    n = numel(Stribs);
-    
-    parfor r = 1:n
-        Czs{r} = crs(Stribs{r},ztribs{r},params);
+    params.split = 0;
+    params.fixedoutlet = false;
+    for r = 1:max(CID)
+        ii = CID == r;
+        if r > 1
+            params.fixedoutlet = true;
+        end
+        CStemp   = CS(ii);
+        locbtemp = locb(ii);
+        ztribs    = cellfun(@(ix) z(ix),locbtemp,'UniformOutput',false);
+        Czstemp   = cell(numel(ii),1);
+        
+        parfor r2 = 1:numel(CStemp)
+            Czstemp{r2} = crs(CStemp{r2},ztribs{r2},params);
+        end
+        for r2 = 1:numel(CStemp)
+            z(locbtemp{r2}) = Czstemp{r2};
+        end
     end
     
-    for r = 1:numel(Stribs)
-        z(locb{r}) = Czs{r};
-    end
     zs = z;
     return
+        
     
 end
 

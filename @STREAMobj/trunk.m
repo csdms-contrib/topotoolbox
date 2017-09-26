@@ -39,20 +39,17 @@ function S = trunk(S)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 17. August, 2017
 
+
 narginchk(1,1);
+
 % downstream distance
 nrc = numel(S.x);
-dds = zeros(nrc,1);
-% intercell distance
-dx  = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2);
-for r = 1:numel(S.ix);
-    dds(S.ixc(r)) = max(dds(S.ixc(r)),dds(S.ix(r))+dx(r));
-end
+dds = distance(S,'max_from_ch');
 
-D = sparse(double(S.ix),double(S.ixc),dds(S.ix)+1,nrc,nrc);
-OUTLET = any(D,1)' & ~any(D,2);
+D        = sparse(double(S.ix),double(S.ixc),dds(S.ix)+1,nrc,nrc);
+OUTLET   = any(D,1)' & ~any(D,2);
 [~,Imax] = max(D,[],1);
-II = false(nrc,1);
+II       = false(nrc,1);
 II(Imax) = true;
 
 I = false(nrc,1);
@@ -74,6 +71,3 @@ S.ixc = IX(S.ixc);
 S.x   = S.x(L);
 S.y   = S.y(L);
 S.IXgrid   = S.IXgrid(L);
-
-
-    

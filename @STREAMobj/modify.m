@@ -85,10 +85,6 @@ function [S,nalix] = modify(S,varargin)
 %        'channelheadselect': select a number of channel heads and derive 
 %                      stream network from them.
 %
-%     'nal' logical node-attribute list
-%     takes a logical node attribute list and returns a network with only
-%     those nodes that are true. 
-%
 %
 % Output arguments
 %
@@ -123,7 +119,7 @@ function [S,nalix] = modify(S,varargin)
 % See also: STREAMobj, STREAMobj/trunk, demo_modifystreamnet
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. January, 2017
+% Date: 25. September, 2017
 
 narginchk(3,3)
 
@@ -177,7 +173,7 @@ if ~isempty(p.Results.streamorder)
     end
 
 
-elseif ~isempty(p.Results.distance);
+elseif ~isempty(p.Results.distance)
 %% distance        
     d = S.distance;
     maxdist  = max(d);
@@ -187,7 +183,7 @@ elseif ~isempty(p.Results.distance);
     validateattributes(distrange,{'numeric'},...
         {'>=',0,'<=',maxdist});
     
-    if isscalar(distrange);
+    if isscalar(distrange)
         distrange(2) = maxdist;
     end
     
@@ -199,12 +195,12 @@ elseif ~isempty(p.Results.distance);
     
     I = d>=distrange(1) & d<=distrange(2);               % + norm([S.cellsize S.cellsize]);
     
-elseif ~isempty(p.Results.maxdsdistance);
+elseif ~isempty(p.Results.maxdsdistance)
 %% maximmum downstream distance    
     d = distance(S,'min_from_ch');
     I = d <= p.Results.maxdsdistance;
     
-elseif ~isempty(p.Results.upstreamto);
+elseif ~isempty(p.Results.upstreamto)
 %% upstream to    
     
     II = p.Results.upstreamto;
@@ -224,11 +220,11 @@ elseif ~isempty(p.Results.upstreamto);
     end
   
     I = false(size(S.x));
-    for r = numel(S.ix):-1:1;
+    for r = numel(S.ix):-1:1
         I(S.ix(r)) = II.Z(S.IXgrid(S.ixc(r))) || I(S.ixc(r));
     end
         
-elseif ~isempty(p.Results.downstreamto);
+elseif ~isempty(p.Results.downstreamto)
 %% downstream to    
     
     II = p.Results.downstreamto;
@@ -248,25 +244,24 @@ elseif ~isempty(p.Results.downstreamto);
     end
     
     I = false(size(S.x));
-    for r = 1:numel(S.ix);
+    for r = 1:numel(S.ix)
         I(S.ixc(r)) = II.Z(S.IXgrid(S.ix(r))) || I(S.ix(r)) || I(S.ixc(r));
     end
 
-elseif ~isempty(p.Results.tributaryto);
+elseif ~isempty(p.Results.tributaryto) || ~isempty(p.Results.tributaryto2)
 %% tributary to
-    Strunk = p.Results.tributaryto;
+    if ~isempty(p.Results.tributaryto)
+        Strunk = p.Results.tributaryto;
+    else
+        Strunk = p.Results.tributaryto2;
+    end
     
     II = ismember(S.IXgrid,Strunk.IXgrid);
     I = false(size(S.x));
-    for r = numel(S.ix):-1:1;
+    for r = numel(S.ix):-1:1
         I(S.ix(r)) = (II(S.ixc(r)) || I(S.ixc(r))) && ~II(S.ix(r));
     end
 
-elseif ~isempty(p.Results.tributaryto2)
-%% tributary to 2
-    Strunk = p.Results.tributaryto2;
-    [~,~,~,S] = intersectlocs(Strunk,S);
-    return
     
 elseif ~isempty(p.Results.shrinkfromtop)
 %% shrink from top
@@ -293,7 +288,7 @@ elseif ~isempty(p.Results.rmnodes)
 elseif ~isempty(p.Results.nal)
     I = p.Results.nal;
     
-elseif ~isempty(p.Results.interactive);
+elseif ~isempty(p.Results.interactive)
 %% interactive    
     figure
     plot(S,'k'); axis image
@@ -373,15 +368,23 @@ elseif ~isempty(p.Results.interactive);
 end
 
 %% clean up
-if exist('I','var');
+if exist('I','var')
 
 L = I;
-I = L(S.ixc) & L(S.ix);
+if ~isempty(p.Results.tributaryto2)
+    I = L(S.ix);
+else
+    I = L(S.ix) & L(S.ixc);
+end
 
 S.ix  = S.ix(I);
 S.ixc = S.ixc(I);
 
+if ~isempty(p.Results.tributaryto2)
+    L(S.ixc) = true;
+end
 IX    = cumsum(L);
+
 S.ix  = IX(S.ix);
 S.ixc = IX(S.ixc);
 
@@ -433,7 +436,7 @@ function drawpath(pos)
 
     ixcc = ix;
     ixpath = ix;
-    while ixcix(ixcc) ~= 0 && ixcc ~= ixend; %S.ixc(ixcix(ixcc)) ~= ixend;
+    while ixcix(ixcc) ~= 0 && ixcc ~= ixend %S.ixc(ixcix(ixcc)) ~= ixend;
         ixpath(end+1) = S.ixc(ixcix(ixcc));
         ixcc = ixpath(end);
     end

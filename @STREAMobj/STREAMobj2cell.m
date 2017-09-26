@@ -1,4 +1,4 @@
-function [CS,locS] = STREAMobj2cell(S,ref,n)
+function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 
 %STREAMOBJ2CELL convert instance of STREAMobj to cell array of stream objects
 %
@@ -8,6 +8,7 @@ function [CS,locS] = STREAMobj2cell(S,ref,n)
 %     CS = STREAMobj2cell(S,ref)
 %     CS = STREAMobj2cell(S,'outlets',n)
 %     [CS,locS] = ...
+%     [CS,locS,order] = STREAMobj2cell(S,'tributaries');
 %
 % Description
 %
@@ -40,6 +41,9 @@ function [CS,locS] = STREAMobj2cell(S,ref,n)
 %
 %     CS    cell array with elements of CS being instances of STREAMobj
 %     locS  cell array with linear indices into node attribute lists of S
+%     order output argument only if ref is set to 'tributaries'. Vector
+%           with numel(CS) elements where each element refers to an order 
+%           of the tributaries. 
 %
 % Example
 %
@@ -182,8 +186,16 @@ switch lower(ref)
         end
         
     case 'tributaries'
-        CS = tributaries(S);
-        if nargout == 2;
+        if nargout < 3;
+            CS = tributaries(S);
+        else
+            CS = tributariesinclorder(S);
+            order = CS(2:2:end);
+            order = horzcat(order{:});
+            CS = CS(1:2:end);
+        end
+        
+        if nargout >= 2;
             locS = cell(size(CS));
             for r = 1:numel(CS);
                 [~,locS{r}] = ismember(CS{r}.IXgrid,S.IXgrid);
@@ -210,7 +222,10 @@ if nargout == 2;
 end
 end
 
+
+%% Recursively scan for tributaries
 function Ctribs = tributaries(S)
+% Recursive extraction of tributaries
 
 
 C = STREAMobj2cell(S);
@@ -221,9 +236,35 @@ for r = 1:numel(C);
     S2 = modify(C{r},'tributaryto2',St);
     if isempty(S2.ix)
         % do nothing
-        Ctribs = [Ctribs {St}];
+        Ctribs   = [Ctribs {St}];
     else
         Ctribs = [Ctribs {St} tributaries(S2)];
+    end
+end
+end
+
+
+
+function Ctribs = tributariesinclorder(S,orderin)
+% Recursive extraction of tributaries with order
+
+
+C = STREAMobj2cell(S);
+Ctribs = cell(0);
+
+if nargin == 1;
+    orderin = 1;
+end
+    
+
+for r = 1:numel(C);
+    St = trunk(C{r});
+    S2 = modify(C{r},'tributaryto2',St);
+    if isempty(S2.ix)
+        % do nothing
+        Ctribs   = [Ctribs {St orderin}];
+    else
+        Ctribs = [Ctribs {St orderin} tributariesinclorder(S2, orderin+1)];
     end
 end
 end
