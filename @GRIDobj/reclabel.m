@@ -32,7 +32,7 @@ function [L,IX] = reclabel(DEM,dx,dy)
 %     L = reclabel(DEM,5e3,5e3);
 %     imageschs(DEM,shufflelabel(L))
 %
-% See also: GRIDobj
+% See also: GRIDobj, checkerboard
 %
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
 % Date: 25. June, 2014
@@ -46,22 +46,29 @@ end
 dr = round(dy./DEM.cellsize);
 dc = round(dx./DEM.cellsize);
 
-L = DEM;
-L.Z(:) = nan;
-nrows = DEM.size(1);
-ncols = DEM.size(2);
+LABROWS = zeros(DEM.size(1),1,'uint32');
+LABROWS(1:dr:DEM.size(1)) = uint32(1);
+LABROWS = cumsum(LABROWS);
 
-ct = 1;
-for j = 1:dc:ncols
-    for i = 1:dr:nrows
-        i2 = min(nrows,i+dr-1);
-        j2 = min(ncols,j+dc-1);
-        L.Z(i:i2,j:j2) = ct;
-        ct = ct+1;
-    end
+LABCOLS = zeros(1,DEM.size(2),'uint32');
+LABCOLS(1:dr:DEM.size(2)) = uint32(1);
+LABCOLS = (cumsum(LABCOLS)-1)*max(LABROWS);
+
+L = DEM;
+L.name = 'labelled grid';
+
+try 
+    L.Z = LABROWS + LABCOLS;
+catch
+    % implicit expansion doesn't work. Use bsxfun
+    L.Z = bsxfun(@plus,LABROWS,LABCOLS);
 end
 
+
 if nargout>1 && toggle
+    
+    nrows = DEM.size(1);
+    ncols = DEM.size(2);
     nr = length(1:dr:nrows);
     nc = length(1:dc:ncols);
     IX = nan(nr,nc);
