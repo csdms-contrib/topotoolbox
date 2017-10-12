@@ -216,6 +216,67 @@ methods
         order = order(:);
     end
     
+    function S = subgraph(S,nal)
+    %SUBGRAPH extract part of the stream network
+    % 
+    % Syntax
+    %
+    %     Snew = subgraph(S,nal)
+    %
+    % Description
+    %
+    %     subgraph takes a logical node-attribute list (nal) and extracts  
+    %     the nodes in the stream network where elements in nal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     nal     logical node-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     d = S.distance;
+    %     nal = d>10000 & d<30000;
+    %     Sn = subgraph(S,nal);
+    %     plot(S)
+    %     hold on
+    %     plot(Sn)
+    %     hold off
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify,
+    %           STREAMobj/rmnode
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmnode';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
+    parse(p,S,nal);
+    
+    I = nal(S.ix) & nal(S.ixc);
+
+    S.ix  = S.ix(I);
+    S.ixc = S.ixc(I);
+
+    IX    = cumsum(nal);
+
+    S.ix  = IX(S.ix);
+    S.ixc = IX(S.ixc);
+
+    S.x   = S.x(nal);
+    S.y   = S.y(nal);
+    S.IXgrid   = S.IXgrid(nal);
+     
+    end
     
     function S = rmnode(S,nal)
     %RMNODE remove nodes in a stream network
@@ -251,32 +312,19 @@ methods
     %     plot(Sn)
     %     hold off
     %
-    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify,
+    %           STREAMobj/subgraph
     % 
     % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-    % Date: 26. September, 2017
+    % Date: 26. September, 2017    
     
     p = inputParser;
     p.FunctionName = 'STREAMobj/rmnode';
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
     addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
     parse(p,S,nal);
+    S = subgraph(S,~nal);
     
-    nal = ~nal;
-    I = nal(S.ix) & nal(S.ixc);
-
-    S.ix  = S.ix(I);
-    S.ixc = S.ixc(I);
-
-    IX    = cumsum(nal);
-
-    S.ix  = IX(S.ix);
-    S.ixc = IX(S.ixc);
-
-    S.x   = S.x(nal);
-    S.y   = S.y(nal);
-    S.IXgrid   = S.IXgrid(nal);
-     
     end
         
     function S = rmedge(S,eal)
@@ -340,7 +388,83 @@ methods
     S.IXgrid   = S.IXgrid(nal);
      
     end
-
+    
+    function tf = issubgraph(S,FD)
+    %ISSUBGRAPH tests if stream network is a subgraph of another stream or flow network
+    %
+    % Syntax
+    %
+    %     tf = issubgraph(S,FD)
+    %     tf = issubgraph(S,S2)
+    %
+    % Description
+    % 
+    %     ISSUBGRAPH tests if a stream network S is a subgraph of the flow
+    %     network in FD or another stream network in S2.
+    %
+    % Input arguments
+    %
+    %     S     STREAMobj
+    %     FD    FLOWobj
+    %     S2    STREAMobj
+    %
+    % Output arguments
+    %
+    %     tf    true or false scalar
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     S2 = klargestconncomps(S);
+    %     % is S a subgraph of FD -> yes
+    %     issubgraph(S2,FD)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        1
+    % 
+    %     % is S a subgraph of S2 -> no
+    %     issubgraph(S,S2)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        0
+    % 
+    %     % is S2 a subgraph of S -> yes
+    %     issubgraph(S2,S)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        1
+    % 
+    % 
+    % See also: STREAMobj/modify, STREAMobj/conncomps
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 12. October, 2017
+    
+    
+    n  = prod(S.size);
+    M  = sparse(S.IXgrid(S.ix),S.IXgrid(S.ixc),true,n,n);
+    if isa(FD,'STREAMobj')
+        S2 = FD;
+        M2 = sparse(S2.IXgrid(S2.ix),S2.IXgrid(S2.ixc),true,n,n);
+        
+        
+    elseif isa(FD,'FLOWobj')
+        M2 = FLOWobj2M(FD);
+        M2 = M2>0;
+    end
+    tf = isequal(M2,M2|M);
+    end
 end
 end
     

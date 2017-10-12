@@ -72,6 +72,5 @@ for tt = dd(1:k)
     L(p(r(tt):r(tt+1)-1)) = tt;
 end
 
-L = L>0;
-S = rmnode(S,~L);
+S = subgraph(S,L>0);
 
