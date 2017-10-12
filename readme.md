@@ -25,12 +25,14 @@ exchange with GIS software.
 
 ## References
 
-When you use TopoToolbox in your work, please reference one of these 
-publications:
+When you use TopoToolbox in your work, please reference following 
+publication:
 
 Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
 software for topographic analysis and modeling in Earth surface sciences. 
 Earth Surface Dynamics, 2, 1-7. DOI: [10.5194/esurf-2-1-2014](http://dx.doi.org/10.5194/esurf-2-1-2014)
+
+If you are using version 1, then please refer to this publication:
 
 Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
 functions for topographic analysis. Environmental Modelling & Software, 
@@ -104,6 +106,7 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: STREAMobj/maplateral
 - new function: STREAMobj/plotsegmentgeometry
 - new function: STREAMobj/randlocs
+- new function: STREAMobj/zerobaselevel
 - modification: STREAMobj/streamorder plotting option removed
 - modification: STREAMobj/plotdz includes custom distance option
 - modification: STREAMobj/distance includes option to derive distance from different

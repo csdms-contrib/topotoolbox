@@ -91,7 +91,7 @@ function h = plotdz(S,DEM,varargin)
 %     g = gradient(S,z);
 %     plotdz(S,DEM,'color',g)
 %
-% See also: STREAMobj, STREAMobj/plot
+% See also: STREAMobj, STREAMobj/plot, STREAMobj/smooth
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 18. August, 2017
@@ -229,13 +229,13 @@ else
             % http://undocumentedmatlab.com/blog/plot-line-transparency-and-color-gradient
             ht = plot(ax,d,z,'-');
             c     = zeros(size(order,1),3);
-            minc  = min(p.Results.color);
-            maxc  = max(p.Results.color);
+            minc  = min(+p.Results.color);
+            maxc  = max(+p.Results.color);
             
             cmap    = colormap(p.Results.colormap)*255;
             cmapix  = linspace(minc,maxc,size(cmap,1));
             
-            col   = interp1(cmapix,cmap,p.Results.color);
+            col   = interp1(cmapix,cmap,+p.Results.color);
             c(I,:) = col(order(I),:);
             c     = c';
             c     = [c;zeros(1,size(c,2))+200];
@@ -259,7 +259,7 @@ else
             
             dummy = z*0;
             c     = nan(size(order));
-            c(I)  = p.Results.color(order(I));
+            c(I)  = +p.Results.color(order(I));
             colormap(p.Results.colormap)
             ht = surface([d d],[z z],[dummy dummy],[c c],...
                 'facecolor','none',...
@@ -272,7 +272,7 @@ else
             
             
     end
-    if p.Results.colorbar && ~isempty(p.Results.cbarlabel);
+    if p.Results.colorbar && ~isempty(p.Results.cbarlabel)
         cc.Label.String = p.Results.cbarlabel;
     end
 end
@@ -281,7 +281,7 @@ xlabel(['Distance upstream [' lower(p.Results.dunit) ']'])
 ylabel('Elevation [m]')
 
 %% Annotation
-if ~isempty(p.Results.annotation);
+if ~isempty(p.Results.annotation)
     ix = p.Results.annotation;
     hold on
     [Lia,Locb] = ismember(ix,S.IXgrid);
@@ -300,7 +300,7 @@ if ~isempty(p.Results.annotation);
         annz = zz(Locb);
     end
     
-    if ~isempty(p.Results.annotationtext);
+    if ~isempty(p.Results.annotationtext)
         c = p.Results.annotationtext;
         addtext = true;
     else
@@ -308,7 +308,7 @@ if ~isempty(p.Results.annotation);
     end
     
     
-    for r = 1:numel(ix);
+    for r = 1:numel(ix)
         if addtext
             annotext = [c{r} '\newline\downarrow'];
         else
@@ -324,7 +324,7 @@ if ~isempty(p.Results.annotation);
 end
 
 
-if nargout == 1;
+if nargout == 1
     h = ht;
 end
 end
