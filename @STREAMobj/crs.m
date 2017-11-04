@@ -45,7 +45,6 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %                     may evaluate faster even without the availability of
 %                     the parallel computing toolbox.
 %
-%
 % Output parameters
 %
 %     zs     node attribute list with smoothed elevation values
@@ -106,10 +105,13 @@ if any(isnan(z))
     error('DEM or z may not contain any NaNs')
 end
 
+% double precision is necessary
 z = double(z);
 
 %% Run in parallel
 if p.Results.split == 1
+    % This option processes each connected component of the stream network
+    % on a separate worker
     params = p.Results;
     params.split = false;
     [CS,locS] = STREAMobj2cell(S);
@@ -132,6 +134,10 @@ if p.Results.split == 1
     end
     
 elseif p.Results.split == 2
+    % This option processes each tributary on a separate worker.
+    % Tributaries are recursively extracted from the stream network,
+    % starting with the trunk river, then with the longest rivers tributary
+    % to the trunk river, and so on. 
         
     [CS,locb,CID] = STREAMobj2cell(S,'trib');
     
@@ -165,6 +171,7 @@ end
 %% CRS starts here
 % upstream distance
 d  = S.distance;
+
 % nr of nodes
 nr = numel(S.IXgrid);
 

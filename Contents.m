@@ -37,7 +37,6 @@
 % Graphical user interfaces
 %
 %     flowpathapp     - Map, visualize and export flowpaths that start at manually set channelheads                     
-%     preprocessapp   - interactive tool for hydrological conditioning
 %     slopeareatool   - Interactively create slope area plots and fit power laws                    
 %     topoapp         - Create instance of a topoapp
 %

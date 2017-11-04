@@ -59,7 +59,7 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 ## Version History
 
-### 2.2 pre
+### 2.2
 
 - TTLEM is part of TopoToolbox
 - new functions for smoothing and hydrological correction: 
@@ -100,6 +100,7 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 - new function: STREAMobj/info
 - new function: STREAMobj/orientation
 - new function: STREAMobj/plotstreamorder
+- new function: STREAMobj/removeedgeeffects
 - new function: STREAMobj/split
 - new function: STREAMobj/streamproj
 - new function: STREAMobj/networksegment
