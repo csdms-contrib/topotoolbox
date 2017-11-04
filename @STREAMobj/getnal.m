@@ -1,6 +1,6 @@
 function varargout = getnal(S,varargin)
 
-% get node attribute list
+%GETNAL get node-attribute list
 %
 % Syntax
 %
@@ -10,8 +10,16 @@ function varargout = getnal(S,varargin)
 %
 % Description
 %
-%     getnal returns node attribute lists (nal) extracted from GRIDobjs 
-%     aligned with S.
+%     getnal returns node-attribute lists (nal) extracted from GRIDobjs 
+%     aligned with S. A node-attribute list is a column vector that has as 
+%     many elements as nodes in the stream network S. These vectors can
+%     store all kinds of information related to each node of the stream
+%     network such as elevation, upstream area, and gradient. Numerous
+%     STREAMobj methods (e.g. gradient or smooth) accept nals as input.
+%
+%     nals are intricately linked to the network topology. To export nals
+%     to nan-punctuated vectors that can be plotted by custom functions,
+%     use the function STREAMobj2XY.
 %
 % Input
 %
@@ -37,9 +45,10 @@ function varargout = getnal(S,varargin)
 %     nal = getnal(S,DEM,A,'struct');
 %     chiplot(S,nal.DEM,nal.A);
 %
+% See also: STREAMobj/isnal
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. June, 2014
+% Date: 18. August, 2017
 
 if ~ischar(varargin{end})
     varargout = cell(1,max(nargout,numel(varargin)));
@@ -48,9 +57,11 @@ if ~ischar(varargin{end})
         varargout{r} = double(varargin{r}.Z(S.IXgrid));
     end
 else
-    for r = 1:numel(varargin)-1;
+    for r = 1:(numel(varargin)-1)
         validatealignment(S,varargin{r});
         OUT.(inputname(r+1)) = double(varargin{r}.Z(S.IXgrid));
     end
     varargout{1} = OUT;
 end
+        
+    

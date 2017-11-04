@@ -1,6 +1,6 @@
 function DEM = erode(DEM,SE)
 
-% morphological erosion
+%ERODE morphological erosion
 %
 % Syntax
 %

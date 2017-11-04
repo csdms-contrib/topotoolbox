@@ -1,6 +1,6 @@
 function info(DEM)
 
-% detailed information on GRIDobj instance
+%INFO detailed information on GRIDobj instance
 %
 % Syntax
 %
@@ -37,6 +37,19 @@ disp(['  maximum z-value:       ' num2str(max(DEM.Z(:)))])
 disp(['  minimum z-value:       ' num2str(min(DEM.Z(:)))])
 disp(['  z-unit:                ' DEM.zunit])
 
+if ~isempty(DEM.georef);
+    try 
+        disp(['  coordinate system:     ' DEM.georef.GeoKeyDirectoryTag.GTCitationGeoKey])
+    catch
+        try
+            disp(['  coordinate system:     ' DEM.georef.GeoKeyDirectoryTag.GeogCitationGeoKey]);
+        catch
+        end
+    end
+else
+    disp(['  coordinate system:     ' 'undefined'])
+end
+    
 disp(' ')
 
 

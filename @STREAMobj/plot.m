@@ -1,6 +1,6 @@
 function h = plot(S,varargin)
 
-% plot instance of STREAMobj
+%PLOT plot instance of STREAMobj
 %
 % Syntax
 %

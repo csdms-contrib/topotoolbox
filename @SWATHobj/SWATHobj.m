@@ -188,10 +188,12 @@ classdef SWATHobj
             if ~exist('x0','var') % SWATHobj is created interactively
                 hfig = figure;
                 imagesc(DEM), axis image
+                title('Draw a line (double-click to end)')
                 [XY] = getline;
                 x0 = XY(:,1);
                 y0 = XY(:,2);
                 d0 = getdistance(x0,y0);
+                hold on, plot(x0,y0,'k-'), hold off
             end
             
             
@@ -210,7 +212,6 @@ classdef SWATHobj
             addParamValue(p,'keepnodes',false,@(x) islogical(x))
             addParamValue(p,'smooth',0,@(x) isnumeric(x))
             addParamValue(p,'smoothlongest',true,@(x) islogical(x))
-            addParamValue(p,'plot',true,@(x) islogical(x))
             
             parse(p,DEM,varargin{:});
             
@@ -224,7 +225,6 @@ classdef SWATHobj
             SW.zunit    = DEM.zunit;
             SW.xyunit   = DEM.xyunit;
             
-            doplot      = p.Results.plot;
             keepdist    = p.Results.keepdist;
             keepnodes   = p.Results.keepnodes;
             keeptrace   = p.Results.keeptrace;
@@ -263,7 +263,7 @@ classdef SWATHobj
                             this_xf = filtfilt(b,1,this_x);
                             this_yf = filtfilt(b,1,this_y);
                             smovalue = smoothing;
-                        catch
+                        catch ME
                             if smoothlong
                                 fprintf(1,'Smoothing length reduced: not enough points.\n');
                                 sm = round((length(this_x)/3)-1);
@@ -315,8 +315,8 @@ classdef SWATHobj
                 SW.disty = unique(SW.disty,'stable');
                 
                 % Create transverse profiles that are orthogonal to the center line
-                DX = [dX(1); dX];
-                DY = [dY(1); dY];
+                DX = ([dX(1); dX]+[dX; dX(end)])./2;
+                DY = ([dY(1); dY]+[dY; dY(end)])./2;
                 [theta,~] = cart2pol(DX,DY);  % direction between points along profile
                 theta_orthogonal = theta+pi/2; % orthogonals to center line of swath profile
                 [x_orthogonal,y_orthogonal] = pol2cart(theta_orthogonal,1); % dx, dy of orthogonals

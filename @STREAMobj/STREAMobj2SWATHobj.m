@@ -1,6 +1,6 @@
 function [SW] = STREAMobj2SWATHobj(S,DEM,varargin)
 
-% Create swath profile (SWATHobj) from stream network
+%STREAMOBJ2SWATHOBJ Create swath profile (SWATHobj) from stream network
 %
 % Syntax
 %
@@ -8,40 +8,35 @@ function [SW] = STREAMobj2SWATHobj(S,DEM,varargin)
 %
 % Description
 %
-%     STREAMobj2SWATHobj creates a swath profile along individual 
-%     reaches of a stream network. If the SWATHobj was created from 
-%     a STREAMobj with multiple channels, the resulting SWATHobj's 
-%     will be stored in cells, which need to be processed individually when
-%     using other functions that work on SWATHobj's.
-%
-%
+%     STREAMobj2SWATHobj creates a swath profile along individual reaches
+%     of a stream network. If the SWATHobj was created from a STREAMobj
+%     with multiple channels, the resulting SWATHobj's will be stored in
+%     cells.
+% 
 % Input arguments
 %
-%     SW      instance of SWATHobj
+%     S     STREAMobj
+%     DEM   digital elevation model (DEM)
+%     pn,pv parameter name value pairs as used in SWATHobj
 %
-%     DEM     instance of GRIDobj
+% Output arguments
 %
-%     Parameter name/value pairs are the same as in the function SWATHobj
+%     SW    SWATHobj or cell array of SWATHobjs
 %
-%
-% Output
-%
-%     SW     swath profile object (SWATHobj)
-%
-%
-% Example 
+% Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','carve');
-%     A  = flowacc(FD);
-%     S = STREAMobj(FD,A>100);
-%     S = trunk(klargestconncomps(S,1));
-%     SW = STREAMobj2SWATHobj(S,DEM,'width',2e3,'smooth',1e3);
-%     figure, plot(SW)
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(trunk(S));
+%     SW = STREAMobj2SWATHobj(S,DEM);
+%     plotdz(SW);
 %
+%
+% See also: SWATHobj
 %
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
-% Date: March, 2016
+% Date: 15. May, 2017
             
 
 if ~isa(S,'STREAMobj')

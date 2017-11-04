@@ -1,10 +1,11 @@
 function [IX,res] = coord2ind(DEM,x,y)
 
-% convert x and y coordinates to linear index
+%COORD2IND convert x and y coordinates to linear index
 %
 % Syntax
 %
 %     IX = coord2ind(DEM,x,y)
+%     [IX,res] = ...
 %
 % Description
 %
@@ -19,11 +20,13 @@ function [IX,res] = coord2ind(DEM,x,y)
 % Output arguments
 %
 %     ix      linear index
+%     res     residual distance between coordinates and nearest grid cell
+%             centers for coordinate pair x, y
 %
 % See also: GRIDobj/ind2coord, GRIDobj/getcoordinates
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. January, 2013
+% Date: 17. August, 2017
 
 
 

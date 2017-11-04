@@ -1,6 +1,6 @@
 function tf = validatealignment(S,G)
 
-% is an instance of STREAMobj is spatially aligned with another object of TopoToolbox
+%VALIDATEALIGNMENT is an instance of STREAMobj is spatially aligned with another object of TopoToolbox
 %
 % Syntax
 %
@@ -22,7 +22,11 @@ function tf = validatealignment(S,G)
 % 
 %     tf    true or false
 %
-% 
+%
+% See also: STREAMobj
+%   
+% Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 8. August, 2015 
 
 % check if geometric properties of a FLOWobj and GRIDobj instance are equal
 if isa(G,'GRIDobj') || isa(G,'STREAMobj') || isa(G,'FLOWobj');

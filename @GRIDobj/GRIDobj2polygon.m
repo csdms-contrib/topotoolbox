@@ -1,6 +1,6 @@
 function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 
-% Conversion from drainage basin grid to polygon or polyline
+%GRIDobj2polygon Conversion from drainage basin grid to polygon or polyline
 %
 % Syntax
 %
@@ -15,6 +15,13 @@ function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 %     features. The polygone outlines or polylines run along pixel edges
 %     and not pixel centers which differs from other Matlab functions to 
 %     derive outlines (e.g. bwboundaries, bwperim, bwtraceboundary).
+%
+%     DB should be a grid of integers. Regions are those that have values
+%     unequal to zero. If DB is a floating grid (single or double), then
+%     GRIDobj2polygon finds unique values but discards NaNs and zero
+%     values. In this case, GRIDobj2polygon returns MS with an additional
+%     field 'gridval' that indicates the original value of the grid in each
+%     region.
 %
 % Input arguments
 %
@@ -57,10 +64,10 @@ function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 %     hold on
 %     plot(x,y,'-r')
 %
-% See also: bwboundaries, bwtraceboundary
+% See also: bwboundaries, bwtraceboundary, regionprops
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 9. January, 2015
+% Date: 17. August, 2017
 
 
 
@@ -88,8 +95,19 @@ mp    = p.Results.multipart;
 holes = p.Results.holes;
 waitb = p.Results.waitbar;
 
+% check underlying class of the grid
+if isfloat(DB.Z);
+    writevalue = true;
+    DB2 = GRIDobj(DB,'uint32');
+    I   = ~(isnan(DB.Z) | DB.Z == 0);
+    [uniquevals,~,DB2.Z(I)] = unique(DB.Z(I));
+    DB  = DB2;
+else
+    writevalue = false;
+end
+
 % identify regions and number of regions
-STATS = regionprops(DB.Z,'Area','PixelIdxList');
+STATS = regionprops(uint32(DB.Z),'Area','PixelIdxList');
 ndb = numel(STATS);  
 
 % go through all regions
@@ -133,6 +151,11 @@ for r = 1:ndb;
     MS(counter).X = x;
     MS(counter).Y = y;
     MS(counter).ID = double(DB.Z(STATS(r).PixelIdxList(1)));
+    
+    if writevalue
+        MS(counter).gridval = double(uniquevals(r));
+    end
+    
 end
 
 % create coordinate vectors if more than one output

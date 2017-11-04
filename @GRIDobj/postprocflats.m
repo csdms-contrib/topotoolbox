@@ -1,6 +1,6 @@
 function FA = postprocflats(FLATS,FA,fun)
 
-% postprocess flat terrain for visualization purpose
+%POSTPROCFLATS postprocess flat terrain for visualization purpose
 %
 % Syntax
 %
@@ -8,9 +8,11 @@ function FA = postprocflats(FLATS,FA,fun)
 %
 % Description
 %
-%     Sometimes it may be nice for visualizations to manipulate the flow 
-%     accumulation raster so that flat areas such as lakes have constant
-%     values instead drainage patterns returned by flow direction.
+%     Flat areas in DEMs often constitute lakes. Flow routing and
+%     accumulation through these lakes usually produces one pixel wide flow
+%     paths that do not reflect the true extent of water bodies. This
+%     function resolves this issue by setting values in flat areas to some
+%     constant values value related to the flow accumulation grid.
 %     postprocsinks assigns equal values to each connected, flat area using
 %     a user-defined function.
 %
@@ -33,13 +35,14 @@ function FA = postprocflats(FLATS,FA,fun)
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','c');
 %     A  = flowacc(FD);
-%     FA = postprocflats(I,A,@mean);
+%     I  = identifyflats(fillsinks(DEM));
+%     FA = postprocflats(I,A,@max);
 %     imageschs(DEM,FA)
 %
 % See also: IDENTIFYFLATS, FUNCTION_HANDLE
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. February, 2013
+% Date: 17. August, 2017
 
 
 % check if GRIDs are aligned

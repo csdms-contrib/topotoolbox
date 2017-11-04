@@ -10,13 +10,7 @@ d = objdata.distance;
 [XX,YY] = getcoordinates(app.DEM);
 z = interp2(XX,YY,app.DEM.Z,x,y);
 
-% if (1)
-%     d = d./max(d);
-%     z = z-min(z); z = z./max(z);
-% end
-
 h = plot(d+distadjust,z,'k-');
-
 
 if dointerp
     set(h,'Linestyle','none','Marker','s','Markeredgecolor','r','Markersize',2)

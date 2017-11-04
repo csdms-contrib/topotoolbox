@@ -2,8 +2,7 @@
 
 <img src="https://github.com/wschwanghart/topotoolbox/blob/master/topotoolbox.jpg" align="center" height="100">
 
-
-TopoToolbox provides a set of Matlab functions that support the analysis
+[TopoToolbox](http://topotoolbox.wordpress.com) provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
 aim of TopoToolbox is to offer helpful analytical GIS utilities in a 
 non-GIS environment in order to support the simultaneous application
@@ -11,29 +10,33 @@ of GIS-specific and other quantitative methods.
 
 If you have any questions or remarks, please contact the authors:
 
-Wolfgang Schwanghart
+[Wolfgang Schwanghart](http://www.geo.uni-potsdam.de/mitarbeiterdetails/show/421/Wolfgang_Schwanghart.html)
 w.schwanghart[at]geo.uni-potsdam.de
 
-Dirk Scherler
-scherler[at]caltech.edu
+[Dirk Scherler](https://sites.google.com/site/scherlerdirk/home)
+scherler[at]gfz-potsdam.de
 
 ## Requirements
 
 TopoToolbox is plat-form independent and requires
-Matlab 2011b or higher and the Image Processing Toolbox.
+Matlab 2014b or higher and the Image Processing Toolbox. The Mapping
+Toolbox is not mandatory, but good to have to facilitate easy data
+exchange with GIS software.
 
 ## References
 
-When you use TopoToolbox in your work, please reference one of these 
-publications:
+When you use TopoToolbox in your work, please reference following 
+publication:
 
-Schwanghart, W. & Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
 software for topographic analysis and modeling in Earth surface sciences. 
-Earth Surface Dynamics, 2, 1-7. [DOI: 10.5194/esurf-2-1-2014]
+Earth Surface Dynamics, 2, 1-7. DOI: [10.5194/esurf-2-1-2014](http://dx.doi.org/10.5194/esurf-2-1-2014)
 
-Schwanghart, W., Kuhn, N. J. (2010): TopoToolbox: a set of Matlab 
+If you are using version 1, then please refer to this publication:
+
+Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
 functions for topographic analysis. Environmental Modelling & Software, 
-25, 770-781. [DOI: 10.1016/j.envsoft.2009.12.002]
+25, 770-781. DOI: [10.1016/j.envsoft.2009.12.002](http://dx.doi.org/10.1016/j.envsoft.2009.12.002)
 
 ## Getting started
 
@@ -42,49 +45,83 @@ path of Matlab. Enter following code into the command line:
 
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\utilities
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\IOtools
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\GIStools
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
         addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
+        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\ttlem
 
 You may then either look at the user's guide to get an idea of how the 
 toolbox works or you may run some of the many examples in the help block
-of each function (help function). 
+of each function (help function). An additional resource for code and 
+examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 
 ## Version History
 
-2.2 pre
+### 2.2
+
+- TTLEM is part of TopoToolbox
+- new functions for smoothing and hydrological correction: 
+  STREAMobj/crs, STREAMobj/crsapp, STREAMobj/smooth, STREAMobj/crslin, 
+  STREAMobj/quantcarve, FLOWobj/quantcarve
 - modification: GRIDobj way to store referencing information was changed
+- modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
+- new function: FLOWobj/dbentropy 
+- new function: FLOWobj/updatetoposort
+- new function: GRIDobj/aggregate
+- new function: GRIDobj/createmask
+- new function: GRIDobj/dist2line
+- new function: GRIDobj/dist2curve
 - new function: GRIDobj/line2GRIDobj
 - new function: GRIDobj/GRIDobj2pm
+- new function: GRIDobj/minmaxnorm
+- new function: GRIDobj/reclabel
 - new function: GRIDobj/zscore
 - new function: GRIDobj/pad
+- new function: STREAMobj/aggregate
+- new function: STREAMobj/labelreach
 - new function: STREAMobj/distance
+- new function: STREAMobj/drainagedensity
 - new function: STREAMobj/plotc
+- new function: STREAMobj/plotdzshaded
+- new function: STREAMobj/meanupstream
 - new function: STREAMobj/plot3
 - new function: STREAMobj/chitransform
 - new function: STREAMobj/cumtrapz
 - modification: STREAMobj/modify includes option rmconncomps
+- new function: STREAMobj/mchi
 - new function: STREAMobj/conncomps
+- modification: STREAMobj/extractconncomps (new GUI and behavior)
+- modification: STREAMobj/union (new syntax)
+- modification: STREAMobj/intersect (new syntax)
 - new function: STREAMobj/isnal
 - new function: STREAMobj/info
+- new function: STREAMobj/orientation
 - new function: STREAMobj/plotstreamorder
+- new function: STREAMobj/removeedgeeffects
 - new function: STREAMobj/split
+- new function: STREAMobj/streamproj
 - new function: STREAMobj/networksegment
+- new function: STREAMobj/maplateral
 - new function: STREAMobj/plotsegmentgeometry
 - new function: STREAMobj/randlocs
+- new function: STREAMobj/zerobaselevel
 - modification: STREAMobj/streamorder plotting option removed
 - modification: STREAMobj/plotdz includes custom distance option
 - modification: STREAMobj/distance includes option to derive distance from different
   STREAMobj
+- modification: STREAMobj/STREAMobj2cell
+- modification: STREAMobj/STREAMobj2mapstruct
+- new function: STREAMobj/transformcoords
 - new function: FLOWobj/FLOWobj2cell
 - update to several FLOWobj methods to avoid speed loss for MATLAB versions newer
   than R2015b
 - removed bug in GRIDobj/curvature
 
-***
+### 2.1
 
-2.1
 - new function: GRIDobj/excesstopography
 - new function: GRIDobj/GRIDobj2polygon
 - new function: STREAMobj/getnal
@@ -118,24 +155,22 @@ of each function (help function).
 - demo_modifystreamnet.m
 - preprocessapp was removed
 
-***
+### V2.0.1
 
-V2.0.1
 - removed bug in GRIDobj
 - removed bug with case-sensitivity in some functions
 - removed bug with internal drainage option in FLOWobj
 
-***
+### V2.0
 
-V2.0
 - new functions STREAMobj/intersect, STREAMobj/union
 - new interactive tools in STREAMobj/modify
 - new interactive tool GRIDobj/measure
 
-***
 
-V2.0beta ---
-- V2.0 introduces an object oriented approach towards grid representation, flow direction, stream 
+### V2.0beta 
+
+V2.0 introduces an object oriented approach towards grid representation, flow direction, stream 
 networks and swath objects. The performance of various, inparticular flow related, functions was 
 increased. Mex-files have been written to increase the speed of some functions and are delivered as 
 64bit Windows binaries. They have been compiled on Windows 7 with an Intel processor, so they should be 
@@ -143,9 +178,8 @@ compiled before using them, if your system differs. However, compiling is not ma
 versions are available, too, which are a little slower. Please refer to the Contents.m file for a 
 complete list of functions.
 
-***
+### V1.06 --- 11. November 2011
 
-V1.06 --- 11. November 2011
 - new function: acv
 - new function: cropmat
 - new function: dbentropy
@@ -164,9 +198,8 @@ V1.06 --- 11. November 2011
 - the baranja_hill.mat dataset was added. It was obtained from 
   here: http://geomorphometry.org/content/baranja-hill
 
-***
+### V1.05 --- 15. September 2010
 
-V1.05 --- 15. September 2010
 - some of the functions now employ the function validateattributes to check
   input arguments. Note that this might return a warning on older versions than
   2009a.
@@ -190,9 +223,8 @@ V1.05 --- 15. September 2010
 - flowdistanceds can now calculate the maximum downward flowpath distance 
   for each cell at one step. 
 
-***
+### V1.04 --- 5. January 2010 - *first public release*
 
-V1.04 --- 5. January 2010 - *first public release*
 - a bug in flowacc_lm was removed. When a weight matrix W0
   was supplied as additional input argument, W0 was set to 
   dem.
@@ -201,22 +233,19 @@ V1.04 --- 5. January 2010 - *first public release*
   based on method proposed by Katzil and Doytsher, 2003.
 - flowacc allows for another input argument (runoff ratio). 
 
-***
+### V1.03 --- 5. November 2009
 
-V1.03 --- 5. November 2009
 - sub-basin analysis has been added as new functionality 
   (see sbstruct, sbplot, sbprops)
 - new function: adjustgauges
 
-***
+### V1.02 --- 30. October 2009  
 
-V1.02 --- 30. October 2009  
 - major speed enhancement for fillsinks with maximum
   fill depth
 
-***
+### V1.01 --- 16. September 2009  
 
-V1.01 --- 16. September 2009  
 - hillshade plots the hillshade matrix when no output
   arguments are defined.
 - flowacc_lm was optimized, so that large, flat areas
@@ -232,7 +261,6 @@ V1.01 --- 16. September 2009
 - new function: shufflelabel
 - influencemap got a second output Mstreams
 
-***
+### V1.0 --- 15. March 2009 
 
-V1.0 --- 15. March 2009 
 - release

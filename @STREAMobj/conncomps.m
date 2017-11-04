@@ -1,6 +1,6 @@
 function [L,nc] = conncomps(S)
 
-% labels of connected components (individual trees) in a stream network
+%CONNCOMPS labels of connected components (individual trees) in a stream network
 %
 % Syntax
 %

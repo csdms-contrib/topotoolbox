@@ -1,6 +1,6 @@
 function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 
-% snap locations to nearest stream location
+%SNAP2STREAM snap locations to nearest stream location
 %
 % Syntax
 %
@@ -49,27 +49,10 @@ function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 %     res      residual (eucl. distance between locations)
 %     MP       map struct that can be exported to a shapefile
 %
-% Example
 %
-%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD  = FLOWobj(DEM,'preprocess','carve');
-%     S   = STREAMobj(FD,'minarea',1000);
-%     S   = klargestconncomps(S);
-%     idx = randi(numel(S.x),20,1);
-%     x   = S.x(idx)+randn(size(idx))*100;
-%     y   = S.y(idx)+randn(size(idx))*100;
-%     [xn,yn,IX] = snap2stream(S,x,y,'plot',true);
-%     axis image
-%     figure
-%     D   = drainagebasins(FD,IX);
-%     D.Z = single(D.Z);
-%     D.Z(D.Z==0) = nan;
-%     imageschs(DEM,shufflelabel(D));
-%
-% See also: STREAMobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 28. April, 2016
+% Date: 3. May, 2013
 
 
 % Parse Inputs

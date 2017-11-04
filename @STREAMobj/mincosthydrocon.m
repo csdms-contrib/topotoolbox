@@ -1,12 +1,13 @@
 function z = mincosthydrocon(S,DEM,method,fillp)
 
-% minimum cost hydrological conditioning
+%MINCOSTHYDROCON minimum cost hydrological conditioning
 %
 % Syntax
 %
-%     z = mincosthydrocon(S,DEM)
-%     z = mincosthydrocon(S,DEM,method)
-%     z = mincosthydrocon(S,DEM,'interp',fillp)
+%     zc = mincosthydrocon(S,DEM)
+%     zc = mincosthydrocon(S,DEM,method)
+%     zc = mincosthydrocon(S,DEM,'interp',fillp)
+%     zc = mincosthydrocon(S,z,...)
 %
 % Description
 %
@@ -31,10 +32,11 @@ function z = mincosthydrocon(S,DEM,method,fillp)
 %     method    'minmax' (default) or 'interp'
 %     fillp     scalar between 0 and 1, determines the degree of "filling".
 %               Values close to 0 lead to a higher degree of carving.
+%     z         node attribute list of elevation values
 %
 % Output arguments
 %
-%     z         node attribute list (nal) that contains the modified 
+%     zc        node attribute list (nal) that contains the modified 
 %               elevation values along the stream network S.
 %
 % Example
@@ -67,25 +69,34 @@ else
     validateattributes(fillp,{'numeric'},{'scalar','>',0,'<=',1});
 end
 
-d      = S.distance;
-% node attribute list (nal) with filled z
-z      = DEM.Z(S.IXgrid);
-z_fill = DEM.Z(S.IXgrid);
+% get node attribute list with elevation values
+if isa(DEM,'GRIDobj')
+    validatealignment(S,DEM);
+    z = getnal(S,DEM);
+elseif isnal(S,DEM);
+    z = DEM;
+else
+    error('Imcompatible format of second input argument')
+end
 
-for r = numel(S.ixc):-1:1;
-    z_fill(S.ix(r)) = max(z_fill(S.ix(r)),z_fill(S.ixc(r)));
+d      = S.distance;
+ix     = S.ix;
+ixc    = S.ixc;
+
+
+% node attribute list (nal) with filled z
+z_fill = z;
+for r = numel(ixc):-1:1;
+    z_fill(ix(r)) = max(z_fill(ix(r)),z_fill(ixc(r)));
 end
 
 % nal with carved z
-z_carve = DEM.Z(S.IXgrid);
-for r = 1:numel(S.ixc);
-    z_carve(S.ixc(r)) = min(z_carve(S.ix(r)),z_carve(S.ixc(r)));
+z_carve = z;
+for r = 1:numel(ixc);
+    z_carve(ixc(r)) = min(z_carve(ix(r)),z_carve(ixc(r)));
 end
 
 ICON = (z_carve-z)~= 0 | (z_fill-z)~= 0;
-
-ix = S.ix;
-ixc = S.ixc;
 
 IEDGE = ICON(ix);% | ICON(ixc);
 ix = ix(IEDGE);

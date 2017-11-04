@@ -51,9 +51,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	plhs[0] = mxCreateNumericMatrix((mwSize) nrow*ncol - nrLM,(mwSize) 1, mxUINT32_CLASS, mxREAL);
 	plhs[1] = mxCreateNumericMatrix((mwSize) nrow*ncol - nrLM,(mwSize) 1, mxUINT32_CLASS, mxREAL);
 	
-	ix      = mxGetData(plhs[0]);
-	ixc     = mxGetData(plhs[1]);
-	
+	ix      = (uint32_T*) mxGetData(plhs[0]);
+	ixc     = (uint32_T*) mxGetData(plhs[1]);
+	 
 	// set initial pointer locations
 	pix1 = (nrc-nrLM-MV[0]-1);
 	pix2 = (nrc-nrLM-MV[0]-1);

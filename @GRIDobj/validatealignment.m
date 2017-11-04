@@ -1,6 +1,6 @@
 function tf = validatealignment(GRID1,GRID2)
 
-% validates whether instances of GRIDobj are spatially aligned
+%VALIDATEALIGNMENT validates whether instances of GRIDobj are spatially aligned
 %
 % Syntax
 %
@@ -22,7 +22,10 @@ function tf = validatealignment(GRID1,GRID2)
 % 
 %     tf    true or false
 %
-% 
+% See also: GRIDobj
+%   
+% Author:  Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 8. August, 2015 
 
 % check if geometric properties of a FLOWobj and GRIDobj instance are equal
 if isa(GRID2,'GRIDobj');

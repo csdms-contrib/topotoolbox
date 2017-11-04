@@ -1,6 +1,6 @@
 function A = interp2GRIDobj(DEM,x,y,v,varargin)
 
-% Interpolate scattered data to GRIDobj
+%INTERP2GRIDobj Interpolate scattered data to GRIDobj
 %
 % Syntax
 %

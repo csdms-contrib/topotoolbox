@@ -1,5 +1,5 @@
 function [varargout] = SWATHobj2GRIDobj(SW,DEM,varargin)
-% SWATHOBJ2GRIDOBJ creates a GRIDobj with Swath-specific information
+% SWATHOBJ2GRIDOBJ create a GRIDobj with swath-specific information
 %
 % Syntax
 %
@@ -9,20 +9,26 @@ function [varargout] = SWATHobj2GRIDobj(SW,DEM,varargin)
 %
 % Description
 %
-%     SWATHobj2GRIDobj(SW,DEM)
-%
-%
-%     Make sure that the SW is fully contained withtin the DEM
-% 
+%     SWATHobj2GRIDobj(SW,DEM) creates a GRIDobj the same size as DEM with
+%     pixels labeled 1 that are within the swath represented by SWATHobj
+%     and all other pixels labeled 0.
+%     SWATHobj2GRIDobj(SW,DEM,type) with type being a string that specifies
+%     the type of output. type = 'ix' yields the same output as calling
+%     the function without any type (see above). type = 'distx' writes to
+%     the pixels the along-swath distance. type = 'disty' writes to the
+%     pixels the across-swath distance. type = 'z' writes down the z-values
+%     of the SWATHobj. If the function is called with several type strings, 
+%     several outputs (GRIDobj's) will be created.
 %
 % Input arguments
 %
 %     SW     instance of SWATHobj
 %     DEM    instance of GRIDobj
 %     type   string that specifies the type of output. Valid choices are
-%            'distx', 'disty', and 'ix'. 'distx' and 'disty' give the 
-%            distance along and and across the swath, respectively. 'ix' 
+%            'distx', 'disty', 'ix', and 'z'. 'distx' and 'disty' give the 
+%            distance along and across the swath, respectively. 'ix' 
 %            creates a binary image indicating pixels inside the SWATHobj.
+%            'z' writes down the z-values of the SWATHobj.
 %
 % Output arguments
 %
@@ -30,33 +36,46 @@ function [varargout] = SWATHobj2GRIDobj(SW,DEM,varargin)
 %
 % Examples
 %
+%     Example 1: Label pixels inside SWATHobj
+% 
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     x = [3.8272e5, 3.9058e5, 4.0175e5, 4.0680e5];
+%     y = [3.7955e6, 3.8017e6, 3.8002e6, 3.7924e6];
+%     SW = SWATHobj(DEM,x,y,'smooth',1e3,'width',3e3);
+%     IX = SWATHobj2GRIDobj(SW,DEM);
+%     figure,imageschs(DEM,IX)
+% 
+%     Example 2: Label pixels by distance along river 
+% 
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     A  = flowacc(FD);
-%     S = STREAMobj(FD,A>100);
+%     S = STREAMobj(FD,A>1000);
 %     S = trunk(klargestconncomps(S,1));
 %     [x,y] = STREAMobj2XY(S);
 %     ix = ~isnan(x);
 %     xval = flipud(x(ix));
 %     yval = flipud(y(ix));
-%     SW = SWATHobj(DEM,xval,yval,'smooth',200);
-%     %   SW = tidy(SW);
+%     SW = SWATHobj(DEM,xval,yval,'smooth',1e3,'width',3e3);
+%     SW = tidy(SW);
 %     DX = SWATHobj2GRIDobj(SW,DEM,'distx');
-%     figure,imagesc(DX), hold on
+%     figure,imageschs(DEM,DX), hold on
 %     plot(SW,'points',false,'labeldist',1e3), hold off
 %     colorbar
 %
+%
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
-% Date: May, 2015
+% Date: May, 2015; updated August, 2017
 
 
 narginchk(2,5)
-
-if length(varargin)~=nargout
+if nargin==2 && nargout>1
+    error('Too many outputs.')
+elseif nargin>2 && length(varargin)~=nargout
     error('Number of inputs mismatches number of outputs.')
 end
 
-if nargin == 2;
+if nargin == 2
     type{1} = 'ix';
 else
     for i = 1 : length(varargin)
@@ -68,9 +87,12 @@ end
 
 [x,y] = getcoordinates(DEM);
 [X,Y] = meshgrid(x,y);
+maxx = max(x);
+minx = min(x);
+maxy = max(y);
+miny = min(y);
 
 % Delineate SWATHobj in GRID domain
-% (might be better to use inpolygon(X,Y,xv,yv)?)
 IM = true(size(SW.Z));
 IM(isnan(SW.Z)) = false;
 B = bwboundaries(IM,4);
@@ -84,6 +106,12 @@ for k = 1 : length(B)
     else
         newx = x_bdy; newy = y_bdy;
     end
+    % take points outside the DEM into account
+    newx(newx>maxx) = maxx;
+    newx(newx<minx) = minx;
+    newy(newy>maxy) = maxy;
+    newy(newy<miny) = miny;
+    % convert to linear indices
     ix_edge = coord2ind(DEM,newx,newy);
     ix_edge = unique(ix_edge);
     ix_edge = ix_edge(~isnan(ix_edge));

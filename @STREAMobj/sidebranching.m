@@ -1,6 +1,6 @@
 function br = sidebranching(S,outputformat)
 
-% side branching classification according to Tokunaga (1978)
+%SIDEBRANCHING side branching classification according to Tokunaga (1978)
 %
 % Syntax
 %
@@ -67,7 +67,6 @@ function br = sidebranching(S,outputformat)
 %
 % See also: STREAMobj2mapstruct, STREAMobj/streamorder
 %
-% 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 21. July, 2015
 

@@ -1,6 +1,6 @@
 function S = klargestconncomps(S,k)
 
-% retain k largest connected components in an instance of STREAMobj
+%KLARGESTCONNCOMPS retain k largest connected components in an instance of STREAMobj
 %
 % Syntax
 %
@@ -23,14 +23,26 @@ function S = klargestconncomps(S,k)
 %     S2       new instance of STREAMobj that contains only the k largest
 %              components of S
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     S2 = klargestconncomps(S,2);
+%     plot(S)
+%     hold on
+%     plot(S2)
+%     legend('Stream network','2 largest conn. components')
+%
+% See also: STREAMobj/modify, STREAMobj/conncomps
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. January, 2013
+% Date: 12. October, 2017
 
 
 % check input arguments
 narginchk(1,2)
-if nargin == 1;
+if nargin == 1
     k = 1;
 else
     validateattributes(k,{'numeric'},{'scalar','integer','>',0},'klargestconncomps','k',2);
@@ -54,26 +66,11 @@ if k>nc
     warning('TopoToolbox:STREAMobj',...
             ['There are only ' num2str(nc) ' connected components in the stream network']);
 end
-for tt = dd(1:min(nc,k)); %1:min(nc,k);
+
+k = min(nc,k);
+for tt = dd(1:k) 
     L(p(r(tt):r(tt+1)-1)) = tt;
 end
 
-% adapt new STREAMobj to the reduced network
-L = L>0;
-I = L(S.ix);
-S.ix = S.ix(I);
-S.ixc = S.ixc(I);
-
-IX = cumsum(L);
-% IX([L(1); diff(IX)==0]) = 0;
-S.ix  = IX(S.ix);
-S.ixc = IX(S.ixc);
-
-% II = S.ixc == 0;
-% S.ix(II) = [];
-% S.ixc(II) = [];
-
-S.x = S.x(L);
-S.y = S.y(L);
-S.IXgrid = S.IXgrid(L);
+S = subgraph(S,L>0);
 

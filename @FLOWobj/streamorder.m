@@ -1,7 +1,6 @@
 function OUT = streamorder(FD,WW,type)
 
-
-% calculate Strahler Stream Order Grid from FLOWobj
+%STREAMORDER calculates a stream order GRIDobj from FLOWobj
 %
 % Syntax
 %

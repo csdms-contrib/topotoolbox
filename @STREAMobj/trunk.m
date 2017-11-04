@@ -1,6 +1,6 @@
 function S = trunk(S)
 
-% extract trunk stream (longest stream) 
+%TRUNK extract trunk stream (longest stream) 
 %
 % Syntax
 %
@@ -24,26 +24,32 @@ function S = trunk(S)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     St = trunk(S);
+%     plot(S)
+%     hold on
+%     plot(St)
+%     legend('Stream network','Trunk rivers')
+%
 %
 % See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps
 %  
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. May, 2013
+% Date: 17. August, 2017
+
 
 narginchk(1,1);
+
 % downstream distance
 nrc = numel(S.x);
-dds = zeros(nrc,1);
-% intercell distance
-dx  = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2);
-for r = 1:numel(S.ix);
-    dds(S.ixc(r)) = max(dds(S.ixc(r)),dds(S.ix(r))+dx(r));
-end
+dds = distance(S,'max_from_ch');
 
-D = sparse(double(S.ix),double(S.ixc),dds(S.ix)+1,nrc,nrc);
-OUTLET = any(D,1)' & ~any(D,2);
+D        = sparse(double(S.ix),double(S.ixc),dds(S.ix)+1,nrc,nrc);
+OUTLET   = any(D,1)' & ~any(D,2);
 [~,Imax] = max(D,[],1);
-II = false(nrc,1);
+II       = false(nrc,1);
 II(Imax) = true;
 
 I = false(nrc,1);
@@ -65,6 +71,3 @@ S.ixc = IX(S.ixc);
 S.x   = S.x(L);
 S.y   = S.y(L);
 S.IXgrid   = S.IXgrid(L);
-
-
-    

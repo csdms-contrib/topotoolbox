@@ -1,6 +1,6 @@
 function DZ = vertdistance2stream(FD,S,DEM)
 
-% vertical distance to streams
+%VERTDISTANCE2STREAM vertical distance to streams
 %
 % Syntax
 %

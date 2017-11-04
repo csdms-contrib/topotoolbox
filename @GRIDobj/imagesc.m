@@ -1,6 +1,6 @@
 function h = imagesc(DEM,varargin)
 
-% Scale data in GRIDobj and display as image object
+%IMAGESC Scale data in GRIDobj and display as image object
 %
 % Syntax
 %

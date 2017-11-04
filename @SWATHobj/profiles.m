@@ -1,5 +1,5 @@
 function [d,z,varargout] = profiles(SW,varargin)
-% PROFILES obtains profiles from a SWATHobj at distinct positions
+% PROFILES obtain profiles from a SWATHobj
 %
 % Syntax
 %
@@ -10,7 +10,7 @@ function [d,z,varargout] = profiles(SW,varargin)
 %
 % Description
 %
-%     Profiles is used to samples profiles from a SWATHobj in either the
+%     Profiles is used to sample profiles from a SWATHobj in either the
 %     along- or across-track direction
 %
 %
@@ -27,6 +27,9 @@ function [d,z,varargout] = profiles(SW,varargin)
 %       'step'      scalar {width of SWATHobj}
 %           specifies the step between the profiles in map units.
 %       
+%       'format'    {'vec'},'mat'
+%           specifies the output format as either a vector (vec) or a
+%           matrix (mat)
 %
 % Output
 %
@@ -45,16 +48,21 @@ function [d,z,varargout] = profiles(SW,varargin)
 %     S = trunk(klargestconncomps(S,1));
 %     [x,y] = STREAMobj2XY(S);
 %     ix = ~isnan(x);
-%     SW = SWATHobj(DEM,x(ix),y(ix),'width',3e3,'smooth',200);
+%     SW = SWATHobj(DEM,x(ix),y(ix),'width',3e3,'smooth',2000);
 %     [d,z,x,y] = profiles(SW,'dist','x','step',5e3);
 %     figure,plot(SW), hold on, plot(x,y,'k--'), hold off
+%     h = gca; legstr = h.Legend.String;
+%     legstr{4} = 'Transverse profile';
+%     h.Legend.String = legstr;
 %     figure,plot(d,z)
-%
+%     % to get colored lines, use format=mat
+%     [d,z] = profiles(SW,'dist','x','step',5e3,'format','mat');
+%     figure,plot(d,z)
 %
 % See also: SWATHobj
 %
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
-% Date: March, 2016
+% Date: August, 2018
 
 
 
@@ -65,6 +73,7 @@ p.FunctionName = 'profiles';
 addRequired(p,'SW',@(x) isa(x,'SWATHobj'));
 addParamValue(p,'dist','x',@(x) validatestring(x,{'x','y'}))
 addParamValue(p,'step',SW.width,@(x) isnumeric(x))
+addParamValue(p,'format','vec',@(x) ismember(x,{'vec','mat'}))
 parse(p,SW,varargin{:});
 
 Z = SW.Z;
@@ -104,6 +113,15 @@ if nargout>2
     varargout{1} = cell2mat(xcoord);
     varargout{2} = cell2mat(ycoord);
 end
+
+
+if strcmp(p.Results.format,'mat')
+    xdata = {xdata{1}'};
+    for i = 1 : length(ydata)
+        ydata{i} = ydata{i}';
+    end
+end
+
 
 d = cell2mat(xdata);
 z = cell2mat(ydata);

@@ -1,6 +1,6 @@
 function DEM = fillsinks(DEM,maxdepth)
 
-% fill/remove pits, sinks or topographic depressions
+%FILLSINKS fill/remove pits, sinks or topographic depressions
 %
 % Syntax
 %

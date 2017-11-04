@@ -1,6 +1,6 @@
 function DEM = acv(DEM)
 
-% Anisotropic coefficient of variation (ACV) 
+%ACV Anisotropic coefficient of variation (ACV) 
 %
 % Syntax
 %
@@ -8,7 +8,9 @@ function DEM = acv(DEM)
 %
 % Description
 % 
-%     Anisotropic coefficient of variation
+%     The anisotropic coefficient of variation describes the general
+%     geometry of the local land surface and can be used to distinguish
+%     elongated from oval landforms.
 %
 % Input
 %
@@ -20,6 +22,10 @@ function DEM = acv(DEM)
 %
 % Example
 %
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     A = acv(DEM);
+%     imageschs(DEM,A)
+%
 % References
 %
 %     Olaya, V. 2009: Basic land-surface parameters. In: Geomorphometry. 
@@ -29,7 +35,7 @@ function DEM = acv(DEM)
 % See also: CONV2, FILTER2, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 26. January, 2013
+% Date: 17. August, 2017
 
 DEM.Z = acvfun(DEM.Z);
 DEM.name = 'ACV';

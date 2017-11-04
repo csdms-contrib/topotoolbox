@@ -1,6 +1,6 @@
 classdef STREAMobj
     
-% Create stream object (STREAMobj)
+%STREAMobj Create stream object (STREAMobj)
 %
 % Syntax
 %
@@ -23,11 +23,13 @@ classdef STREAMobj
 %
 % Parameter name/value pairs
 %
-%     minarea    upslope area threshold for channel initiation (default =
-%                1000)
-%     unit       'pixels' (default), 'mapunits'. If you choose mapunits 
-%                provide minimum area in mapunits^2 (e.g. 1e6 m^2)
-%     outlets    linear indices of drainage basin outlets (default = [])
+%     minarea      upslope area threshold for channel initiation (default =
+%                  1000)
+%     unit         'pixels' (default), 'mapunits'. If you choose mapunits 
+%                  provide minimum area in mapunits^2 (e.g. 1e6 m^2)
+%     outlets      linear indices of drainage basin outlets (default = [])
+%     channelheads linear indices of channelheads (this argument can only
+%                  be used when no other parameters are set).
 %
 % Output arguments
 %
@@ -72,6 +74,9 @@ methods
     function S = STREAMobj(FD,varargin)
         
         narginchk(2,inf)
+        if ismulti(FD,true);
+            error('TopoToolbox:STREAMobj','STREAMobj supports only single flow directions');
+        end
         
         if nargin == 2;
             % Two input arguments: FD, W
@@ -91,19 +96,24 @@ methods
             addParamValue(p,'unit','pixels',@(x) ischar(validatestring(x, ...
                             {'pixels', 'mapunits'}))); 
             addParamValue(p,'outlets',[],@(x) isnumeric(x));
+            addParamValue(p,'channelheads',[],@(x) isnumeric(x));
             
             parse(p,FD,varargin{:});
             % required
-            unit = validatestring(p.Results.unit,{'pixels', 'mapunits'});
-            IX   = p.Results.outlets;
+            unit    = validatestring(p.Results.unit,{'pixels', 'mapunits'});
+            IX      = p.Results.outlets;
             minarea = p.Results.minarea;
+            channelheads = p.Results.channelheads;
+            
             
             switch unit
                 case 'mapunits';
                     minarea = minarea/(FD.cellsize.^2);
             end
             
-            if ~isempty(IX)
+            if ~isempty(channelheads);
+                W = influencemap(FD,channelheads);
+            elseif ~isempty(IX) && isempty(channelheads)
                 W = drainagebasins(FD,IX)>0 & flowacc(FD)>minarea;
             else
                 W = flowacc(FD)>=minarea;
@@ -205,8 +215,256 @@ methods
         
         order = order(:);
     end
+    
+    function S = subgraph(S,nal)
+    %SUBGRAPH extract part of the stream network
+    % 
+    % Syntax
+    %
+    %     Snew = subgraph(S,nal)
+    %
+    % Description
+    %
+    %     subgraph takes a logical node-attribute list (nal) and extracts  
+    %     the nodes in the stream network where elements in nal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     nal     logical node-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     d = S.distance;
+    %     nal = d>10000 & d<30000;
+    %     Sn = subgraph(S,nal);
+    %     plot(S)
+    %     hold on
+    %     plot(Sn)
+    %     hold off
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify,
+    %           STREAMobj/rmnode
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmnode';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
+    parse(p,S,nal);
+    
+    I = nal(S.ix) & nal(S.ixc);
 
+    S.ix  = S.ix(I);
+    S.ixc = S.ixc(I);
 
+    IX    = cumsum(nal);
+
+    S.ix  = IX(S.ix);
+    S.ixc = IX(S.ixc);
+
+    S.x   = S.x(nal);
+    S.y   = S.y(nal);
+    S.IXgrid   = S.IXgrid(nal);
+     
+    end
+    
+    function S = rmnode(S,nal)
+    %RMNODE remove nodes in a stream network
+    % 
+    % Syntax
+    %
+    %     Snew = rmnode(S,nal)
+    %
+    % Description
+    %
+    %     rmnode takes a logical node-attribute list (nal) and removes the 
+    %     nodes in the stream network where elements in nal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     nal     logical node-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     d = S.distance;
+    %     nal = d>10000 & d<30000;
+    %     Sn = rmnode(S,~nal);
+    %     plot(S)
+    %     hold on
+    %     plot(Sn)
+    %     hold off
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify,
+    %           STREAMobj/subgraph
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017    
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmnode';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
+    parse(p,S,nal);
+    S = subgraph(S,~nal);
+    
+    end
+        
+    function S = rmedge(S,eal)
+    %RMEDGE remove edges in a stream network
+    % 
+    % Syntax
+    %
+    %     Snew = rmedge(S,eal)
+    %
+    % Description
+    %
+    %     RMEDGE takes a logical edge-attribute list (eal) and removes the 
+    %     edges in the stream network where elements in eal are true.
+    %
+    % Input arguments
+    %
+    %     S       STREAMobj
+    %     eal     logical edge-attribute list
+    %
+    % Output arguments
+    %
+    %     Snew    STREAMobj
+    %
+    % Example: Plot the stream network without zero gradient sections
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);    
+    %     z = imposemin(S,getnal(S,DEM));
+    %     I = (z(S.ix)-z(S.ixc)) == 0;
+    %     Snew = rmedge(S,I);
+    %     plot(Snew)
+    %
+    % See also: STREAMobj, STREAMobj/getnal, STREAMobj/modify
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 26. September, 2017
+    
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/rmedge';
+    addRequired(p,'S',@(x) isa(x,'STREAMobj'));
+    addRequired(p,'eal',@(x) isequal(size(x),size(S.ix)) && islogical(x)); %#ok<CPROPLC>
+    parse(p,S,eal);
+    
+    eal   = ~eal;
+    
+    S.ix  = S.ix(eal);
+    S.ixc = S.ixc(eal);
+    
+    nal   = false(numel(S.IXgrid),1);
+    nal(S.ix)  = true;
+    nal(S.ixc) = true;
+
+    IX    = cumsum(nal);
+
+    S.ix  = IX(S.ix);
+    S.ixc = IX(S.ixc);
+
+    S.x   = S.x(nal);
+    S.y   = S.y(nal);
+    S.IXgrid   = S.IXgrid(nal);
+     
+    end
+    
+    function tf = issubgraph(S,FD)
+    %ISSUBGRAPH tests if stream network is a subgraph of another stream or flow network
+    %
+    % Syntax
+    %
+    %     tf = issubgraph(S,FD)
+    %     tf = issubgraph(S,S2)
+    %
+    % Description
+    % 
+    %     ISSUBGRAPH tests if a stream network S is a subgraph of the flow
+    %     network in FD or another stream network in S2.
+    %
+    % Input arguments
+    %
+    %     S     STREAMobj
+    %     FD    FLOWobj
+    %     S2    STREAMobj
+    %
+    % Output arguments
+    %
+    %     tf    true or false scalar
+    %
+    % Example
+    %
+    %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+    %     FD = FLOWobj(DEM,'preprocess','carve');
+    %     S = STREAMobj(FD,'minarea',1000);
+    %     S2 = klargestconncomps(S);
+    %     % is S a subgraph of FD -> yes
+    %     issubgraph(S2,FD)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        1
+    % 
+    %     % is S a subgraph of S2 -> no
+    %     issubgraph(S,S2)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        0
+    % 
+    %     % is S2 a subgraph of S -> yes
+    %     issubgraph(S2,S)
+    % 
+    %     ans =
+    % 
+    %       logical
+    % 
+    %        1
+    % 
+    % 
+    % See also: STREAMobj/modify, STREAMobj/conncomps
+    % 
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 12. October, 2017
+    
+    
+    n  = prod(S.size);
+    M  = sparse(S.IXgrid(S.ix),S.IXgrid(S.ixc),true,n,n);
+    if isa(FD,'STREAMobj')
+        S2 = FD;
+        M2 = sparse(S2.IXgrid(S2.ix),S2.IXgrid(S2.ixc),true,n,n);
+        
+        
+    elseif isa(FD,'FLOWobj')
+        M2 = FLOWobj2M(FD);
+        M2 = M2>0;
+    end
+    tf = isequal(M2,M2|M);
+    end
 end
 end
     

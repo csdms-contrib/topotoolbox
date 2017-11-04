@@ -25,6 +25,11 @@ function Z= funerosion_TVD(p,Z,dt,A,i,k,dx_ik,kk,ii,dx_centered,upl)
 %       k         receiver, derivedfrom the flow direction FD.ixc where
 %                 ixc is an edge attribute and represetns topologically
 %                 sorted nodes (receivers) dx_ik horizontal distance
+%       dx_ik     distance between giver and receiver 
+%       kk        Receiver of receiver 
+%       ii        Giver of giver 
+%       dx_centered distance between giver of giver and receiver
+%       upl       Uplift rate (m/yr)
 %
 % Output
 %

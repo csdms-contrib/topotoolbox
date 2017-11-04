@@ -1,6 +1,6 @@
 function varargout = randlocs(S,n,wr)
 
-% Random locations along the stream network
+%RANDLOCS Random locations along the stream network
 %
 % Syntax
 %

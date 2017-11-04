@@ -106,8 +106,10 @@ methods
             guilayout(this_app) % create graphical user interface
             
             hold on
-            h = plotobject(this_app,this_app.S,'k');
-            set(h,'Displayname','Base STREAMobj','visible','off');
+            if not(isempty(this_app.S))
+                h = plotobject(this_app,this_app.S,'k');
+                set(h,'Displayname','Base STREAMobj','visible','off');
+            end
             
             classes = this_app.objects.classes;
             for i = 1 : length(classes)

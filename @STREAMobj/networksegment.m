@@ -1,6 +1,6 @@
 function segment = networksegment(S,FD,DEM,A,mnratio)
 
-% Identify river segments and compute segment geometry
+%NETWORKSEGMENT Identify river segments and compute segment geometry
 %
 % Syntax
 %
@@ -51,7 +51,7 @@ function segment = networksegment(S,FD,DEM,A,mnratio)
 %     A  = flowacc(FD);
 %     S = STREAMobj(FD,'minarea',1000);
 %     segment = networksegment(S,FD,DEM,A,0.39);
-%     plotsegmentgeometry(
+%     plotsegmentgeometry(segment)
 %
 % 
 % See also: STREAMobj, FLOWobj, streampoi, flowdistance, drainagebasins,

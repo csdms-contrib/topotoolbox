@@ -1,11 +1,13 @@
 function DEM = imposemin(S,DEM,sl)
 
-% minima imposition (carving) along stream network
+%IMPOSEMIN minima imposition (carving) along stream network
 %
 % Syntax
 %
 %     DEMc = imposemin(S,DEM)
 %     DEMc = imposemin(S,DEM,sl)
+%     zc   = imposemin(S,z)
+%     zc   = imposemin(S,z,sl)
 %
 % Description
 %
@@ -31,37 +33,62 @@ function DEM = imposemin(S,DEM,sl)
 %
 %     S         stream object (FLOWObj)
 %     DEM       digital elevation model (GRIDobj)
+%     z         node attribute list of elevation values 
 %     sl        minimum gradient [m/m] in downward direction (e.g. 0.001)
 %
 % Output arguments
 %
 %     DEMc      carved DEM
+%     zc        node attribute list of elevation values
 %
-% 
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     S  = klargestconncomps(trunk(S));
+%     plotdz(S,DEM)
+%     hold on
+%     DEMc = imposemin(S,DEM);
+%     plotdz(S,DEMc)
 %
 % See also: FLOWobj/imposemin
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. June, 2014
+% Date: 17. August, 2017
 
 
 narginchk(2,3)
-validatealignment(S,DEM);
-dem = DEM.Z;
 
-if nargin == 2;    
-    for r = 1:numel(S.ix);
-        dem(S.IXgrid(S.ixc(r))) = min(dem(S.IXgrid(S.ix(r))),dem(S.IXgrid(S.ixc(r))));
-    end
+if isa(DEM,'GRIDobj')
+    inp = 'GRIDobj';
+    validatealignment(S,DEM);
+    z = getnal(S,DEM);
+elseif isnal(S,DEM);
+    inp = 'nal';
+    z = DEM;
+else
+    error('Imcompatible format of second input argument')
+end
     
+if nargin == 2;
+    for r = 1:numel(S.ix);
+        z(S.ixc(r)) = min(z(S.ix(r)),z(S.ixc(r)));
+    end    
 elseif nargin == 3;
+    
     d = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2); 
     d = d*sl;
     for r = 1:numel(S.ix);
-        dem(S.IXgrid(S.ixc(r))) = min(dem(S.IXgrid(S.ix(r)))-d(r),dem(S.IXgrid(S.ixc(r))));
+        z(S.ixc(r)) = min(z(S.ix(r))-d(r),z(S.ixc(r)));
     end
 end
 
-DEM.Z = dem;
+switch inp
+    case 'GRIDobj'
+        DEM.Z(S.IXgrid) = z;
+    case 'nal'
+        DEM = z;
+end
 
 

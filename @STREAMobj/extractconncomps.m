@@ -1,101 +1,158 @@
-function S = extractconncomps(S,cc)
+function extractconncomps(S)
 
-% interactive stream network selection
+%EXTRACTCONNCOMPS interactive stream network selection
 %
 % Syntax
 %
-%     S2 = extractconncomps(S)
+%     extractconncomps(S)
 %
 % Description
 %
 %     extractconncomps displays a figure and plots the stream network S.
-%     Numbers at the stream outlets refer to single trees in the stream
-%     network and the user can choose which should be retained in the
-%     output STREAMobj S2 by entering the numbers in the dialog box.
+%     Here you can mouse-select individual connected components and export
+%     them to the workspace.
 %
 % Input arguments
 %
 %     S    instance of a STREAMobj
 %
-% Output arguments
+% Example
 %
-%     S2   instance of a STREAMobj
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S  = STREAMobj(FD,A>1000);
+%     extractconncomps(S)
 %
 % See also: STREAMobj/klargestconncomps
 %
-%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. February, 2013 
+% Date: 17. August, 2017 
 
-nrc = numel(S.x);
-M = sparse(double(S.ix),double(S.ixc),true,nrc,nrc);
 
-[~,p,~,r] = dmperm(M | M' | speye(nrc));
-nc = length(r) - 1;
+CS = STREAMobj2cell(S);
+fx = figure;
 
-% label matrix
-L = zeros(nrc,1);
-for tt = 1:nc;
-    L(p(r(tt):r(tt+1)-1)) = tt;
+% Create push button
+btn = uicontrol('Style', 'pushbutton', 'String', 'Export to workspace',...
+        'Position', [20 20 200 20],...
+        'Callback', @exporttoworkspace);    
+
+ax = axes('parent',fx);
+hold on
+nc = numel(CS);
+clr_nonsel = [.6 .6 .6];
+clr_sel    = [0 0 0];
+for r = 1:nc
+    h(r) = plot(CS{r},'color',clr_nonsel);
+    h(r).ButtonDownFcn = @highlight;
 end
-
-if nargin == 1;
-
-hFig = figure('Units','normalized','OuterPosition',[0 0 1 1]);
-hAx  = axes('Parent',hFig);
-cmap = jet(nc);
-
-for r = 1:nc;
-    M2 = spdiags(L==r,0,nrc,nrc)*double(M);
-    [x,y] = gplot(M2,[S.x S.y]);
-    outlet = find((sum(M2,1)' > 0) & (sum(M2,2) == 0));
-    
-    plot(hAx,x,y,'Color',cmap(r,:));
-    hold on
-    plot(hAx,S.x(outlet),S.y(outlet),'*','Color',cmap(r,:));
-    text(S.x(outlet),S.y(outlet),[' ' num2str(r)]);
-end
-
+box on
 axis image
-set(hAx,'Xtick',[],'Ytick',[]);
+title('Click network to select/unselect.')
 
-prompt = {'Enter comma separated list of component indices to extract:'};
 
-dlg_title = 'Extract connected components';
-num_lines = 1;
-options.Resize='on';
-answer = inputdlg(prompt,dlg_title,num_lines,{''},options);
 
-% evaluate answer
-c = regexp(answer,'(?:\d*)','match');
-c = str2double(c{1});
+function highlight(h,~)
+
+if isequal(h.Color,clr_nonsel)
+    h.Color = clr_sel;
 else
-    c = cc;
-    if c > nc;
-        error('TopoToolbox:wronginput','The supplied number exceeds the number of components');
-    end
+    h.Color = clr_nonsel;
+end
 end
 
-% adapt new STREAMobj to the reduced network
-L     = ismember(L,c);
-I     = L(S.ix);
-S.ix  = S.ix(I);
-S.ixc = S.ixc(I);
+function exporttoworkspace(hh,~)
 
-IX    = cumsum(L);
-S.ix  = IX(S.ix);
-S.ixc = IX(S.ixc);
+    I = false(nc,1);
+    for r2 = 1:numel(h);
+        I(r2) = isequal(h(r2).Color,clr_sel);
+    end
+    n = nnz(I);
+    if n==0
+        warndlg('No streams available for export.');
+        return
+    elseif n == 1
+        S2 = CS{I};
+    else
+        CSS = CS(I);
+        S2 = union(CSS{:});
+    end
 
-S.x   = S.x(L);
-S.y   = S.y(L);
-S.IXgrid   = S.IXgrid(L);
+    prompt = {'Enter variable name:'};
+    ptitle = 'Export';
+    plines = 1;
+    pdef = {'S'};
+    answer = inputdlg(prompt, ptitle, plines, pdef);
+    if ~isempty(answer) && isvarname(answer{1})
+        assignin('base',answer{1},S2);
+    else
+        return
+    end
+
+
+    end
+
+end
 
 
 
 
-
-
-    
-
-
-
+   
+% 
+% 
+% nrc = numel(S.x);
+% M = sparse(double(S.ix),double(S.ixc),true,nrc,nrc);
+% 
+% [L,nc] = conncomps(S);
+% 
+% 
+% if nargin == 1;
+% 
+% hFig = figure('Units','normalized','OuterPosition',[0 0 1 1]);
+% hAx  = axes('Parent',hFig);
+% cmap = jet(nc);
+% 
+% for r = 1:nc;
+%     M2 = spdiags(L==r,0,nrc,nrc)*double(M);
+%     [x,y] = gplot(M2,[S.x S.y]);
+%     outlet = find((sum(M2,1)' > 0) & (sum(M2,2) == 0));
+%     
+%     plot(hAx,x,y,'Color',cmap(r,:));
+%     hold on
+%     plot(hAx,S.x(outlet),S.y(outlet),'*','Color',cmap(r,:));
+%     text(S.x(outlet),S.y(outlet),[' ' num2str(r)]);
+% end
+% 
+% axis image
+% set(hAx,'Xtick',[],'Ytick',[]);
+% 
+% prompt = {'Enter comma separated list of component indices to extract:'};
+% 
+% dlg_title = 'Extract connected components';
+% num_lines = 1;
+% options.Resize='on';
+% answer = inputdlg(prompt,dlg_title,num_lines,{''},options);
+% 
+% % evaluate answer
+% c = regexp(answer,'(?:\d*)','match');
+% c = str2double(c{1});
+% else
+%     c = cc;
+%     if c > nc;
+%         error('TopoToolbox:wronginput','The supplied number exceeds the number of components');
+%     end
+% end
+% 
+% % adapt new STREAMobj to the reduced network
+% L     = ismember(L,c);
+% I     = L(S.ix);
+% S.ix  = S.ix(I);
+% S.ixc = S.ixc(I);
+% 
+% IX    = cumsum(L);
+% S.ix  = IX(S.ix);
+% S.ixc = IX(S.ixc);
+% 
+% S.x   = S.x(L);
+% S.y   = S.y(L);
+% S.IXgrid   = S.IXgrid(L);

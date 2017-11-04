@@ -1,6 +1,6 @@
 function h = plot3(S,DEM,varargin)
 
-% 3d-line plot of a STREAMobj
+%PLOT3 3d-line plot of a STREAMobj
 %
 % Syntax
 %
@@ -22,6 +22,14 @@ function h = plot3(S,DEM,varargin)
 % Output arguments
 %
 %     h      line handle
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S);
+%     plot3(S,DEM)
 %
 % See also: STREAMobj, STREAMobj/plot, STREAMobj/plot3d, STREAMobj/plotdz
 %

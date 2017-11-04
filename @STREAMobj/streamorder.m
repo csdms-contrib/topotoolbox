@@ -1,6 +1,6 @@
 function s = streamorder(S,type)
 
-% calculate Strahler Stream Order from STREAMobj
+%STREAMORDER calculate Strahler Stream Order from STREAMobj
 %
 % Syntax
 %
@@ -31,8 +31,13 @@ function s = streamorder(S,type)
 %     s         stream order for each node in STREAMobj
 %
 % Example
-%
-%
+%     
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     so = streamorder(S);
+%     plotc(S,so)
+%     colorbar
 % 
 % See also: STREAMobj, FLOWobj/streamorder, STREAMobj/plotstreamorder
 % 

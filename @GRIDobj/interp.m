@@ -1,6 +1,6 @@
 function zi = interp(DEM,xi,yi,method)
 
-% interpolate to query locations
+%INTERP interpolate to query locations
 %
 % Syntax
 %
@@ -9,7 +9,7 @@ function zi = interp(DEM,xi,yi,method)
 %
 % Description
 %
-%     interp uses the griddedInterpolant class to interpolate values in the
+%     INTERP uses the griddedInterpolant class to interpolate values in the
 %     instance of GRIDobj (DEM) to query locations at xi and yi. 
 %     If DEM.Z is an integer class, interp will convert it to single
 %     precision and use linear interpolation as default. If DEM.Z is
@@ -27,9 +27,18 @@ function zi = interp(DEM,xi,yi,method)
 %
 %     zi      interpolated values at query locations
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     [x,y] = getoutline(DEM);
+%     xy = rand(20,2);
+%     xy(:,1) = xy(:,1)*(max(x)-min(x)) + min(x);
+%     xy(:,2) = xy(:,2)*(max(y)-min(y)) + min(y);
+%     z = interp(DEM,xy(:,1),xy(:,2));
+%
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 28. January, 2013
+% Date: 17. August, 2017
 
 
 narginchk(3,4)
@@ -62,7 +71,7 @@ else
 end
 
 
-F     = griddedInterpolant({x,y},flipud(DEM.Z)',method);
+F     = griddedInterpolant({x,y},flipud(DEM.Z)',method); 
 
 % interpolate
 zi     = F(xi,yi);

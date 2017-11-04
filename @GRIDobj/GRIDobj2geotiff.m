@@ -1,32 +1,38 @@
 function GRIDobj2geotiff(A,file)
 
-% Exports an instance of GRIDobj to a geotiff file
+%GRIDobj2geotiff Exports an instance of GRIDobj to a geotiff file
 %
 % Syntax
-%
+%    
+%     GRIDobj2geotiff(DEM)
 %     GRIDobj2geotiff(DEM,filename)
 %
 % Description
 %
 %     GeoTIFF is a common image file format that stores coordinates and
-%     projection information to be read by common GIS software.
-%     GRIDobj2geotiff writes an instance of GRIDobj to a geoTIFF file. 
+%     projection information to be read by most GIS software.
+%     GRIDobj2geotiff writes an instance of GRIDobj to a GeoTIFF file. 
 %
 %     GRIDobj2geotiff requires the function geotiffwrite available with 
 %     the Mapping Toolbox. If geotiffwrite does not exist on the search
-%     path, the function will write a "normal" tif together with a
+%     path, the function will write a standard tif together with a
 %     '.tfw'-file (worldfile, http://en.wikipedia.org/wiki/World_file ) to
 %     the disk. 
+%
+%     GRIDobj2geotiff(DEM) opens a dialogue box to save the GeoTIFF
+%
+%     GRIDobj2geotiff(DEM,filename) saves the DEM to the specified 
+%     filename
 %
 % Input arguments
 %
 %     DEM        instance of GRIDobj
 %     filename   absolute or relative path and filename
 %
-% 
+% See also: GRIDobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 20. February, 2015
+% Date: 17. August, 2017
 
 narginchk(1,2)
 

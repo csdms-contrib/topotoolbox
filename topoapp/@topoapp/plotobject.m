@@ -23,9 +23,13 @@ elseif isa(objdata,'SWATHobj')
     x = reshape(x,numel(x),1);
     y = reshape(y,numel(y),1);
     h = plot(app.gui.hax,x,y,[color,'o'],'Markersize',2);
-else
+    
+elseif not(isempty(objdata))
     [y,x] = coord2sub(app.DEM,objdata.x,objdata.y);
     h = plot(app.gui.hax,x,y,'color',color);
     
+else
+    % do nothing
+    h = [];
 end
 end %

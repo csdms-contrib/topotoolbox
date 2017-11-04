@@ -1,6 +1,6 @@
 function stats = drainagebasinstats(FD,L,varargin)
 
-% Zonal statistics on drainage basins
+%DRAINAGEBASINSTATS zonal statistics on drainage basins
 % 
 % Syntax
 %
@@ -34,11 +34,20 @@ function stats = drainagebasinstats(FD,L,varargin)
 %
 %     stats     structure array with statistics
 %
+% Example: Plot the distribution of mean gradients upstream of channelheads
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     ix = streampoi(S,'channelheads','ix');
+%     G  = gradient8(DEM);
+%     stats = drainagebasinstats(FD,ix,'grad',G);
+%     histogram([stats.grad_mean])
 %
 % See also: FLOWobj, drainagebasins
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 9. January, 2015
+% Date: 17. August, 2017
 
 % check additional input grids
 narg = numel(varargin);
@@ -68,11 +77,16 @@ else
     nrlabels = numel(ix);
     l   = 1:nrlabels;
 end
-    
-h = waitbar(0,'please wait');
+
+wb = nrlabels > 2;
+if wb
+    h = waitbar(0,'please wait');
+end
 
 for r=1:nrlabels;
-    waitbar(r/nrlabels,h);
+    if wb
+        waitbar(r/nrlabels,h);
+    end
     switch inp
         case 'GRIDobj'
             I = L==l(r);
@@ -106,16 +120,20 @@ for r=1:nrlabels;
             end
     end
     
-    I = dependencemap(FD,I) & ~I;
+    I = dependencemap(FD,I);% & ~I;
     
     % In addition, optionally get outline
     stats(r).Geometry = 'Polygon';
     [~,X,Y] = GRIDobj2polygon(I);
     stats(r).X = X;
     stats(r).Y = Y;
-            
-    stats(r).label = l(r);
+    
+    % Some basic geometric values
+    stats(r).label = double(l(r));
     stats(r).upslopearea  = nnz(I.Z)*I.cellsize^2;
+    [xx,yy] = findcoord(I);
+    stats(r).Xcentr = mean(xx);
+    stats(r).Ycentr = mean(yy);
     
     if narg > 0
         for r2 = 1:narg;
@@ -145,15 +163,13 @@ for r=1:nrlabels;
             stats(r).([varargin{(r2-1)*2 +1} '_range']) = maxv-minv;
             stats(r).([varargin{(r2-1)*2 +1} '_kurtosis']) = kurtosis(v);
             stats(r).([varargin{(r2-1)*2 +1} '_skewness']) = skewness(v);
-            
-            
-            
+           
             
             end
         end
     end
 end
-
+if wb
 close(h);
-
+end
 

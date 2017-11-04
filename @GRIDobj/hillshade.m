@@ -1,6 +1,6 @@
 function OUT2 = hillshade(DEM,varargin)
 
-% create hillshading from a digital elevation model (GRIDobj)
+%HILLSHADE create hillshading from a digital elevation model (GRIDobj)
 %
 % Syntax
 %    
@@ -23,10 +23,15 @@ function OUT2 = hillshade(DEM,varargin)
 %
 % Parameter name/value pairs
 %
-%     azimuth        azimuth angle, (default=315)
-%     altitude       altitude angle, (default=60)
-%     exaggerate     elevation exaggeration (default=1). Increase to
-%                    pronounce elevation differences in flat terrain
+%     'azimuth'         azimuth angle, (default=315)
+%     'altitude'        altitude angle, (default=60)
+%     'exaggerate'      elevation exaggeration (default=1). Increase to
+%                       pronounce elevation differences in flat terrain
+%     'useblockproc'    true or {false}: use block processing 
+%                       (see function blockproc)
+%     'useparallel'     true or {false}: use parallel computing toolbox
+%     'blocksize'       blocksize for blockproc (default: 5000)
+%
 %
 % Output
 %
@@ -47,7 +52,7 @@ function OUT2 = hillshade(DEM,varargin)
 % See also: SURFNORM, IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 24. May, 2016
+% Date: 18. August, 2017
 
 
 
@@ -60,27 +65,32 @@ addParamValue(p,'azimuth',315,@(x) isscalar(x) && x>= 0 && x<=360);
 addParamValue(p,'altitude',60,@(x) isscalar(x) && x>= 0 && x<=90);
 addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
-addParamValue(p,'blocksize',5000);
+addParamValue(p,'blocksize',2000);
+addParamValue(p,'useblockproc',true,@(x) isscalar(x));
 parse(p,varargin{:});
 
 OUT     = DEM;
 OUT.Z   = [];
 
 cs      = DEM.cellsize;
+azimuth = p.Results.azimuth;
+altitude = p.Results.altitude;
+exaggerate = p.Results.exaggerate;
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(10001*10001);
+if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc;
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
-    
+    Z      = DEM.Z;
     % The anonymous function must be defined as a variable: see bug 1157095
-    fun   = @(x) hsfun(x,cs,p);
-    OUT.Z = blockproc(DEM.Z,blksiz,fun,...
+    fun   = @(x) hsfun(x,cs,azimuth,altitude,exaggerate);
+    HS = blockproc(Z,blksiz,fun,...
                 'BorderSize',[1 1],...
                 'padmethod',padval,...
                 'UseParallel',p.Results.useparallel);
+    OUT.Z = HS;
 else
-    OUT.Z = hsfun(DEM.Z,cs,p);
+    OUT.Z = hsfun(DEM.Z,cs,azimuth,altitude,exaggerate);
 end
 
 OUT.name = 'hillshade';
@@ -94,26 +104,26 @@ else
     OUT2 = OUT;
 end
 
-
+end
 %% Subfunction
-function H = hsfun(Z,cs,p)
+function H = hsfun(Z,cs,azimuth,altitude,exaggerate)
 
 if isstruct(Z)
     Z = Z.data;    
 end
 
 % correct azimuth so that angles go clockwise from top
-azid = p.Results.azimuth-90;
+azid = azimuth-90;
 
 % use radians
-altsource = p.Results.altitude/180*pi;
+altsource = altitude/180*pi;
 azisource = azid/180*pi;
 
 % calculate solar vector
 [sx,sy,sz] = sph2cart(azisource,altsource,1);
 
 % calculate surface normals
-[Nx,Ny,Nz] = surfnorm(Z/cs*p.Results.exaggerate);
+[Nx,Ny,Nz] = surfnorm(Z/cs*exaggerate);
 
 % calculate cos(angle)
 % H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
@@ -128,5 +138,4 @@ H = Nx*sx + Ny*sy + Nz*sz;
 % H = H-min(H(:));
 % H = H/max(H(:));
 
-end
 end

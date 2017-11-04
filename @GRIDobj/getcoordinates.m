@@ -1,6 +1,6 @@
 function [x,y] = getcoordinates(DEM)
 
-% get coordinate vectors of an instance of GRIDobj
+%GETCOORDINATES get coordinate vectors of an instance of GRIDobj
 %
 % Syntax
 %

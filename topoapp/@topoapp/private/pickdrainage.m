@@ -34,7 +34,7 @@ else % execute tool
                 htb = findobj('TooltipString','Pick drainage network');
                 set(htb,'Enable','on')
                 % change pointer appearance
-                enterFcn = @(figHandle, currentPoint) set(app.gui.hfig, 'Pointer','fullcrosshair');
+                enterFcn = @(figHandle, currentPoint) set(app.gui.hfig, 'Pointer','crosshair');
                 iptSetPointerBehavior(app.gui.himg,enterFcn);
                 iptPointerManager(app.gui.hfig);
                 set(app.gui.hfig,'WindowButtonDownFcn',{@PressLeftButton,app});

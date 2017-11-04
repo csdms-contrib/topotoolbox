@@ -1,5 +1,5 @@
 function FD = multi2single(FD)
-% converts multiple to single flow direction
+%MULTI2SINGLE converts multiple to single flow direction
 %
 % Syntax
 %
@@ -18,7 +18,7 @@ switch FD.type
     otherwise
         RR = (1:numel(FD.ix))';
         IX = double(FD.ix);
-        S  = sparse(IX,RR,FD.fraction,max(RR),max(IX));
+        S  = sparse(RR,IX,FD.fraction,max(RR),max(IX));
         [~,ii] = max(S,[],1);
         I  = false(size(RR));
         I(ii) = true;

@@ -1,10 +1,11 @@
 function [X,ix,txt,txtname] = GRIDobj2pm(varargin)
 
-% combine several GRIDobj into a predictor matrix
+%GRIDobj2pm combine several GRIDobj into a predictor matrix
 %
 % Syntax
 %
 %     [X,ix,txt,txtname] = GRIDobj2pm(A,B,C,...)
+%     [t,ix,txt,txtname] = GRIDobj2pm(A,B,C,...,'ds')
 %
 % Description
 %
@@ -43,20 +44,35 @@ function [X,ix,txt,txtname] = GRIDobj2pm(varargin)
 %     
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. March, 2016
+% Date: 17. August, 2017
 
 
+if ischar(varargin{end});
+    usetall = true;
+    nrgrids = nargin - 1;
+else
+    usetall = false;
+    X   = zeros(numel(varargin{1}.Z),nargin);
+    nrgrids = nargin;
+end
 
-X   = zeros(numel(varargin{1}.Z),nargin);
-txt = cell(1,nargin);
-txtname = cell(1,nargin);
-for r=1:numel(varargin)
+txt = cell(1,nrgrids);
+txtname = cell(1,nrgrids);
+for r=1:nrgrids
     
     if r>1
         validatealignment(varargin{r},varargin{1});
     end
     
-    X(:,r) = double(varargin{r}.Z(:));
+    if ~usetall
+        X(:,r) = double(varargin{r}.Z(:));
+    else
+        if r == 1
+            X = tall(double(varargin{r}.Z(:)));
+        else
+            X = [X, tall(double(varargin{r}.Z(:)))];
+        end
+    end
     txt{r} = inputname(r);
     txtname{r} = varargin{r}.name;
 end
@@ -65,4 +81,8 @@ I  = ~any(isnan(X),2);
 ix = (1:numel(varargin{1}.Z))';
 
 X  = X(I,:);
-ix = ix(I);
+if ~usetall
+    ix = ix(I);
+else
+    ix = ix(gather(I));
+end

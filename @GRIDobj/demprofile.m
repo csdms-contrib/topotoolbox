@@ -1,11 +1,12 @@
 function [dn,z,x,y] = demprofile(DEM,n,x,y)
 
-% get profile along path
+%DEMPROFILE get profile along path
 %
 % Syntax
 %
-%     [dn,z] = demprofile(DEM,n)
-%     [dn,z,x,y] = demprofile(DEM,n,x,y)
+%     [d,z] = demprofile(DEM)
+%     [d,z] = demprofile(DEM,n)
+%     [d,z,x,y] = demprofile(DEM,n,x,y)
 %
 % Description
 %
@@ -20,15 +21,14 @@ function [dn,z,x,y] = demprofile(DEM,n,x,y)
 %
 % Output arguments
 %
-%     dn     distance along profile
+%     d      distance along profile
 %     z      elevation values interpolated (linear) onto profile
 %     x,y    coordinate vectors of profile 
 % 
 % See also: GRIDobj/interp, GRIDobj/measure
 %
-%
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 1. November, 2013
+% Date: 17. August, 2017
 
 
 % interactive
@@ -52,6 +52,8 @@ if nargin <= 2;
     
 else
     if n ~= numel(x);
+        x = x(:);
+        y = y(:);
         do = getdistance(x,y);
         dn = linspace(0,do(end),n);
         dn = dn(:);
@@ -65,23 +67,13 @@ else
     end
 end
 
-z = interp(DEM,x,y);
+z = double(interp(DEM,x,y));
 
 end
     
 
 
 function cumdxy = getdistance(x,y)
-
-% cumulative distance along path defined by vertice coordinates
-%
-% Syntax
-%
-%      D = getdistance(x,y)
-%
-%
-% Author: Dirk Scherler (scherler[at]@caltech.edu)
-% Date: June 2013
     x = x(:);
     y = y(:);
 

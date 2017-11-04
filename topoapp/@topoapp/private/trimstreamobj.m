@@ -164,7 +164,7 @@ end %
             if isnan(v); 
                 set(hmd,'String','max'); 
             else
-                SObj = modify(SObj,'mindistance',v);
+                SObj = modify(SObj,'distance',v);
             end
         end
     end

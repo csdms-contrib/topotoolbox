@@ -1,11 +1,12 @@
 function GRIDobj2ascii(DEM,filename,type)
 
-% write/export GRIDobj to ESRI ArcGIS ASCII file
+%GRIDobj2ascii write/export GRIDobj to ESRI ArcGIS ASCII file
 % 
 % Syntax
 %     
 %     GRIDobj2ascii(DEM)
 %     GRIDobj2ascii(DEM,filename)
+%     GRIDobj2ascii(DEM,filename,ext)
 %
 % Description
 %
@@ -15,9 +16,20 @@ function GRIDobj2ascii(DEM,filename,type)
 %     input argument, GRIDobj2ascii will open a dialog box to save the
 %     file.
 %
+% Input arguments
+%
+%     DEM        GRIDobj
+%     filename   filename including extension (*.txt or *.asc)
+%     ext        extension if not used in filename ('.txt' or '.asc')
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     GRIDobj2ascii(DEM,'bigtujunga_ascii.txt');  
 % 
-% Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 15. March, 2009
+%
+% Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 17. August, 2017
 
 narginchk(1,3)
 

@@ -185,7 +185,7 @@ end
         paras.stepy = 500;
         paras.smooth = 0;
         paras.smoothvalue = 10;
-        paras.maxsmooth = 50;
+        paras.maxsmooth = 10000;
         paras.showoutline = 1;
         paras.showpoints = 0;
         paras.keepnodes = 0;
@@ -262,13 +262,6 @@ end
             
             hfig = gcf;
             busypointer(app,1)
-            if strcmp(classname,'STREAMobj');
-                XY = app.objects.(classname).data{ix};
-            else
-                x = app.objects.(classname).data{ix}.x;
-                y = app.objects.(classname).data{ix}.y;
-                XY = [x,y];
-            end
             
             % resample dx
             h = findobj(hfig,'String','Resample x (m)');
@@ -304,12 +297,25 @@ end
             if get(h,'Value'); keepdist = true; else keepdist = false; end
             
             % create SWATHobj
-            SW = SWATHobj(app.DEM,XY,'dx',dx,'dy',dy,'width',width,'gap',gap,...
-                'smooth',smooth,'keepnodes',keepnodes,'keepdist',keepdist,'plot',false);
+            if strcmp(classname,'STREAMobj');
+                S = app.objects.(classname).data{ix}; %%%
+                fprintf(1,'TOPOAPP: Swath mapping from STREAMobj only applied to trunk stream\n');
+                S = trunk(S);
+                SW = STREAMobj2SWATHobj(S,app.DEM,'dx',dx,'dy',dy,'width',...
+                    width,'gap',gap,'smooth',smooth,'smoothlongest',true,...
+                    'keepnodes',keepnodes,'keepdist',keepdist,'plot',false);
+            else
+                x = app.objects.(classname).data{ix}.x;
+                y = app.objects.(classname).data{ix}.y;
+                XY = [x,y];
+                SW = SWATHobj(app.DEM,XY,'dx',dx,'dy',dy,'width',width,...
+                    'gap',gap,'smooth',smooth,'smoothlongest',true,...
+                    'keepnodes',keepnodes,'keepdist',keepdist,'plot',false);
+            end
             
             % remove duplicates from mapping
             h = findobj(gcf,'String','Remove duplicates');
-            if get(h,'Value'); SW = tidyswath(SW); end
+            if get(h,'Value'); SW = tidy(SW); end
             
             % Plot swath in map-view
             % Left/right
@@ -325,14 +331,12 @@ end
             if get(h,'Value'), points=true; else points=false; end
             
             axes(app.gui.hax), hold on
-            SWt = SW;
-            for i = 1 : length(SWt.X)
-                SWt.X{i} = interp1(app.X,(1:app.DEM.size(2)),SWt.X{i});
-                SWt.Y{i} = interp1(app.Y,(1:app.DEM.size(1)),SWt.Y{i});
-            end
+            SW.X = interp1(app.X,(1:app.DEM.size(2)),SW.X);
+            SW.Y = interp1(app.Y,(1:app.DEM.size(1)),SW.Y);
+            
             h = findobj('Tag','TemporaryObject');
             try delete(h); end
-            h = plot(SWt,'outline',outline,'points',points,'left',left,'right',right,'legend',false); hold off
+            h = plot(SW,'outline',outline,'points',points,'left',left,'right',right,'legend',false); hold off
             set(h,'Tag','TemporaryObject')
             figure(hfig)
             busypointer(app,0)
@@ -411,7 +415,5 @@ end
         end
     end
     %------------------------------------------------------------
-
-
 
 end %

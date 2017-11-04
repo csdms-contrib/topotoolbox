@@ -1,6 +1,6 @@
 function k = curvature(S,varargin)
 
-% curvature or 2nd derivative of a STREAMobj
+%CURVATURE curvature or 2nd derivative of a STREAMobj
 %
 % Syntax
 %
@@ -41,15 +41,16 @@ function k = curvature(S,varargin)
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     S  = STREAMobj(FD,'minarea',1000);
 %     S  = klargestconncomps(S);
-%     y = smooth(S,S.y,'mingradient',nan,'k',10000,'nonstifftribs',true);
-%     x = smooth(S,S.x,'mingradient',nan,'k',10000,'nonstifftribs',true);
+%     y = smooth(S,S.y,'k',1000,'nstribs',true);
+%     x = smooth(S,S.x,'k',1000,'nstribs',true);
 %     k = curvature(S,x,y);
 %     plotc(S,k);
 %     caxis(repmat(min(abs(caxis)),1,2).*[-1 1])
+%     h = colorbar;
+%     h.Label.String = 'Curvature';
 %
 %
-%
-% See also: STREAMobj/gradient
+% See also: STREAMobj/gradient, STREAMobj/smooth
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 25. January, 2016

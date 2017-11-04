@@ -1,6 +1,6 @@
 function varargout = densify(S,spacing)
 
-% Increase number of vertices in stream network using splines
+%DENSIFY Increase number of vertices in stream network using splines
 %
 % Syntax
 %

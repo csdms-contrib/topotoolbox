@@ -1,6 +1,6 @@
 function DEM = elevateminima(DEM,maxarea)
 
-% elevate regional minima in a DEM to their lowest neighbor
+%ELEVATEMINIMA elevate regional minima in a DEM to their lowest neighbor
 %
 % Syntax
 %

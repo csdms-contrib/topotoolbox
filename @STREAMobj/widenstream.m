@@ -1,10 +1,11 @@
 function [DEM,MASK] = widenstream(S,DEM,varargin)
 
-% level elevations adjacent to the stream network
+%WIDENSTREAM level elevations adjacent to the stream network
 %
 % Syntax
 %
 %     DEMw = widenstream(S,DEM,nrpx)
+%     DEMw = widenstream(S,DEM,widthnal)
 %     DEMw = widenstream(S,DEM,xyw,method)
 %     [DEMw,MASK] = ...
 %
@@ -37,6 +38,8 @@ function [DEM,MASK] = widenstream(S,DEM,varargin)
 %     S        STREAMobj     
 %     DEM      Digital Elevation Model (GRIDobj)
 %     nrpx     number of pixels (half-widths)
+%     widthnal node-attribute list containing the width for each stream
+%              network node
 %     xyw      n-by-3 matrix with x and y coordinates and river width.
 %     method   interpolation method ('linear','spline',...). See interp1 
 %              for further options.
@@ -59,6 +62,7 @@ function [DEM,MASK] = widenstream(S,DEM,varargin)
 %     [x,y] = ind2coord(DEM,IX);
 %     xyw = [x y w];
 %     DEMw = widenstream(S,DEM,xyw,'linear');
+%     imageschs(DEMw)
 %
 %
 % See also: interp1, STREAMobj/imposemin 
@@ -76,6 +80,11 @@ I(S.IXgrid) = true;
 
 if numel(varargin) == 1 && isscalar(varargin{1});
     I = D<=varargin{1};
+elseif numel(varargin) == 1 && isnal(S,varargin{1});
+    distnal = varargin{1}/DEM.cellsize;
+    HG = zeros(DEM.size);
+    HG(S.IXgrid) = distnal;
+    I = HG(L) >= D;
 else
     if numel(streampoi(S,'Channelheads','ix')) > 1;
         error('TopoToolbox:widenstream',...
