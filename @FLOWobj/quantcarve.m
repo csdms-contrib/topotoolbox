@@ -59,16 +59,31 @@ validateattributes(tau,{'numeric'},{'>',0,'<',1},'FLOWobj/quantcarve','tau',3);
 % identify filled pixels
 I = fillsinks(DEM) > DEM;
 I = dilate(I,true(3)) & ~isnan(DEM);
+I = influencemap(FD,I);
+
+% I = GRIDobj(DEM,'logical');
+% I.Z(:,:) = true;
 
 % derive STREAMobj with channelheads upstream of filled pixels
-I = influencemap(FD,I);
-S = STREAMobj(FD,I);
+CFD = FLOWobj2cell(FD);
+hassinks   = cellfun(@(x) any(I.Z(x.ix)),CFD);
+CFD = CFD(hassinks);
 
-% provide some output
-disp(['The total number of nodes is ' num2str(numel(S.IXgrid))])
+nd = numel(CFD);
+CFD = CFD(randperm(nd));
+ndstring = num2str(nd);
+h  = waitbar(0,['Please wait... (0/' ndstring ')']);
 
-% quantile carving
-zs = quantcarve(S,DEM,tau,'split',2);
+for r = 1:nd
+    rstring = num2str(r);
+    waitbar(r/nd,h,['Calculate stream network (' rstring '/' ndstring ')']);
+    S = STREAMobj(CFD{r},I);
 
-% map values back to DEM
-DEM.Z(S.IXgrid) = cast(zs,class(DEM.Z));
+    % quantile carving
+    waitbar(r/nd,h,['Start quantile carving (nrnodes = ' num2str(numel(S.IXgrid))  ', ' rstring '/' ndstring ')']);
+    zs = quantcarve(S,DEM,tau,'split',0,'waitbar',false);
+    waitbar(r/nd,h,['Finished quantile carving (' rstring '/' ndstring ')']);
+    % map values back to DEM
+    DEM.Z(S.IXgrid) = cast(zs,class(DEM.Z));
+end
+close(h);

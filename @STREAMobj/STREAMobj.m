@@ -73,7 +73,12 @@ end
 methods 
     function S = STREAMobj(FD,varargin)
         
-        narginchk(2,inf)
+        narginchk(0,inf)
+        
+        if nargin == 0
+            return
+        end
+        
         if ismulti(FD,true);
             error('TopoToolbox:STREAMobj','STREAMobj supports only single flow directions');
         end
@@ -126,9 +131,13 @@ methods
             end
             
         end
-      
-        % conn comps in W.Z must be larger than 2 pixel
-        W.Z = bwareaopen(W.Z,2);
+        
+        % conn comps in W.Z must be larger than 2 pixel,
+        % thus, single pixel networks will be omitted.
+        Z = false(size(W.Z));
+        Z(FD.ix) = W.Z(FD.ix);
+        Z(FD.ixc) = W.Z(FD.ixc);
+        W.Z = Z;
 
         % transfer properties from FLOWobj to STREAMobj
         S.size     = FD.size;

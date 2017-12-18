@@ -1,4 +1,4 @@
-function C = aggregate(DEMhighres,DEMlowres,varargin)
+function C = aggregate(DEMhighres,DEMlowres,aggfun)
 
 %AGGREGATE resampling a GRIDobj using aggregation
 %
@@ -20,8 +20,8 @@ function C = aggregate(DEMhighres,DEMlowres,varargin)
 %     A         high resolution GRIDobj
 %     B         low resolution GRIDobj. A and B must have the same 
 %               coordinate system
-%     aggfun    anonymous function that defines how to aggregate values. 
-%               The default is @mean.
+%     aggfun    anonymous function that aggregate values. The function must
+%               take a vector and return a scalar. The default is @mean. 
 %
 % Output arguments
 %
