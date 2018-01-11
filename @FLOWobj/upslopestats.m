@@ -39,7 +39,7 @@ function OUT = upslopestats(FD,VAR,meth)
 %     network-index-based version of TOPMODEL for use with high-resolution 
 %     digital topographic data Hydrological Processes, 18, 191-201. 
 %
-% See also: FLOWDIR, FLOWACC
+% See also: FLOWobj, FLOWACC
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 4. March, 2016

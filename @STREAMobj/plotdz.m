@@ -142,7 +142,7 @@ type = validatestring(p.Results.type,{'plot','area','stairs','stairsarea'});
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     zz = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     zz = DEM;
 else
     error('Imcompatible format of second input argument')
@@ -156,10 +156,10 @@ end
 % get dynamic properties of S
 order    = S.orderednanlist;
 
-if isempty(p.Results.distance);
+if isempty(p.Results.distance)
     dist = S.distance;
 else
-    if isa(p.Results.distance,'STREAMobj');
+    if isa(p.Results.distance,'STREAMobj')
         dist = distance(S,p.Results.distance);
     elseif ischar(p.Results.distance)
         dist = S.distance;
@@ -170,7 +170,7 @@ else
 end
 
 
-switch lower(p.Results.dunit);
+switch lower(p.Results.dunit)
     case 'km'
         dist = dist/1000;
 end

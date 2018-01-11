@@ -1,5 +1,5 @@
 function h = plotdz(SW,varargin)
-% PLOTDZ creates distance-elevation plot of SWATHobj
+%PLOTDZ creates distance-elevation plot of SWATHobj
 %
 % Syntax
 %

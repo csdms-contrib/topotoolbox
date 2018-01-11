@@ -40,25 +40,24 @@ functions for topographic analysis. Environmental Modelling & Software,
 
 ## Getting started
 
-Before working with TopoToolbox the functions need to be on the search 
+Before working with TopoToolbox the directories and functions must be on the search 
 path of Matlab. Enter following code into the command line:
 
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\utilities
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\IOtools
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\GIStools
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\ttlem
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\colormaps
+        addpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2'))
 
-You may then either look at the user's guide to get an idea of how the 
-toolbox works or you may run some of the many examples in the help block
-of each function (help function). An additional resource for code and 
-examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
+Type `doc` in the command line to open the main documentation page. You'll 
+find the TopoToolbox documentation in the section Supplemental Software.  
+The documentation contains several user's guides that will help you 
+getting started. In addition, TopoToolbox functions have extensive help 
+sections (e.g. `help gradient8` or `help STREAMobj/modify`. An additional 
+resource for code and examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 
 ## Version History
+
+### 2.3
+
+- Documentation
 
 ### 2.2
 
