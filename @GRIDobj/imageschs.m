@@ -156,7 +156,7 @@ nargoutchk(0,1);
 
 % if A is not supplied to the function, coloring will be according to
 % values in DEM
-if nargin == 1 || (nargin>=2 && isempty(A));
+if nargin == 1 || (nargin>=2 && isempty(A))
     A = DEM;
 end
 

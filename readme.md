@@ -58,6 +58,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ### 2.3
 
 - Documentation
+- new function: ttcmap for creating nice colormaps for DEMs, inparticularly
+  if DEMs include topography and bathymetry
 
 ### 2.2
 

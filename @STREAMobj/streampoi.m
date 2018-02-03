@@ -26,6 +26,8 @@ function OUT = streampoi(S,type,outformat)
 %                       GRIDobj with the same dimension as the GRIDobj from
 %                       which S was derived.
 %                 'logical': node attribute list (logical)
+%                 'mappoint': mappoint (see function mapshape)
+%                 'geopoint': geopoint (see function geopoint)
 %
 % Output
 %
@@ -45,7 +47,7 @@ function OUT = streampoi(S,type,outformat)
 % See also: STREAMobj, FLOWobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 20. March, 2017
+% Date: 23. January, 2018
 
 
 %% check input arguments
@@ -59,7 +61,7 @@ else
         type = {type};
     end
     if nargin > 2
-        outformat = validatestring(outformat,{'xy','ix','logical'},'streampoi','outformat',3);
+        outformat = validatestring(outformat,{'xy','ix','logical','mappoint','geopoint'},'streampoi','outformat',3);
     else       
         outformat = 'xy';
     end  
@@ -117,4 +119,17 @@ switch outformat
     case 'logical'
         
         OUT  = full(V(:));
+        
+    case 'mappoint'
+        
+        ix   = find(V);
+        ix   = ix(:);
+        OUT  = mappoint(S.x(ix),S.y(ix));
+        
+    case 'geopoint'
+        
+        ix   = find(V);
+        ix   = ix(:);
+        [lat,lon] = minvtran(S.georef.mstruct,S.x(ix),S.y(ix));
+        OUT  = geopoint(lat,lon);
 end
