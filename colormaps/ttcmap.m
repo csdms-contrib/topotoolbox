@@ -6,7 +6,7 @@ function [cmap,zlimits] = ttcmap(zlimits,varargin)
 %     
 %     [cmap,zlimits] = ttcmap(zlimits)
 %     [cmap,zlimits] = ttcmap(DEM)
-%     [cmap,zlimits] = ttcmap(__,pn,pv,...)
+%     [cmap,zlimits] = ttcmap(...,pn,pv,...)
 %     ttcmap
 %     t = ttcmap
 %
@@ -44,6 +44,7 @@ function [cmap,zlimits] = ttcmap(zlimits,varargin)
 %
 %     cmap      n*3 colormap
 %     zlimits   adjusted elevation range 
+%     t         table with available colormaps and their elevation ranges
 %
 % Example
 %
@@ -55,6 +56,12 @@ function [cmap,zlimits] = ttcmap(zlimits,varargin)
 %     [clr,zlimits] = ttcmap(DEM,'cmap','gmtglobe');
 %     imageschs(DEM,DEM,'colormap',clr,'caxis',zlimits);
 %
+%     % If you want to plot with imagesc
+%     figure
+%     imagesc(DEM);
+%     colormap(clr)
+%     caxis(zlimits)
+%
 %
 % References: Colormaps available through ttcmap are obtained from 
 %     following website:
@@ -63,18 +70,19 @@ function [cmap,zlimits] = ttcmap(zlimits,varargin)
 % See also: IMAGESCHS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. January, 2018
+% Date: 5. February, 2018
 
-allowedcmaps = {'gmtrelief','france','mby','gmtglobe'};
+allowedcmaps = {'gmtrelief','france','mby','gmtglobe','etopo1'};
 if nargin == 0
-    Colormaps = allowedcmaps;
+    ncmaps = numel(allowedcmaps);
+    Min_Elevation = zeros(ncmaps,1);
+    Max_Elevation = zeros(ncmaps,1);
     for r = 1:numel(allowedcmaps)
         elev = getcolormap(allowedcmaps{r}); 
         Min_Elevation(r) = min(elev);
         Max_Elevation(r) = max(elev);
     end
-    Min_Elevation = Min_Elevation(:);
-    Max_Elevation = Max_Elevation(:);
+
     Colormap_Name = allowedcmaps(:);
     cmap = table(Colormap_Name,Min_Elevation,Max_Elevation);
     
@@ -112,13 +120,17 @@ elevmap = linspace(min(zlimits(:)),max(zlimits(:)),nr);
 % which of the entries is closest to zero
 if zlimits(1)<0 && zlimits(2)>0
     ix = find(elev==0);
-    switch lower(p.Results.zero)
-        case 'land'
-            elev = [elev(1:ix-1);elev(ix-1)./1000; elev(ix:end)];
-            clr  = [clr(1:ix-1,:);clr(ix-1,:); clr(ix:end,:)];
-        case 'water'
-            elev = [elev(1:ix);elev(ix)./1000; elev(ix+1:end)];
-            clr  = [clr(1:ix,:);clr(ix,:); clr(ix+1:end,:)];
+    
+    if ~isempty(ix)
+        
+        switch lower(p.Results.zero)
+            case 'land'
+                elev = [elev(1:ix-1);elev(ix-1)./1000; elev(ix:end)];
+                clr  = [clr(1:ix-1,:);clr(ix-1,:); clr(ix:end,:)];
+            case 'water'
+                elev = [elev(1:ix);elev(ix)./1000; elev(ix+1:end)];
+                clr  = [clr(1:ix,:);clr(ix,:); clr(ix+1:end,:)];
+        end
     end
             
     [~,ix] = min(abs(elevmap));
@@ -259,6 +271,51 @@ data = [...
 1800	130 30  30	
 2800	161 161 161	
 4000	206 206 206	];
+
+    case 'etopo1'
+data = ...
+[-11000	10	0	121
+-10500	26	0	137
+-10000	38	0	152
+-9500	27	3	166
+-9000	16	6	180
+-8500	5	9	193
+-8000	0	14	203
+-7500	0	22	210
+-7000	0	30	216
+-6500	0	39	223
+-6000	12	68	231
+-5500	26	102	240
+-5000	19	117	244
+-4500	14	133	249
+-4000	21	158	252
+-3500	30	178	255
+-3000	43	186	255
+-2500	55	193	255
+-2000	65	200	255
+-1500	79	210	255
+-1000	94	223	255
+-500	138	227	255
+0.00	51	102	0
+100	    51	204	102
+200	    187	228	146
+500	    255	220	185
+1000	243	202	137
+1500	230	184	88
+2000	217	166	39
+2500	168	154	31
+3000	164	144	25
+3500	162	134	19
+4000	159	123	13
+4500	156	113	7
+5000	153	102	0
+5500	162	89	89
+6000	178	118	118
+6500	183	147	147
+7000	194	176	176
+7500	204	204	204
+8000	229	229	229];
+
     otherwise
         error('unknown colormap');
 end
