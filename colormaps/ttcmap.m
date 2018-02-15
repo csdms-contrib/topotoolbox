@@ -34,11 +34,12 @@ function [cmap,zlimits] = ttcmap(zlimits,varargin)
 %    
 %     Parameter name/value pairs
 %
-%     'n'       number of colors (default = 255)
+%     'n'       number of colors (default = 255).
 %     'cmap'    colormap to be used. Default is 'gmtrelief'. For an overview
 %               of available colormaps call ttcmap with no input arguments
 %     'zero'    'land' or 'sea'. Determines whether the value zero will be
 %               displayed as 'land' (default) or as 'sea'.
+%     
 %     
 % Output arguments
 %
