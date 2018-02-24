@@ -52,7 +52,7 @@ defaultval = 0;
 defaultpx  = 1;
 addRequired(p,'DEM')
 addOptional(p,'px',defaultpx, @(x) isnumeric(x) && isscalar(x));
-addOptional(p,'val',defaultval,@(x) isnumeric(x) && isscalar(x));
+addOptional(p,'val',defaultval,@(x) isscalar(x));
 parse(p,DEM,varargin{:});
 
 px  = sign(p.Results.px)*ceil(abs(p.Results.px));

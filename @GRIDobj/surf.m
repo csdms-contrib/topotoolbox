@@ -115,10 +115,11 @@ shading interp
 
 if block 
     
-    if any(isnan(DEM));
+    if any(isnan(DEM))
         error('TopoToolbox:wronginput','DEM must not have NaNs')
     end
     facecolor  = [.6 .6 .6];
+    facecolordark = brighten(facecolor,-0.2);
     
     xp = x(:);
     xp = [xp(1); xp; xp(end:-1:1)];
@@ -140,13 +141,13 @@ if block
     zp = DEM.Z(:,1);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(3) = patch(xp,yp,zp,facecolor-0.1,'EdgeColor','none','FaceColor',facecolor-.1);
+    p(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
     xp = repmat(x(end),size(yp));
     zp = DEM.Z(:,end);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(4) = patch(xp,yp,zp,facecolor-0.1,'EdgeColor','none','FaceColor',facecolor-.1);
+    p(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
     set(p,'FaceLighting','none')
     
@@ -157,18 +158,7 @@ if block
     
     
     
-%     
-%     % plot patches on to specified depth
-%     B = bwboundaries(~isnan(DEM.Z));
-%     for r = 1:numel(B);
-%         [xb,yb] = sub2coord(DEM,B{r}(:,1),B{r}(:,2));
-%         zb = DEM.Z(sub2ind(DEM.size,B{r}(:,1),B{r}(:,2)));
-%         xb = [xb(1);xb; xb(end:-1:1)];
-%         yb = [yb(1);yb; yb(end:-1:1)];
-%         zb = [bottomelev;zb; zeros(numel(zb),1)+bottomelev];
-%         p  = patch(xb,yb,zb,zeros(size(zb)));
-%         set(p,'FaceColor',[0.7 0.7 0.7]);
-%     end
+
 end
         
 

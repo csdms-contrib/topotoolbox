@@ -61,26 +61,25 @@ function ttlem_out = ttlem(DEM,U,p,FD,varargin)
 %
 % References
 %
-% * TTLEM:
-% Campforts B., Schwanghart W., Govers G.: TTLEM 1.0 : a numerical package
-%           for accurate simulation of tansient landscape evolution in
-%           MATLAB. Discussion paper in GMD.
+% * TTLEM: Campforts B., Schwanghart W., Govers G. 2017: Accurate simulation
+%           of transient landscape evolution by eliminating numerical 
+%           diffusion: the TTLEM 1.0 model. Earth Surface Dynamics, 5, 
+%           47-66. doi:<a href="matlab:web('https://dx.doi.org/10.5194/esurf-5-47-2017')">10.5194/esurf-5-47-2017</a>
 %
-% * TopoToolbox: Schwanghart, W. and Scherler, D.: Short Communication:
-%           TopoToolbox 2 – MATLAB-based software for
-%           topographic analysis and modeling in Earth surface sciences,
-%           Earth Surf. Dyn., 2(1), 1–7,doi:10.5194/esurf-2-1-2014, 2014.
-%           <https://www.researchgate.net/publication/259706134_Short_Communication_TopoToolbox_2_-_MATLAB-based_software_for_topographic_analysis_and_modeling_in_Earth_surface_sciences>
+% * TopoToolbox: Schwanghart, W. and Scherler, D. 2014: Short Communication:
+%           TopoToolbox 2 – MATLAB-based software for topographic analysis
+%           and modeling in Earth surface sciences, Earth Surf. Dyn., 2(1),
+%           1–7. doi:<a href="matlab:web('https://dx.doi.org/10.5194/esurf-2-1-2014')">10.5194/esurf-2-1-2014</a>
 % 
-% * TVD-FVM: Campforts, B. and Govers, G.:
-%           Keeping the edge: A numerical method that avoids knickpoint
-%           smearing when solving the stream power law, J. Geophys. Res.
-%           Earth Surf., 120(7), 1189–1205, doi:10.1002/2014JF003376, 2015.
-%           <https://www.researchgate.net/publication/279957445_Campforts_and_Govers-2015-JGR_ES_Keeping_the_edge_SI>
+% * TVD-FVM: Campforts, B. and Govers, G. 2015: Keeping the edge: A numerical 
+%           method that avoids knickpoint smearing when solving the stream
+%           power law, J. Geophys. Res. Earth Surf., 120(7), 1189–1205.
+%           doi:<a href="matlab:web('https://dx.doi.org/10.1002/2014JF003376')">10.1002/2014JF003376</a>
 %
 % Authors:  Benjamin Campforts (benjamin.campforts[at]kuleuven.be)
 %           Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. June, 2016
+%
+% Date: 24. February, 2018
 
 %% Check time
 dt       = p.TimeStep;
@@ -95,13 +94,13 @@ if strcmp(p.diffScheme,'imp_nonlin_sc')
     if (tspan/nbSteps)<dt
         p.TimeStep=tspan/nbSteps;
         dt       = p.TimeStep;
-        disp(['Timestep is decreased to ' num2str(round(dt))...
-            ' yr in order to keep the non linear solution stable']);
+        warning('TopoToolbox:TTLEM',['Timestep is decreased to ' num2str(round(dt)) ' yr in order\n' ...
+                'to keep the non linear solution stable']);
     end
 end
 
 rr = rem(tspan,dt);
-if rr ~= 0;
+if rr ~= 0
     tspan = tspan + (dt-rem(tspan,dt));
     warning('TopoToolbox:TTLEM',...
         ['Total simulation time was increased from %.1f to %.1f \n' ...
@@ -132,22 +131,25 @@ H1  = H0;
 [X,Y] = meshgrid((1:siz(2))*dx,(1:siz(1))*dx);
 
 % Initial amount of water in each cell
-W   = DEM;
-W.Z = ones(W.size).*dx2;
 
 % Weights
-if ~isempty(p.NormPrecip)
-    W = W*p.NormPrecip;
+if isempty(p.Precip)
+    W   = DEM;
+    W.Z = ones(W.size).*dx2;
+else
+    W   = DEM;
+    W.Z = zeros(W.size);
+    W   = W+p.Precip.*dx2;
 end
 
 % variable drainage directions?
 switch lower(p.DrainDir)
-    case 'fixed';
+    case 'fixed'
         DrainDirVariable = false;
     otherwise
         DrainDirVariable = true;
 end
-if ~DrainDirVariable && exist('FD','var');
+if ~DrainDirVariable && exist('FD','var')
     if~isempty(FD)
         % flow direction
         i = FD.ix; %#ok<NASGU>
@@ -177,7 +179,7 @@ end
 switch lower(p.diffScheme)
     case {'imp_lin', 'imp_lin_sc'}
         % use Crank-Nicholson method for diffusion
-        if p.D>0;
+        if p.D>0
             % Identity Matrix
             EYE      = speye(nrc);
             % calculate laplacian
@@ -190,7 +192,10 @@ end
 %% Weight K
 if ~isempty(p.K_weight)
     if strcmp(p.diffScheme,'imp_nonlin_sc')
-        error('In case of Varying K_weight values, use a hillslope scheme different from imp_nonlin_sc in order to guarantee numerical stability');
+        error('TopoToolbox:TTLEM',...
+               ['In case of Varying K_weight values, use a hillslope \n' ...
+                'scheme different from imp_nonlin_sc in order to guarantee \n' ...
+                'numerical stability']);
     end
     p.Kw = p.Kw.*p.K_weight.Z;
 end
@@ -213,7 +218,12 @@ t        = 0;
 iter     = 0;
 
 %% River locations, needed for landsliding algorithm and diffusion
-[FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p,X,Y);
+if ~exist('FD','var')
+    [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p,X,Y);
+else
+    [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p,X,Y,FD);
+end
+
 rivLoc=C.Z(:);
 
 if p.steadyState
@@ -222,7 +232,7 @@ if p.steadyState
 end
 
 %% Run simulation
-while iter < nriter && ~get(hGUI.stopbutton,'value');
+while iter < nriter && ~get(hGUI.stopbutton,'value')
     %% Track time
     t = t + dt;
     iter = iter + 1;
@@ -233,7 +243,7 @@ while iter < nriter && ~get(hGUI.stopbutton,'value');
             updateDrainDir(H1,BORDER,W,p,X,Y);
         rivLoc=C.Z(:);
     end
-    if ~isempty(S);
+    if ~isempty(S)
         H1 = imposemin(S,H1); % Carving
     else
         H1 = imposemin(FD,H1);
@@ -288,7 +298,7 @@ while iter < nriter && ~get(hGUI.stopbutton,'value');
         H1.Z  = funerosion_implin(p,H1.Z,dt,A, i,k,dx_ik,uplRiv);
     elseif strcmp(p.riverInc,'implicit_FDM') && (p.n ~= 1)
         if p.parallel
-            if isempty(S);
+            if isempty(S)
                 H1.Z = funerosion_impnlin_par(p,H1.Z,dt, A, FD,uplRiv);
             else
                 H1.Z = funerosion_impnlin_par(p,H1.Z,dt, A, S,uplRiv);
@@ -329,17 +339,20 @@ while iter < nriter && ~get(hGUI.stopbutton,'value');
     
     %% Boundary conditions
     H1.Z=setBC(H1.Z,BC);
+    if strcmp(p.diffScheme,'imp_nonlin_sc') || ~p.DiffToRiv
+        H1.Z(rivLoc) = rivEl;
+    end
     if ~isempty(p.BC_dir_DistSites)
         H1.Z=BC_Disturbance(H1.Z,p.BC_dir_DistSites,BC);
     end
     
     %% Save
-    if mod(iter,p.saveeach)==0;
+    if mod(iter,p.saveeach)==0
         save([resultsdir p.fileprefix num2str(round(t)) '.mat'],'H1');
     end
     
     %% Plot
-    if mod(iter,p.ploteach)==0;
+    if mod(iter,p.ploteach)==0
         tspanstr = num2str(tspan);
         set(hGUI.hIm,'Cdata',H1.Z);
         set(hGUI.timedisp,'String',[num2str(round(t)) ' / ' tspanstr ' years (' num2str(t/tspan*100,'%3.1f') '%)'] );
