@@ -60,6 +60,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - Documentation
 - new function: ttcmap for creating nice colormaps for DEMs, inparticularly
   if DEMs include topography and bathymetry
+- new function: STREAMobj/zerobaselevel
+- new function: STREAMobj/knickpointfinder
 
 ### 2.2
 
