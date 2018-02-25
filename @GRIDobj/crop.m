@@ -100,20 +100,35 @@ elseif nargin >= 2;
             % interactive part
             try
             imagesc(DEM);
+            [xx,yy] = getcoordinates(DEM);
+            minx = min(xx) - 0.1*DEM.cellsize;
+            maxx = max(xx) + 0.1*DEM.cellsize;
+            miny = min(yy) - 0.1*DEM.cellsize;
+            maxy = max(yy) + 0.1*DEM.cellsize;
+            
             c = uicontrol('Style','Text','Units','normalized','position',[0 0 1 0.05],...
-                'String','Draw rectangle and double click when finished.');
-            h = imrect;
+                          'String','Draw rectangle and double click when finished.');
+            h = imrect(gca,[minx + (maxx-minx)*0.25 ...
+                            miny + (maxy-miny)*0.25 ...
+                            (maxx-minx)*0.5 ...
+                            (maxy-miny)*0.5]);
+
+            api = iptgetapi(h);
+            fcn = makeConstrainToRectFcn('imrect',[minx maxx],[miny maxy]);
+            api.setPositionConstraintFcn(fcn);
+            
             addNewPositionCallback(h,@(pos) set(c,'String',...
                 ['LX:' num2str(round(pos(1)),'%d') ', LY:' num2str(round(pos(2)),'%d') ...
                  ', UX:' num2str(round(pos(1)+pos(3)),'%d') ', UY:' num2str(round(pos(2)+pos(4)),'%d')]));
             [~] = wait(h);
             MASK  = createMask(h);
+            api.delete();
             delete(h)
             close
             catch ME
+                api.delete();
+                delete(h);
                 error('TopoToolbox:crop','output variable undefined')
-%                 warning('empty matrix returned')
-%                 DEMc = [];
                 return
             end
             
