@@ -55,9 +55,9 @@ function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p
 % flow direction
 if nargin == 6
     if p.FlowBC
-        FD = FLOWobj(H1+BORDER,'mex',true,'preprocess','carve');
+        FD = FLOWobj(H1+BORDER,'preprocess','carve');
     else
-        FD = FLOWobj(H1,'mex',true,'preprocess','carve');
+        FD = FLOWobj(H1,'preprocess','carve');
     end
 end
 % upslope area ^m
