@@ -37,7 +37,7 @@ function [DEMc,MASK] = crop(DEM,varargin)
 % See also: IND2SUB, GRIDobj/pad, GRIDobj/resample
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. September, 2017
+% Date: 7. March, 2018
 
 
 narginchk(1,3);
