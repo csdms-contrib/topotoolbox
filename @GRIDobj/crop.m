@@ -57,7 +57,7 @@ if nargin == 1;
         return
     end
     MASK = ~MASK;
-    MASK = bwperim(MASK);
+    % MASK = bwperim(MASK);
     IX  = find(MASK); 
      
 elseif nargin >= 2;
@@ -81,7 +81,7 @@ elseif nargin >= 2;
                 DEM.Z(~MASK) = varargin{2};
             end
         end
-        MASK = bwperim(MASK);
+        % MASK = bwperim(MASK);
         IX  = find(MASK);
     elseif nargin == 2;
         if isnumeric(varargin{1})
@@ -108,31 +108,25 @@ elseif nargin >= 2;
             
             c = uicontrol('Style','Text','Units','normalized','position',[0 0 1 0.05],...
                           'String','Draw rectangle and double click when finished.');
-            h = imrect(gca,[minx + (maxx-minx)*0.25 ...
-                            miny + (maxy-miny)*0.25 ...
-                            (maxx-minx)*0.5 ...
-                            (maxy-miny)*0.5]);
-
-            api = iptgetapi(h);
+            
             fcn = makeConstrainToRectFcn('imrect',[minx maxx],[miny maxy]);
-            api.setPositionConstraintFcn(fcn);
+            h = imrect(gca,'PositionConstraintFcn',fcn);
+            
             
             addNewPositionCallback(h,@(pos) set(c,'String',...
                 ['LX:' num2str(round(pos(1)),'%d') ', LY:' num2str(round(pos(2)),'%d') ...
                  ', UX:' num2str(round(pos(1)+pos(3)),'%d') ', UY:' num2str(round(pos(2)+pos(4)),'%d')]));
             [~] = wait(h);
             MASK  = createMask(h);
-            api.delete();
             delete(h)
             close
             catch ME
-                api.delete();
                 delete(h);
                 error('TopoToolbox:crop','output variable undefined')
                 return
             end
             
-            MASK  = bwperim(MASK);
+            % MASK  = bwperim(MASK);
             IX    = find(MASK);
         end
             
