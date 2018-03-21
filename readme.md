@@ -55,13 +55,14 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 ## Version History
 
-### 2.3
+### pre 2.3
 
 - Documentation
 - new function: ttcmap for creating nice colormaps for DEMs, inparticularly
   if DEMs include topography and bathymetry
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
+- new function: STREAMobj/sinuosity
 
 ### 2.2
 

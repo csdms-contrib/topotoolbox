@@ -116,13 +116,13 @@ parse(p,varargin{:});
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
 end
 
-if any(isnan(z));
+if any(isnan(z))
     error('DEM or z may not contain any NaNs')
 end
 
@@ -147,7 +147,7 @@ end
     
 % minimum imposition
 if p.Results.imposemin
-    if ~exist('zimp','var');
+    if ~exist('zimp','var')
         z = imposemin(S,z);
     else
         z = zimp;
@@ -227,7 +227,7 @@ val    = [2./((d(colix(:,2))-d(colix(:,1))).*(d(colix(:,3))-d(colix(:,1)))) ...
           2./((d(colix(:,3))-d(colix(:,2))).*(d(colix(:,3))-d(colix(:,1))))];
       
 % matrix for maximum curvature constraint      
-if ~isinf(p.Results.maxcurvature);
+if ~isinf(p.Results.maxcurvature)
     nrrows = size(colix,1);
     rowix  = repmat((1:nrrows)',1,3);
     Asdc   = sparse(rowix(:),colix(:),val(:),nrrows,nr);
@@ -277,11 +277,11 @@ else
     d = 1./(d(S.ix)-d(S.ixc));
     A = (sparse(S.ix,S.ixc,d,nr,nr)-sparse(S.ix,S.ix,d,nr,nr));
     e = zeros(nr,1);
-    if p.Results.mingradient ~= 0;
+    if p.Results.mingradient ~= 0
         e(S.ix) = -p.Results.mingradient;
     end
     
-    if ~isinf(p.Results.maxcurvature);
+    if ~isinf(p.Results.maxcurvature)
         A = [A;-Asdc];
         e = [e;repmat(p.Results.maxcurvature,size(Asdc,1),1)];
     end
@@ -307,7 +307,7 @@ else
         eeq = [];
     end
     
-    if ~isempty(p.Results.precisecoords);
+    if ~isempty(p.Results.precisecoords)
         % Settings to force profiles to run through a prescribed set of 
         % elevations
         [~,~,IXp] = snap2stream(S,...
@@ -324,7 +324,7 @@ else
         precise(inan) = 0;
         Aeqb = spdiags(precise,0,nr,nr);
         
-        if isempty(Aeq);
+        if isempty(Aeq)
             Aeq = Aeqb;
             eeq = eeqb;
         else
@@ -334,7 +334,7 @@ else
     end
     
     % solve
-    if verLessThan('optim','6.3');
+    if verLessThan('optim','6.3')
         options = optimset('Display','off','Algorithm','interior-point-convex');
     else
         options = optimoptions('quadprog','Display','off');
@@ -372,7 +372,7 @@ function [fs,s] = identifyflats(S,DEM,varargin)
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
@@ -381,8 +381,8 @@ end
 fs = false(size(S.IXgrid));
 s  = zeros(size(S.IXgrid));
 
-for r=1:numel(S.ix);
-    if z(S.ixc(r)) == z(S.ix(r));
+for r=1:numel(S.ix)
+    if z(S.ixc(r)) == z(S.ix(r))
 %         fs(S.ix(r)) = true;
         fs(S.ixc(r)) = true;
     elseif fs(S.ix(r)) && z(S.ixc(r))< z(S.ix(r))
