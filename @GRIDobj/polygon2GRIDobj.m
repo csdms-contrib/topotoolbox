@@ -41,10 +41,10 @@ function P = polygon2GRIDobj(DEM,MS,field)
 % See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. September, 2016
+% Date: 22. March, 2018
 
 
-if nargin == 2;
+if nargin == 2
     P = GRIDobj(DEM,'logical');
     writelogical = true;
     val = true;
@@ -59,19 +59,64 @@ end
 [X,Y] = getcoordinates(DEM);
 siz   = DEM.size;
 
+
+is_hole = false(size(MS));
+is_hole = is_hole(:);
+%which matlab version do we have
+if ~verLessThan('matlab','9.3')
+    [xx,yy]  = getoutline(DEM);
+    poutline = polyshape(xx,yy);
+    poutline = buffer(poutline,DEM.cellsize/4);
+    warning off
+    for r = 1:numel(MS)
+        psh = polyshape(MS(r).X,MS(r).Y);
+        psh = intersect(psh,poutline);
+        pshhole = holes(psh);
+        psh = rmholes(psh);
+        xy  = psh.Vertices;
+        MS(r).X = xy(:,1);
+        MS(r).Y = xy(:,2);
+        
+        for r2 = 1:numel(pshhole)
+            xy  = pshhole(r2).Vertices;
+            nrnew = numel(MS);
+            nrnew = nrnew + 1;
+            MS(nrnew).X = xy(:,1);
+            MS(nrnew).Y = xy(:,2);
+            is_hole = [is_hole; true];
+        end  
+    end
+    warning on
+end
+
+
 % loop through features of mapping structure MS
-for r = 1:numel(MS);
+for r = 1:numel(MS)
+    
     % get coordinates
     x = MS(r).X;
     y = MS(r).Y;
     I = isnan(x) | isnan(y);
     x(I) = [];
     y(I) = [];
+  
     
     % if the value of that attribute should be written to the grid, this
     % value is extracted here.
     if ~writelogical
-        val = single([MS(r).(field)]);
+        
+        if ~is_hole(r)
+            val = single([MS(r).(field)]);
+        else
+            val = single(0);
+        end
+    else
+        if is_hole(r) 
+            val = false;
+        else
+            val = true;
+        end
+        
     end
     
     % convert coordinates to rows and columns

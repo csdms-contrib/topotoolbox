@@ -40,9 +40,12 @@ parfor r = 1:nrfiles
     % mydoc{r} = publish(fullfile(files(r).folder,files(r).name),options);
     % Thanks to 
     % https://de.mathworks.com/matlabcentral/answers/282820-programmatically-run-and-export-live-script
-    % following undocumented approach workds
+    % following undocumented approach works
+    
+    % matlab.internal.liveeditor.executeAndSave(files(r).name);
     matlab.internal.liveeditor.openAndConvert(files(r).name, [fileloc filesep fn '.html']);
 end
 % close(h);
 % Reset working directory back to previous working directory
+builddocsearchdb(fileloc)
 cd(oldFolder);

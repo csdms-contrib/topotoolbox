@@ -1,4 +1,4 @@
-function OUT = upslopestats(FD,VAR,meth,S)
+function OUT = upslopestats(FD,VAR,meth,S,nal)
 
 %UPSLOPESTATS upslope statistics of a variable based on the flow direction matrix
 %
@@ -83,6 +83,7 @@ if nargin == 4
         FD.fraction = FD.fraction(I);
     end
 end
+    
 
 switch meth
     case {'mean','std','var'}
