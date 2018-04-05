@@ -68,7 +68,7 @@ addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
 addParamValue(p,'blocksize',2000);
 addParamValue(p,'useblockproc',true,@(x) isscalar(x));
-addParamValue(p,'method','surfnorm');
+addParamValue(p,'method','default');
 parse(p,varargin{:});
 
 OUT     = DEM;
@@ -78,10 +78,10 @@ cs      = DEM.cellsize;
 azimuth = p.Results.azimuth;
 altitude = p.Results.altitude;
 exaggerate = p.Results.exaggerate;
-method   = validatestring(p.Results.method,{'surfnorm','mdow'});
+method   = validatestring(p.Results.method,{'default','surfnorm','mdow'});
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc;
+if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     Z      = DEM.Z;
@@ -116,7 +116,7 @@ if isstruct(Z)
 end
 
 switch method
-    case 'surfnorm'
+    case {'default','surfnorm'}
 
         % correct azimuth so that angles go clockwise from top
         azid = azimuth-90;

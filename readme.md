@@ -63,6 +63,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
 - new function: STREAMobj/sinuosity
+- new function: GRIDobj/GRIDobj2im
 
 ### 2.2
 
