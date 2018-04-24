@@ -321,6 +321,7 @@ methods
                         % There is also a weights option, which is a
                         % GRIDobj with weights. But this is currently
                         % undocumented
+                        if isempty(weights)                            
                             D    = DEMF-DEM;
                         else
                             D    = -weights;

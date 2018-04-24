@@ -7,7 +7,6 @@ function DEM = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM)
 %     DEMfs = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM,sinks)
-%     DEMfs = fillsinks(DEM,sinks,usemax)
 %
 % Description
 %
