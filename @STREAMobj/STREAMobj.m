@@ -79,11 +79,11 @@ methods
             return
         end
         
-        if ismulti(FD,true);
+        if ismulti(FD,true)
             error('TopoToolbox:STREAMobj','STREAMobj supports only single flow directions');
         end
         
-        if nargin == 2;
+        if nargin == 2
             % Two input arguments: FD, W
             W = varargin{1};
             validatealignment(FD,W);
@@ -112,11 +112,11 @@ methods
             
             
             switch unit
-                case 'mapunits';
+                case 'mapunits'
                     minarea = minarea/(FD.cellsize.^2);
             end
             
-            if ~isempty(channelheads);
+            if ~isempty(channelheads)
                 W = influencemap(FD,channelheads);
             elseif ~isempty(IX) && isempty(channelheads)
                 W = drainagebasins(FD,IX)>0 & flowacc(FD)>minarea;
@@ -178,7 +178,7 @@ methods
     function distance = get.distance(S)
         % [dynamic property] distance from outlet
         distance = zeros(numel(S.x),1);
-        for r = numel(S.ix):-1:1;
+        for r = numel(S.ix):-1:1
             distance(S.ix(r)) = distance(S.ixc(r)) + ...
                 sqrt((S.x(S.ixc(r))-S.x(S.ix(r)))^2 + (S.y(S.ixc(r))-S.y(S.ix(r)))^2);
         end
@@ -187,16 +187,20 @@ methods
     function order = get.orderednanlist(S)
         % [dynamic property] orderednanlist returns a nan-separated vector 
         % with indices into the nodes of the STREAMobj (e.g. S.x, S.y, etc)
-        ixcix  = zeros(size(S.x));
-        ixcix(S.ix) = 1:numel(S.ix);
         
-        notvisited = true(size(S.ix));
+        nnal   = numel(S.x);
+        nedg   = numel(S.ix);
+        
+        ixcix  = zeros(nnal,1);
+        ixcix(S.ix) = 1:nedg;
+        
+        notvisited = true(nedg,1);
         row     = 1;
         counter = 1;
         
-        order = nan(size(S.ix));
+        order = nan(nedg,1);
         
-        while ~isempty(row);
+        while ~isempty(row)
             % initiate new stream
             order(counter)  = S.ix(row);
             % increase counter

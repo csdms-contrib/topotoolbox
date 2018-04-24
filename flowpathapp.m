@@ -61,7 +61,7 @@ function flowpathapp(FD,DEM,S)
 % Date: 5. April, 2018
 
 
-% include variable selection dialogue
+%% include variable selection dialogue
 if nargin == 0 
     VARS = uigetvariables({'DEM [GRIDobj]','Flow directions [FLOWobj]','Stream network [STREAMobj] (optional)'},...
         'ValidationFcn',{@(x) isa(x,'GRIDobj'),@(x) isa(x,'FLOWobj'),@(x) isa(x,'STREAMobj')});
@@ -74,16 +74,30 @@ if nargin == 0
     DEM  = VARS{1};
     FD   = VARS{2};
     if ~isempty(VARS{3})
+        % snap to streamnetwork
+        snp = true;
         S = VARS{3};
+    else
+        snp = false;
     end
     
     if isempty(DEM) || isempty(FD)
         error('TopoToolbox:flowpathapp','DEM and flow directions must be supplied')
     end
-    
+elseif nargin == 2
+    snp = false;
 end
 
+%% Check input arguments
+validatealignment(FD,DEM);
+if snp
+    validatealignment(S,DEM);
+    if ~issubgraph(S,FD)
+        error('The STREAMobj S must have been derived from the FLOWobj.')
+    end
+end
 
+%%
 
 % Default line color
 props.linecolor = 'k';
@@ -148,7 +162,7 @@ else
 end
 
 % show hillshade using imshow
-hIm = image(RGB,'parent',hAx);
+hIm = imagesc(RGB,'parent',hAx);
 % create an instance of imscrollpanel and use the API
 hPanel = imscrollpanel(hFig,hIm);
 api    = iptgetapi(hPanel);

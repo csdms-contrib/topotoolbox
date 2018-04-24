@@ -5,13 +5,12 @@ function P = polygon2GRIDobj(DEM,MS,field)
 % Syntax
 %
 %     P = polygon2GRIDobj(DEM,MS)
-%     P = polygon2GRIDobj(DEM,MS,pn,pv,...)
+%     P = polygon2GRIDobj(DEM,MS,field)
 %
 % Description
 %
-%     line2GRIDobj grids a polyline defined by a set of x and y
-%     coordinates. Note that points must lie inside the grid. Segments with
-%     one or two points outside the grid will not be drawn.
+%     polygon2GRIDobj maps polygons in the mapping structure MS to a 
+%     GRIDobj with the same extent and resolution as the GRIDobj DEM.
 %     
 % Input arguments
 %
@@ -34,20 +33,18 @@ function P = polygon2GRIDobj(DEM,MS,field)
 %     MS = GRIDobj2polygon(D);
 %     P = polygon2GRIDobj(D,MS,'ID');
 %
-% Note: In above example P will have a row of zeros on the top and column
-% of zeros on the left side of the grid. I have not yet resolved this
-% issue.
 %
-% See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates
+% See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates,
+%           GRIDobj/createmask, line2GRIDobj, GRIDobj2polygon
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 22. March, 2018
+% Date: 19. April, 2018
 
 
+% 2 or 3 input arguments?
 if nargin == 2
     P = GRIDobj(DEM,'logical');
     writelogical = true;
-    val = true;
     writeclass = @logical;
 else
     P = GRIDobj(DEM,'single');
@@ -59,10 +56,10 @@ end
 [X,Y] = getcoordinates(DEM);
 siz   = DEM.size;
 
-
 is_hole = false(size(MS));
 is_hole = is_hole(:);
-%which matlab version do we have
+
+%which matlab version do we have. If MATLAB 9,3
 if ~verLessThan('matlab','9.3')
     [xx,yy]  = getoutline(DEM);
     poutline = polyshape(xx,yy);
@@ -83,7 +80,7 @@ if ~verLessThan('matlab','9.3')
             nrnew = nrnew + 1;
             MS(nrnew).X = xy(:,1);
             MS(nrnew).Y = xy(:,2);
-            is_hole = [is_hole; true];
+            is_hole = [is_hole; true]; %#ok<AGROW>
         end  
     end
     warning on

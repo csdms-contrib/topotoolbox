@@ -42,12 +42,12 @@ function [DEMc,MASK] = crop(DEM,varargin)
 
 narginchk(1,3);
 
-if nargin == 1;
+if nargin == 1
     MASK = isnan(DEM.Z);
     
-    if ~any(MASK(:));
+    if ~any(MASK(:))
         DEMc = DEM;
-        if nargout == 2;
+        if nargout == 2
             MASK = DEM;
             MASK.Z = true(DEM.size);
             MASK.zunit = '';
@@ -60,8 +60,8 @@ if nargin == 1;
     % MASK = bwperim(MASK);
     IX  = find(MASK); 
      
-elseif nargin >= 2;
-    if isa(varargin{1},'GRIDobj') || isa(varargin{1},'logical');
+elseif nargin >= 2
+    if isa(varargin{1},'GRIDobj') || isa(varargin{1},'logical')
         % GRIDobj
         validatealignment(DEM,varargin{1});
         if isa(varargin{1},'GRIDobj')
@@ -83,16 +83,16 @@ elseif nargin >= 2;
         end
         % MASK = bwperim(MASK);
         IX  = find(MASK);
-    elseif nargin == 2;
+    elseif nargin == 2
         if isnumeric(varargin{1})
             % indices are supplied
             IX  = varargin{1};
-            if numel(IX) < 2;
+            if numel(IX) < 2
                 error('TopoToolbox:GRIDobj',...
                     'At least two indices are required to crop the grid.')
             end
             
-            if any(IX<1) || any(IX>prod(DEM.size));
+            if any(IX<1) || any(IX>prod(DEM.size))
                 error('TopoToolbox:GRIDobj',...
                     ['Index must range between 1 and ' num2str(prod(DEM.size)) '.'])
             end
