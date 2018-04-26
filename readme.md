@@ -64,6 +64,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/knickpointfinder
 - new function: STREAMobj/sinuosity
 - new function: GRIDobj/GRIDobj2im
+- new function: hydrosheds2FLOWobj (see in IOtools)
+
 
 ### 2.2
 
