@@ -7,6 +7,7 @@ function DEM = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM)
 %     DEMfs = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM,sinks)
+%     DEMfs = fillsinks(DEM,sinks,option)
 %
 % Description
 %
@@ -153,7 +154,7 @@ else
 end
 
 % nans in the dem are set to nan again
-try
+if isfloat(demfs)
     demfs(Inan) = nan;
 end
 DEM.Z = demfs;

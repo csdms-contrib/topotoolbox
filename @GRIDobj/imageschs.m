@@ -174,7 +174,7 @@ end
 
 %% Default values can be changed here
 % -----------------------------------
-defaultcolormap = 'jet';
+defaultcolormap = 'landcolor';
 defaulttruecolor = [0 1 0]; 
 defaultfalsecolor = [1 1 1]; 
 defaultnancolor = [1 1 1];
