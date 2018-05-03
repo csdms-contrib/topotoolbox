@@ -63,7 +63,7 @@ is_hole = is_hole(:);
 if ~verLessThan('matlab','9.3')
     [xx,yy]  = getoutline(DEM);
     poutline = polyshape(xx,yy);
-    poutline = buffer(poutline,DEM.cellsize/4);
+    poutline = polybuffer(poutline,DEM.cellsize/4);
     warning off
     for r = 1:numel(MS)
         psh = polyshape(MS(r).X,MS(r).Y);
