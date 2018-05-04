@@ -11,6 +11,11 @@ function P = polygon2GRIDobj(DEM,MS,field)
 %
 %     polygon2GRIDobj maps polygons in the mapping structure MS to a 
 %     GRIDobj with the same extent and resolution as the GRIDobj DEM.
+%
+%     Note that polygon2GRIDobj uses polyshape methods that have been
+%     released with MATLAB 2017b. The function runs for older versions,
+%     too, but may return different results if polygons in MS extend beyond
+%     the boundaries of DEM and contain holes.
 %     
 % Input arguments
 %
@@ -34,11 +39,14 @@ function P = polygon2GRIDobj(DEM,MS,field)
 %     P = polygon2GRIDobj(D,MS,'ID');
 %
 %
+% Note: This function has not yet been fully tested. Please report bugs.
+%
+%
 % See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates,
 %           GRIDobj/createmask, line2GRIDobj, GRIDobj2polygon
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. April, 2018
+% Date: 4. May, 2018
 
 
 % 2 or 3 input arguments?
@@ -56,8 +64,7 @@ end
 [X,Y] = getcoordinates(DEM);
 siz   = DEM.size;
 
-is_hole = false(size(MS));
-is_hole = is_hole(:);
+IX_hole = [];
 
 %which matlab version do we have. If MATLAB 9,3
 if ~verLessThan('matlab','9.3')
@@ -66,26 +73,57 @@ if ~verLessThan('matlab','9.3')
     poutline = polybuffer(poutline,DEM.cellsize/4);
     warning off
     for r = 1:numel(MS)
+        
         psh = polyshape(MS(r).X,MS(r).Y);
         psh = intersect(psh,poutline);
+        
+        if isempty(psh.Vertices)
+            % The feature is completely outside the DEM boundaries
+            MS(r).X = [];
+            MS(r).Y = [];
+            continue
+        end
+        
         pshhole = holes(psh);
         psh = rmholes(psh);
-        xy  = psh.Vertices;
-        MS(r).X = xy(:,1);
-        MS(r).Y = xy(:,2);
+        % Are the polygons multipart?
+        psh = regions(psh);
         
+        % loop through regions
+        for r2 = 1:numel(psh)
+            if r2 == 1
+                nrnew = r;
+            else
+                nrnew = numel(MS);
+                nrnew = nrnew + 1;
+            end
+            xy  = psh(r2).Vertices;
+            MS(nrnew).X = xy(:,1);
+            MS(nrnew).Y = xy(:,2);
+            
+            if ~writelogical
+                MS(nrnew).(field) = MS(r).(field);
+            end
+        end
+            
+        % then loop through holes
         for r2 = 1:numel(pshhole)
             xy  = pshhole(r2).Vertices;
             nrnew = numel(MS);
             nrnew = nrnew + 1;
             MS(nrnew).X = xy(:,1);
             MS(nrnew).Y = xy(:,2);
-            is_hole = [is_hole; true]; %#ok<AGROW>
+            IX_hole = [IX_hole nrnew]; %#ok<AGROW>
+
         end  
     end
     warning on
+else
+    IX_hole = [];
 end
 
+is_hole = false(size(MS));
+is_hole(IX_hole) = true;
 
 % loop through features of mapping structure MS
 for r = 1:numel(MS)
@@ -93,6 +131,11 @@ for r = 1:numel(MS)
     % get coordinates
     x = MS(r).X;
     y = MS(r).Y;
+    
+    if isempty(x)
+        continue
+    end
+    
     I = isnan(x) | isnan(y);
     x(I) = [];
     y(I) = [];
