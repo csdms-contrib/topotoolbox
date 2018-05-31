@@ -22,13 +22,24 @@ function [Z,R] = GRIDobj2im(DEM)
 %      Z       grayvalue matrix
 %      R       imref2d reference to world coordinates
 %
-% Example
+% Example 1
 %
 %      DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %      [Z,R] = GRIDobj2im(DEM);
 %      imshow(Z,R,[]);
 %      axis xy
 %      colormap(parula)
+%
+% Example 2
+%
+%      DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%      [~,R] = GRIDobj2im(DEM);
+%      RGB = imageschs(DEM,[],'colormap','landcolor');
+%      % Following line is required because columns must start south
+%      % but GRIDobj standard is columns-start-north
+%      RGB = flipud(RGB); 
+%      imshow(RGB,R,[]);
+%      axis xy
 %
 % See also: FLOWobj, STREAMobj, GRIDobj/info
 %
