@@ -44,6 +44,10 @@ Before working with TopoToolbox the directories and functions must be on the sea
 path of Matlab. Enter following code into the command line:
 
         addpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2'))
+		
+To remove .git-folders on the path, run
+
+        rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
 
 Type `doc` in the command line to open the main documentation page. You'll 
 find the TopoToolbox documentation in the section Supplemental Software.  

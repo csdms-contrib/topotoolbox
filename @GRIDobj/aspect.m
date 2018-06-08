@@ -46,7 +46,7 @@ function OUT = aspect(DEM,classify)
 
 narginchk(1,2)
 
-if nargin == 1;
+if nargin == 1
     classify = false;
 else
    
@@ -61,7 +61,7 @@ if classify
 end
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(5001*5001);
+if numel(DEM.Z)>(5001*5001)
     fun    = @(x) aspfun(x);
     blksiz = bestblk(size(DEM.Z),5000);
     OUT.Z  = blockproc(DEM.Z,blksiz,fun,'BorderSize',[1 1]);
@@ -76,7 +76,7 @@ OUT.zunit = 'degree';
 
 
 function ASP = aspfun(Z) 
-if isstruct(Z);
+if isstruct(Z)
     Z = Z.data;
 end
 
