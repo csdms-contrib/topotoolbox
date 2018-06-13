@@ -174,7 +174,7 @@ end
 
 %% Default values can be changed here
 % -----------------------------------
-defaultcolormap = 'landcolor';
+defaultcolormap = 'parula';
 defaulttruecolor = [0 1 0]; 
 defaultfalsecolor = [1 1 1]; 
 defaultnancolor = [1 1 1];
