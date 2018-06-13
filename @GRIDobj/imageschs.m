@@ -384,7 +384,7 @@ if nargout == 0
         if alims(1) ~= alims(2) 
             caxis(alims);
         end
-        colormap(cmap(nhs:nhs:nhs*ncolors,:));
+        colormap(gca,cmap(nhs:nhs:nhs*ncolors,:));
         cc = colorbar;%('location','south');
         if ~isempty(colorBarLabel)
             title(cc,colorBarLabel);

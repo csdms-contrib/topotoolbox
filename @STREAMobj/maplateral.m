@@ -5,8 +5,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 % Syntax
 %
 %     a = maplateral(S,A,dist,aggfun)
-%     [a,mask] = ...
-%     
+%     [a,mask] = ...     
 %
 % Description
 %
@@ -55,7 +54,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 % See also: STREAMobj, SWATHobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 12. June, 2018
 
 % Input checking and parsing
 validatealignment(S,A)
@@ -87,6 +86,8 @@ I  = D<=dist(2) & D>=dist(1);
 if p.Results.excludestream
     I(S.IXgrid) = false;
 end
+
+    
 
 % grid values
 A  = A.Z(I);

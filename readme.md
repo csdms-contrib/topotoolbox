@@ -45,7 +45,7 @@ path of Matlab. Enter following code into the command line:
 
         addpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2'))
 		
-To remove .git-folders on the path, run
+To remove .git-folders from the path, run
 
         rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
 

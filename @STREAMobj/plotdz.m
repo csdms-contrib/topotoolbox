@@ -227,6 +227,7 @@ else
             %% Plotting colored lines using undocumented Edges property
             % see here:
             % http://undocumentedmatlab.com/blog/plot-line-transparency-and-color-gradient
+            
             ht = plot(ax,d,z,'-');
             c     = zeros(size(order,1),3);
             minc  = min(+p.Results.color);
@@ -253,6 +254,7 @@ else
                 cc = colorbar;
                 caxis([minc maxc]);
             end
+            
             
         otherwise
             %% Plotting colored lines using surface
