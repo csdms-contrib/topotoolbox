@@ -64,14 +64,14 @@ url = 'http://opentopo.sdsc.edu/otr/getdem';
 f = fullfile(p.Results.filename);
 
 % save to drive
-options = weboptions('Timeout',inf);
+options = weboptions('Timeout',100000);
 
 west = p.Results.west;
 east = p.Results.east;
 south = p.Results.south;
 north = p.Results.north;
 
-if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results.interactive;
+if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results.interactive
     wm = webmap;
     % get dialog box
     messagetext = ['Zoom and resize the webmap window to choose DEM extent. ' ...

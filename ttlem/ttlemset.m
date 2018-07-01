@@ -75,9 +75,8 @@ function p = ttlemset(varargin)
 %     'massWasting_river' {false}
 %                    rivers cannot exceed a threshold slope if set to true. 
 %                    Only needed in case rivers are not fixed. 
-%     'NormPrecip'   effective rainfall grid (GRIDobj). Weights flow
-%                    accumulation and should have values ranging between 0 
-%                    and 1.
+%     'Precip'       effective rainfall grid (GRIDobj). By default, rainfall
+%                    is spatially uniform and one for each cell.                                    
 %     'K_weight'     effective Kw grid (GRIDobj). Weights Kw and should
 %                    have values ranging between 0 and 1.  Eg. lithological
 %                    strength
@@ -127,28 +126,29 @@ function p = ttlemset(varargin)
 %
 % See also: ttlem
 %
+% References
 %
-% * TTLEM:
-% Campforts B., Schwanghart W., Govers G.: TTLEM 1.0 : a numerical package
-%           for accurate simulation of tansient landscape evolution in
-%           MATLAB. Discussion paper in GMD.
+% * TTLEM: Campforts B., Schwanghart W., Govers G. 2017: Accurate simulation
+%           of transient landscape evolution by eliminating numerical 
+%           diffusion: the TTLEM 1.0 model. Earth Surface Dynamics, 5, 
+%           47-66. doi:<a href="matlab:web('https://dx.doi.org/10.5194/esurf-5-47-2017')">10.5194/esurf-5-47-2017</a>
 %
-% * TopoToolbox: Schwanghart, W. and Scherler, D.: Short Communication:
-%           TopoToolbox 2 – MATLAB-based software for
-%           topographic analysis and modeling in Earth surface sciences,
-%           Earth Surf. Dyn., 2(1), 1–7,doi:10.5194/esurf-2-1-2014, 2014.
-%           <https://www.researchgate.net/publication/259706134_Short_Communication_TopoToolbox_2_-_MATLAB-based_software_for_topographic_analysis_and_modeling_in_Earth_surface_sciences>
+% * TopoToolbox: Schwanghart, W. and Scherler, D. 2014: Short Communication:
+%           TopoToolbox 2 – MATLAB-based software for topographic analysis
+%           and modeling in Earth surface sciences, Earth Surf. Dyn., 2(1),
+%           1–7. doi:<a href="matlab:web('https://dx.doi.org/10.5194/esurf-2-1-2014')">10.5194/esurf-2-1-2014</a>
 % 
-% * TVD-FVM: Campforts, B. and Govers, G.:
-%           Keeping the edge: A numerical method that avoids knickpoint
-%           smearing when solving the stream power law, J. Geophys. Res.
-%           Earth Surf., 120(7), 1189–1205, doi:10.1002/2014JF003376, 2015.
-%           <https://www.researchgate.net/publication/279957445_Campforts_and_Govers-2015-JGR_ES_Keeping_the_edge_SI>
+% * TVD-FVM: Campforts, B. and Govers, G. 2015: Keeping the edge: A numerical 
+%           method that avoids knickpoint smearing when solving the stream
+%           power law, J. Geophys. Res. Earth Surf., 120(7), 1189–1205.
+%           doi:<a href="matlab:web('https://dx.doi.org/10.1002/2014JF003376')">10.1002/2014JF003376</a>
 %
-% Authors:   Benjamin Campforts (benjamin.campforts@kuleuven.be)
+% Authors:  Benjamin Campforts (benjamin.campforts[at]kuleuven.be)
 %           Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 %
-% Date:     8. July, 2016
+% Date: 24. February, 2018
+
+
 %% Parse inputs
 p = inputParser;
 p.CaseSensitive = true;
@@ -181,7 +181,7 @@ addParameter(p,'m_var',0,@(x) isscalar(x) && x>=0 && x<=1);
 % drainage direction 
 addParameter(p,'DrainDir','variable',@(x) ischar(validatestring(x,{'variable','fixed'})));
 addParameter(p,'AreaThresh',0,@(x) isscalar(x) && x>=0);
-addParameter(p,'NormPrecip',[],@(x) isempty(x) || isa(x,'GRIDobj'));
+addParameter(p,'Precip',[],@(x) isempty(x) || isa(x,'GRIDobj'));
 % Numerics river incision
 addParameter(p,'riverInc','implicit_FDM',@(x) ischar(validatestring(x,{'implicit_FDM','explicit_FDM','TVD_FVM'})));
 addParameter(p,'implCFL',false,@(x) islogical(x));

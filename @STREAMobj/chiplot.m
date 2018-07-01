@@ -136,7 +136,7 @@ mnmethod   = validatestring(p.Results.mnmethod,{'ls','lad'});
 % to which stream should the data be fitted? Trunkstream or all streams?
 if ischar(fitto)
     fitto = validatestring(fitto,{'all','ts'});    
-    if strcmpi(fitto,'ts') && isempty(p.Results.trunkstream);
+    if strcmpi(fitto,'ts') && isempty(p.Results.trunkstream)
         error('TopoToolbox:wronginput',...
              ['You must supply a trunkstream, if you use the parameter \n'...
               'fitto together with the option ts']);
@@ -144,10 +144,7 @@ if ischar(fitto)
 end
 
 % nr of nodes in the entire stream network
-nrc = numel(S.x);
-M   = sparse(double(S.ix),double(S.ixc),true,nrc,nrc);
-% find outlet
-outlet = sum(M,2) == 0 & sum(M,1)'~=0;
+outlet = streampoi(S,'outlet','logical');
 if nnz(outlet)>1
     % there must not be more than one outlet (constraint could be removed
     % in the future).
@@ -158,10 +155,10 @@ end
 % reference drainage area
 a0   = p.Results.a0; % m^2
 % elevation values at nodes
-if isa(DEM,'GRIDobj');
-    zx   = double(DEM.Z(S.IXgrid));
+if isa(DEM,'GRIDobj')
+    zx   = double(getnal(S,DEM));
     % elevation at outlet
-    zb   = double(DEM.Z(S.IXgrid(outlet)));
+    zb   = zx(outlet);
 else
     zx   = double(DEM);
     zb   = double(DEM(outlet));
@@ -178,14 +175,15 @@ end
 x    = S.distance;
 
 % use trunkstream for fitting and display
-switch fitto;
+switch fitto
     case 'all'
         SFIT = S;
-        Lib = true(size(x));
+        Lib  = true(size(x));
+
     case 'ts'
         SFIT = p.Results.trunkstream;
         [Lia,Lib] = ismember(SFIT.IXgrid,S.IXgrid);
-        if any(~Lia);
+        if any(~Lia)
             error('TopoToolbox:chiplot',...
                 ['The main trunk stream must be a subset of the stream network.\n'...
                  'Map a trunk stream with flowpathtool and use the STREAMobj as \n'...
@@ -222,7 +220,7 @@ if p.Results.mnplot
     figure('DefaultAxesColorOrder',cvec);
     chitest = zeros(numel(Lib),numel(mntest));
     
-    for r = 1:numel(mntest);
+    for r = 1:numel(mntest)
         chitest(:,r) = cumtrapz(S,a.^mntest(r));
     end
     plot(chitest,zx(Lib)-zb,'x');
@@ -235,7 +233,6 @@ end
 
 % calculate chi
 chi = cumtrapz(S,a.^mn);
-% chi = netcumtrapz(x,a.^mn,S.ix,S.ixc); %*ab.^mn
 % now use chi to fit beta
 switch betamethod
     case 'ls'
@@ -254,7 +251,7 @@ R2   = 1-(SSE/SSZ);
 betase = sqrt((SSE/(n-2))./(sum((chi(Lib)-mean(chi(Lib))).^2)));
 
 
-if p.Results.plot;
+if p.Results.plot
     figure
     % plot results
     order = S.orderednanlist;
@@ -275,7 +272,7 @@ if p.Results.plot;
                 ST    = p.Results.trunkstream;
                 [Lia,Lib] = ismember(ST.IXgrid,S.IXgrid);
         
-                if any(~Lia);
+                if any(~Lia)
                     error('TopoToolbox:chiplot',...
                         ['The main trunk stream must be a subset of the stream network.\n'...
                         'Map a trunk stream with flowpathtool and use the STREAMobj as \n'...
@@ -304,7 +301,7 @@ if p.Results.plot;
 end
 
 % write to output array
-if nargout == 1;
+if nargout == 1
     
     OUT.mn   = mn;
     OUT.mnci = ci;
@@ -344,7 +341,7 @@ function sqres = mnfit(varargin)
 
 % calculate chi with a given mn ratio
 % and integrate in upstream direction
-CHI = cumtrapz(S,a.^mn);
+CHI = cumtrapz(SFIT,a(Lib).^mn);
 % normalize both variables
 CHI = CHI ./ max(CHI);
 
@@ -356,6 +353,7 @@ end
 z   = zx(Lib)-zb;
 z   = z./max(z);
 % calculate the residuals and minimize their squared sums
+
 switch mnmethod
     case 'ls'
         sqres = sum((CHI - z).^2);

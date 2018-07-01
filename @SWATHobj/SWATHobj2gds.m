@@ -1,5 +1,5 @@
 function [MS] = SWATHobj2gds(SW,type)
-% SWATHOBJ2GDS create a geographic data structure from a SWATHobj
+%SWATHOBJ2GDS create a geographic data structure from a SWATHobj
 %
 % Syntax
 %

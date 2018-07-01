@@ -37,12 +37,18 @@ function DEM = inpaintnans(DEM,varargin)
 %                     the function nibble in ArcGIS Spatial Analyst)
 %               'nearest': nearest neighbor interpolation 
 %                     using bwdist
+%               'neighbors': this option does not close all nan-regions. It
+%                     adds a one-pixel wide boundary to the valid values in
+%                     the DEM and derives values for these pixels by a
+%                     distance-weighted average from the valid neighbor
+%                     pixels. This approach does not support the third input 
+%                     argument k.
 %     k         if supplied, only connected components with 
 %               less or equal number of k pixels are filled. Others
 %               remain nan
 %     DEM2      if the second input argument is a GRIDobj, inpaintnans will
 %               interpolate from DEM2 to locations of missing values in
-%               DEM. This approach does not support a third input argument.
+%               DEM. 
 %     method    interpolation method if second input argument is a GRIDobj.
 %               {'linear'},'nearest','spline','pchip', or 'cubic'.
 %
@@ -64,11 +70,15 @@ function DEM = inpaintnans(DEM,varargin)
 % See also: ROIFILL, FILLSINKS, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. September, 2017
+% Date: 3. February, 2018
 
 if nargin == 1
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif ischar(varargin{1})
+    if strcmpi(varargin{1},'neighbors')
+        DEM = interpneighborpixels(DEM);
+        return
+    end
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif isa(varargin{1},'GRIDobj')
     if nargin == 2
@@ -105,7 +115,7 @@ if ~isinf(k)
 end
 
 % 
-if numel(dem) < 10000^2 || ~strcmpi(type,'laplace');
+if numel(dem) < 10000^2 || ~strcmpi(type,'laplace')
 
 % interpolation
 switch lower(type)
@@ -151,5 +161,61 @@ else
         demtemp = regionfill(demtemp,inatemp);  
         dem(rows(1):rows(2),cols(1):cols(2)) = demtemp;
     end
+end
+end
+
+
+
+
+function DEM = interpneighborpixels(DEM)
+
+%INTERPNEIGHBORPIXELS Interpolate pixels from their neighbor pixels
+%
+% Syntax
+%
+%     DEMi = interpneighborpixels(DEM)
+%
+% Description
+%
+%     INTERPNEIGHBORPIXELS uses distance weighted averages to calculate
+%     missing values (nans) for pixels that border pixels with valid
+%     values. 
+%
+% Input arguments
+%
+%     DEM      GRIDobj
+%
+% Output arguments
+%
+%     DEMi     GRIDobj with
+%
+
+
+I = isnan(DEM.Z);
+sq2 = sqrt(2);
+w = 1./[sq2 1 sq2; ...
+     1   0   1; ...
+     sq2 1 sq2];
+w = w(:);
+
+Z = nlfilter(DEM.Z,[3 3],@fun);
+DEM.Z = Z;
+
+function b = fun(a)
+
+a = a(:);    
+if ~isnan(a(5))
+    b = a(5);
+    return
+end
+
+I = isnan(a);
+if all(I)
+    b = nan;
+    return
+end
+
+I = ~I;
+b = sum(a(I).*(w(I)./sum(w(I))));
 end
 end

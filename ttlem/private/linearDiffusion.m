@@ -33,8 +33,10 @@ else
 end
 % and solve linear system of equations
 % DEM_D = D\DEM.Z(:);
+% DEM.Z = reshape(DEM_D,DEM.size);
 DEM.Z =reshape( pcg_quiet(D,DEM.Z(:),p.DiffTol),DEM.size(1),DEM.size(2));
 
+    
 function [x,flag,relres,iter,resvec] = pcg_quiet(varargin)
 [x,flag,relres,iter,resvec] = pcg(varargin{:});
 end

@@ -1,5 +1,5 @@
 function [OUT] = mapswath(SW,M,varargin)
-% MAPSWATH obtains Z values along a SWATHobj from an arbitrary GRIDobj
+%MAPSWATH obtains Z values along a SWATHobj from an arbitrary GRIDobj
 %
 % Syntax
 %

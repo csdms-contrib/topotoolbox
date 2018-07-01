@@ -175,6 +175,7 @@ switch method
 
         % no minimum gradient imposition involves only solving the
         % overdetermined system of equations. 
+        b      = double(b);
         if ~p.Results.positive
             zs     = C\b;
         else

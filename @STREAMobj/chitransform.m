@@ -63,6 +63,7 @@ addRequired(p,'A', @(x) isa(x,'GRIDobj') || isnal(S,x));
 addParamValue(p,'mn',0.45,@(x) isscalar(x) || isempty(x));
 addParamValue(p,'a0',1e6,@(x) isscalar(x) && isnumeric(x));
 addParamValue(p,'plot',false);
+addParamValue(p,'correctcellsize',true,@(x) isscalar(x));
 
 parse(p,S,A,varargin{:});
 
@@ -70,12 +71,15 @@ parse(p,S,A,varargin{:});
 if isa(A,'GRIDobj')
     validatealignment(S,A);
     a = getnal(S,A);
-elseif isnal(S,A);
+elseif isnal(S,A)
     a = A;
 else
     error('Imcompatible format of second input argument')
 end
 
+if p.Results.correctcellsize
+    a = a.*S.cellsize^2;
+end
 
 a = ((p.Results.a0) ./a).^p.Results.mn;
 c = cumtrapz(S,a);

@@ -1,5 +1,5 @@
 function h = plot(SW,varargin)
-% plot instance of SWATHobj
+%PLOT plot instance of SWATHobj
 %
 % Syntax
 %

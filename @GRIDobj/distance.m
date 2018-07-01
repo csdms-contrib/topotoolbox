@@ -9,6 +9,7 @@ function [D,L] = distance(DEM,varargin)
 %     D = distance(DEM,S)
 %     D = distance(DEM,x,y)
 %     D = distance(DEM,MS)
+%     [D,L] = ...
 %
 % Description
 %
@@ -105,7 +106,7 @@ MASK(ix) = true;
 
 D = GRIDobj(DEM);
 
-if nargout == 1;
+if nargout == 1
     D.Z = bwdist(MASK,'e');
 else    
     [D.Z,L] = bwdist(MASK,'e');

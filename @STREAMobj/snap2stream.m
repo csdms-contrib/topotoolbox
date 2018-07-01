@@ -6,6 +6,7 @@ function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 %
 %     [xn,yn] = snap2stream(S,x,y)
 %     [xn,yn] = snap2stream(S,x,y,pn,pv,...)
+%     [xn,yn] = snap2stream(S,lat,lon,'inputislatlon',true,pn,pv,...)
 %     [xn,yn,IX,res,MP] = snap2stream(...)
 %
 % Description
@@ -38,6 +39,13 @@ function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 %     'maxdist'  scalar
 %     maximum snapping distance {inf}. 
 %
+%     'inputislatlon'   true or {false}
+%     determines whether input coordinates are supplied in a geographic
+%     coordinate system (wgs84). If set to true, snap2stream projects the
+%     geographic coordinates to the same coordinate system as S. This
+%     requires that S has a projected coordinate system and the mapping
+%     toolbox. 
+%
 %     'plot'  true or {false}
 %     plot results
 %
@@ -52,7 +60,7 @@ function [xn,yn,IX,D,MP] = snap2stream(S,x,y,varargin)
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 3. May, 2013
+% Date: 23. January, 2018
 
 
 % Parse Inputs
@@ -64,12 +72,22 @@ snaptomethods = {'all','confluence','outlet','channelhead'};
 addParamValue(p,'snapto','all',@(x) ischar(validatestring(x,snaptomethods)));
 addParamValue(p,'maxdist',inf,@(x) isscalar(x) && x>0);
 addParamValue(p,'streamorder',[]);
+addParamValue(p,'inputislatlon',false,@(x) isscalar(x));
 addParamValue(p,'plot',false,@(x) isscalar(x));
 
 parse(p,varargin{:});
 
 snapto = validatestring(p.Results.snapto,{'all','confluence','outlet','channelhead'});
 I = true(size(S.x));
+
+if p.Results.inputislatlon
+    if isempty(S.georef)
+        error('TopoToolbox:georeferencing',...
+            ['Projection of stream network unknown. Cannot convert ' ...
+             'geographic coordinates.']);
+    end
+    [x,y] = mfwdtran(S.georef.mstruct,x,y);
+end
 
 % evaluate optional arguments to restrict search to specific stream
 % locations only

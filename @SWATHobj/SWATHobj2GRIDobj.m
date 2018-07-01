@@ -1,5 +1,5 @@
 function [varargout] = SWATHobj2GRIDobj(SW,DEM,varargin)
-% SWATHOBJ2GRIDOBJ create a GRIDobj with swath-specific information
+%SWATHOBJ2GRIDOBJ create a GRIDobj with swath-specific information
 %
 % Syntax
 %

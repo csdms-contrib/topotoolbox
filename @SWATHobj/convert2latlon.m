@@ -1,5 +1,5 @@
 function [OUT] = convert2latlon(SW)
-% CONVERT2LATLON converts spatial fields in SWATHobj to lat,lon
+%CONVERT2LATLON converts spatial fields in SWATHobj to lat,lon
 %
 % Requires the Mapping Toolbox
 %

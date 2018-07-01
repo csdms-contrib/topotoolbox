@@ -297,7 +297,7 @@ methods
                             disp([datestr(clock) ' -- Sink filling'])
                         end
                         
-                        if isempty(sinks);
+                        if isempty(sinks)
                             DEM = fillsinks(DEM);
                         else
                             DEM = fillsinks(DEM,sinks);
@@ -310,7 +310,7 @@ methods
                         if verbose
                             disp([datestr(clock) ' -- Sink filling'])
                         end
-                        if isempty(sinks);
+                        if isempty(sinks)
                             DEMF = fillsinks(DEM);
                         else
                             DEMF = fillsinks(DEM,sinks);
@@ -321,7 +321,7 @@ methods
                         % There is also a weights option, which is a
                         % GRIDobj with weights. But this is currently
                         % undocumented
-                        if isempty(weights);                            
+                        if isempty(weights)                            
                             D    = DEMF-DEM;
                         else
                             D    = -weights;

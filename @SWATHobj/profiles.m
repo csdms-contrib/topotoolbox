@@ -1,5 +1,5 @@
 function [d,z,varargout] = profiles(SW,varargin)
-% PROFILES obtain profiles from a SWATHobj
+%PROFILES obtain profiles from a SWATHobj
 %
 % Syntax
 %
