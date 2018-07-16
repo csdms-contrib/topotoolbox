@@ -68,6 +68,18 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %            'original data',...
 %            'K=10, tau=0.5')
 %
+% Algorithm
+%
+%     This algorithm uses nonparametric quantile regression to smooth the
+%     data. The algorithm is described in Schwanghart and Scherler (2017)
+%     (Eq. A13-A15).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify,
 %           STREAMobj/crslin, STREAMobj/quantcarve, STREAMobj/smooth

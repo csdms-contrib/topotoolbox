@@ -73,17 +73,29 @@ function [zs,exitflag,output] = crslin(S,DEM,varargin)
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     S = STREAMobj(FD,'minarea',1000);
 %     S = klargestconncomps(S);
-%     zs  = crs(S,DEM,'K',10000,'attachtomin',true);
-%     zs2 = crs(S,DEM,'K',100000);
+%     zs  = crslin(S,DEM,'K',10,'attachtomin',true);
+%     zs2 = crslin(S,DEM,'K',10);
 %     plotdz(S,DEM,'color',[0.6 0.6 0.6])  
 %     hold on
 %     plotdz(S,zs,'color','k')
 %     plotdz(S,zs2,'color','r')
 %     hold off
 %     legend('original data',...
-%            'K=10000, attached to minima',...
-%            'K=100000, not attached to minima')
+%            'K=10, attached to minima',...
+%            'K=10, not attached to minima')
 %
+% Algorithm
+%
+%     This algorithm uses linear nonparametric constrained regression to
+%     smooth the data. The algorithm is described in Schwanghart and
+%     Scherler (2017) (Eq. A6-A11).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify,
 %           STREAMobj/crs, STREAMobj/quantcarve, STREAMobj/smooth
@@ -96,7 +108,7 @@ function [zs,exitflag,output] = crslin(S,DEM,varargin)
 narginchk(2,inf)
 
 p = inputParser;
-p.FunctionName = 'STREAMobj/crs';
+p.FunctionName = 'STREAMobj/crslin';
 addParameter(p,'K',1,@(x) (isscalar(x) && x>0) || isa(x,'GRIDobj'));
 addParameter(p,'imposemin',false,@(x) isscalar(x));
 addParameter(p,'attachtomin',false,@(x) isscalar(x));

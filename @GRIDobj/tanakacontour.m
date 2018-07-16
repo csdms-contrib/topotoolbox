@@ -11,7 +11,7 @@ function tanakacontour(DEM,nlevels)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 8. December, 2017
 
-if nargin == 1;
+if nargin == 1
     nlevels = 10;
 end
 

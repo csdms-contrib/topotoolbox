@@ -17,7 +17,7 @@ function OUT = flowacc(FD,W0,RR)
 %
 %     The second input argument can be used to define spatially variable
 %     weights into the flow accumulation e.g., to simulate spatially
-%     variable precipitation patterns.
+%     variable precipitation patterns. By default, W0 is a grid of ones.
 %
 %     The third input argument is the runoff ratio. By default, the runoff
 %     ratio equals one everywhere. To simulate infiltration or channel
@@ -27,7 +27,7 @@ function OUT = flowacc(FD,W0,RR)
 % Input arguments
 %
 %     FD    Flow direction object (class: FLOWobj)
-%     W0    weight grid (class: GRIDobj)
+%     W0    weight grid (class: GRIDobj) 
 %     RR    runoff ratio grid (class: GRIDobj)
 %
 % Output arguments
@@ -37,9 +37,9 @@ function OUT = flowacc(FD,W0,RR)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD = FLOWobj(DEM,'preprocess','c');
+%     FD = FLOWobj(DEM);
 %     A = flowacc(FD);
-%     imageschs(DEM,sqrt(A))
+%     imageschs(DEM,dilate(sqrt(A),ones(5)),'colormap','flowcolor')
 %     
 % 
 % See also: FLOWobj, GRIDobj, FLOWobj/drainagebasins

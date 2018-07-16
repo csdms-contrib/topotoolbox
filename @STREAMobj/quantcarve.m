@@ -62,6 +62,17 @@ function [zs,output] = quantcarve(S,DEM,tau,varargin)
 %     plotdz(S,zs50,'color','k','LineWidth',1.5)
 %     hold off
 %
+% Algorithm
+%
+%     This algorithm uses quantile carving to smooth the data. The
+%     algorithm is described in Schwanghart and Scherler (2017) (Eq. A12).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/mincosthydrocon, STREAMobj/crs, STREAMobj/imposemin
 % 

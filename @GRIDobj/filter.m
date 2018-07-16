@@ -61,7 +61,7 @@ dem    = DEM.Z;
 % pad DEM if there are NaNs
 inan    = isnan(dem);
 flagnan = any(inan(:));
-if flagnan;
+if flagnan
     [~,L]   = bwdist(~inan); 
     dem     = dem(L);
 end

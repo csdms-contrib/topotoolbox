@@ -202,7 +202,13 @@ counter   = 0;
 
 if plt
     hh = plotdz(S,z,'color',[.6 .6 .6],'LineWidth',1.5);drawnow
+    set(gcf,'color','w')
     hold on
+    drawnow
+    %if counter == 0
+    %gif('knickpointfinder.gif','DelayTime',0.5,'LoopCount',inf,'frame',gcf)
+    %end
+    
 end
 
 if verbose
@@ -290,6 +296,7 @@ while keepgoing
         end
         hh2 = plotdz(S,zs,'color','k');
         drawnow
+        %gif
     end
     if verbose
         disp([datestr(now) ' -- Iteration: ' num2str(counter) ', ' num2str(kp.n) ' knickpoints, max dz: ' num2str(max(dz))]);

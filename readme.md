@@ -76,9 +76,15 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ### 2.2
 
 - TTLEM is part of TopoToolbox
+  see our paper: Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation 
+  of transient landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
+  Earth Surface Dynamics, 5, 47-66. [DOI: 10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 - new functions for smoothing and hydrological correction: 
   STREAMobj/crs, STREAMobj/crsapp, STREAMobj/smooth, STREAMobj/crslin, 
   STREAMobj/quantcarve, FLOWobj/quantcarve
+  see our paper: Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty 
+  assessment and smoothing using quantile regression techniques. Earth Surface Dynamics, 5, 
+  821-839. [DOI: 10.5194/esurf-5-821-2017](http://dx.doi.org/10.5194/esurf-5-821-2017)
 - modification: GRIDobj way to store referencing information was changed
 - modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs

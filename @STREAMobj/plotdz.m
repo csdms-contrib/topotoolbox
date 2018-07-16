@@ -251,7 +251,7 @@ else
             set(ht.Edge, 'ColorBinding','interpolated', 'ColorData',c);
             
             if p.Results.colorbar
-                cc = colorbar;
+                cc = colorbar(ax);
                 caxis([minc maxc]);
             end
             
@@ -269,7 +269,7 @@ else
                 'linewidth',p.Results.linewidth,...
                 'parent',ax);
             if p.Results.colorbar
-                cc = colorbar;
+                cc = colorbar(ax);
             end
             
             

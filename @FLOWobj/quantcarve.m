@@ -42,6 +42,17 @@ function DEM = quantcarve(FD,DEM,tau)
 %     DEMc = quantcarve(FD,DEM,0.1);
 %     imageschs(DEMc,DEM-DEMc)
 %
+% Algorithm
+%
+%     This algorithm uses quantile carving to smooth the data. The
+%     algorithm is described in Schwanghart and Scherler (2017) (Eq. A12).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/quantcarve, FLOWobj/imposemin, STREAMobj/crs
 % 
