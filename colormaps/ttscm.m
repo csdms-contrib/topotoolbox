@@ -42,17 +42,19 @@ function cmap = ttscm(name,varargin)
 %      Crameri, F., (2018). Scientific colour-maps. Zenodo. 
 %      http://doi.org/10.5281/zenodo.1243862
 %
-%      Crameri, F., Geodynamic diagnostics, scientific visualisation 
-%      and StagLab 3.0, Geosci. Model Dev. Discuss., doi:10.5194/gmd-2017-328, 
-%      in open review, 2018.
+%      Crameri, F. (2018), Geodynamic diagnostics, scientific visualisation 
+%      and StagLab 3.0, Geosci. Model Dev., 11, 2541-2562. 
+%      doi:10.5194/gmd-11-2541-2018
 %
 %
 % See also: IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 14. June, 2018
+% Date: 9. August, 2018
 
-allowedcmaps = {'devon','davos','oslo','bilbao','lajolla',...
+allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
+                'buda' ...
+                'devon','davos','oslo','bilbao','lajolla',...
                 'grayC','broc','cork','vik','lisbon','tofino',...
 				'berlin','turku','tokyo','lapaz','roma','oleron'};
 
