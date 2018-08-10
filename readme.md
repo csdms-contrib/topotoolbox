@@ -65,6 +65,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: ttcmap for creating nice colormaps for DEMs, inparticularly
   if DEMs include topography and bathymetry
 - new function: ttscm for access to scientific colormaps 
+- new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
 - new function: STREAMobj/sinuosity
