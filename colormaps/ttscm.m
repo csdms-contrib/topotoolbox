@@ -7,6 +7,7 @@ function cmap = ttscm(name,varargin)
 %     cmap = ttscm(name)
 %     cmap = ttscm(name,n)
 %     ttscm
+%     allowedcmaps = ttscm
 %
 % Description
 %
@@ -20,6 +21,9 @@ function cmap = ttscm(name,varargin)
 %     TTSCM without input and output arguments shows a figure with
 %     available colormaps.
 %
+%     TTSCM without input arguments and one output argument returns the
+%     names of the allowed colormaps as cell array.
+%
 % Input arguments
 %
 %     zlimits        two element vector with maximum and minimum elevation
@@ -27,7 +31,8 @@ function cmap = ttscm(name,varargin)
 %     
 % Output arguments
 %
-%     cmap      n*3 colormap
+%     cmap           n*3 colormap
+%     allowedcmaps   allowed colormaps
 %
 % Example
 %
@@ -61,17 +66,17 @@ allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
 				
 % get location of this function
 p = fileparts(mfilename('fullpath'));
-if nargin == 0
+if nargin == 0 && nargout == 0
     figure('MenuBar','none','Color','w','Toolbar','none',...
            'Name', 'Scientific Colour Maps', 'NumberTitle', 'off');
            
 	imshow([p filesep 'private' ...
             filesep '+ScientificColourMaps_FabioCrameri.png'],...
             'InitialMagnification','fit')
-	if nargout == 1
-	    cmap = [];
-	end
 	return
+elseif nargin == 0 && nargout == 1
+    cmap = allowedcmaps;
+    return
 end
 
 cmaptype = validatestring(name,allowedcmaps);
