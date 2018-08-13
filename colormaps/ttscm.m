@@ -1,4 +1,4 @@
-function cmap = ttscm(name,varargin)
+function cmap = ttscm(name,n)
 
 %TTSCM scientific colormaps
 %
@@ -34,13 +34,25 @@ function cmap = ttscm(name,varargin)
 %     cmap           n*3 colormap
 %     allowedcmaps   allowed colormaps
 %
-% Example
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     C   = curvature(DEM);
 %     lims = prcclip(C,2,true);
 %     clr = ttscm('vik');
 %     imageschs(DEM,C,'colormap',clr,'caxis',lims);
+%
+% Example 2: Show colormaps using the Big Tujunga Catchment data
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     cmaps = ttscm;
+%     for r = 1:numel(cmaps); 
+%        subplot(6,4,r); 
+%        imageschs(DEM,[],'colormap', ttscm(cmaps{r}),...
+%                         'colorbar',false,'ticklabels','none');
+%        title(cmaps{r});
+%     end
+%
 %     
 % References: 
 %
@@ -55,7 +67,7 @@ function cmap = ttscm(name,varargin)
 % See also: IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 9. August, 2018
+% Date: 13. August, 2018
 
 allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'buda' ...
