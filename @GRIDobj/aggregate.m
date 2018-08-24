@@ -90,6 +90,6 @@ end
 z = accumarray(IX,Z,[prod(DEMlowres.size) 1],aggfun);
 C = DEMlowres;
 C.Z = reshape(z,DEMlowres.size);
-C.Z(C.Z == 0) = nan;
+% C.Z(C.Z == 0) = nan;
 
 
