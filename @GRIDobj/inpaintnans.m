@@ -46,7 +46,8 @@ function DEM = inpaintnans(DEM,varargin)
 %                     argument k.
 %     k         if supplied, only connected components with 
 %               less or equal number of k pixels are filled. Others
-%               remain nan
+%               remain nan. Set to inf if all pixels enclosed by non-nan
+%               pixels should be filled.
 %     conn      Connectivity, specified as scalar 4 or 8
 %     DEM2      if the second input argument is a GRIDobj, inpaintnans will
 %               interpolate from DEM2 to locations of missing values in
