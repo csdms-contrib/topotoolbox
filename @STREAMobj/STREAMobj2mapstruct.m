@@ -138,9 +138,9 @@ if nargin <= 2;
         'tribtoIX',{});
     
     
-    for r = numel(S.ix):-1:1;
+    for r = numel(S.ix):-1:1
         
-        if CHN(S.ixc(r)) ==  0;
+        if CHN(S.ixc(r)) ==  0
             CHN(S.ixc(r)) = chc;
             GS(CHN(S.ixc(r))).Geometry = 'Line';
             GS(CHN(S.ixc(r))).X = S.x(S.ixc(r));
@@ -178,7 +178,7 @@ if nargin <= 2;
         end
     end
     
-    for r = 1:numel(GS);
+    for r = 1:numel(GS)
         GS(r).X = [GS(r).X(end:-1:1) nan];
         GS(r).Y = [GS(r).Y(end:-1:1) nan];
         if isempty(GS(r).tribtoIX)
@@ -204,7 +204,7 @@ else
     seglength    = p.Results.seglength;
     
     % convert strings to functions, if necessary
-    for r = 1:nrattributes;
+    for r = 1:nrattributes
         ix = ((r-1)*3)+3;
         if ischar(attributes{ix})
             attributes{ix} = str2func(attributes{ix});
@@ -212,11 +212,11 @@ else
     end
     
     % convert attributes to node attribute lists
-    for r = 1:nrattributes;
+    for r = 1:nrattributes
         ix = ((r-1)*3)+2;
-        if isa(attributes{ix},'GRIDobj');
+        if isa(attributes{ix},'GRIDobj')
             attributes{ix} = getnal(S,attributes{ix});
-        elseif isnal(S,attributes{ix});
+        elseif isnal(S,attributes{ix})
             % everything's fine here
         else
             error('TopoToolbox:incompatibleformat',...

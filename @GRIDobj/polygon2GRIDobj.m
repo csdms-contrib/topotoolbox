@@ -33,10 +33,10 @@ function P = polygon2GRIDobj(DEM,MS,field)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD = FLOWobj(DEM,'preprocess','carve');
-%     D = drainagebasins(FD);
-%     MS = GRIDobj2polygon(D);
-%     P = polygon2GRIDobj(D,MS,'ID');
+%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     D   = drainagebasins(FD);
+%     MS  = GRIDobj2polygon(D);
+%     P   = polygon2GRIDobj(D,MS,'ID');
 %
 %
 % Note: This function has not yet been fully tested. Please report bugs.

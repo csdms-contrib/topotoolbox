@@ -71,6 +71,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/knickpointfinder
 - new function: STREAMobj/sinuosity
 - new function: GRIDobj/GRIDobj2im
+- new function: GRIDobj/getextent
+- changes to readopentopo, getcoordinates, getoutline, polygon2GRIDobj, line2GRIDobj
 - new function: hydrosheds2FLOWobj (see in IOtools)
 - new function: egm96heights including the grid ww15mgh.grd that contains global geoid 
                 undulations based on the EGM96 geoid.

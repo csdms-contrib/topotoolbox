@@ -1,4 +1,4 @@
-function varargout = getoutline(DEM,nnan)
+function varargout = getoutline(DEM,nnan,wm)
 
 %GETOUTLINE get or plot extent of GRIDobj
 %
@@ -8,6 +8,7 @@ function varargout = getoutline(DEM,nnan)
 %     MS = getoutline(DEM)
 %     [x,y] = getoutline(DEM)
 %     ... = getoutline(DEM,removenans)
+%     getoutline(DEM,removenans,wm)
 %
 % Description
 %
@@ -21,6 +22,7 @@ function varargout = getoutline(DEM,nnan)
 %     DEM         GRIDobj
 %     removenans  set to true, if the outline should be around the valid
 %                 data in the DEM.
+%     wm          plot in webmap (true or {false})
 %
 % Output arguments
 %
@@ -29,13 +31,17 @@ function varargout = getoutline(DEM,nnan)
 %     x,y    coordinate vectors that can be used to plot the extent
 %            rectangle (plot(x,y))
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     getoutline(DEM,true,true)
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. August, 2016
+% Date: 17. October, 2018
 
 nargoutchk(0,2);
 
-if nargin == 2
+if nargin >= 2
     if nnan
         I = isnan(DEM);
         if ~any(I)
@@ -78,17 +84,27 @@ y = xy(:,2);
 
 if nargout == 0
     % No output. Plot outline
-    plot(x,y,'LineWidth',3,'Color',[.8 .8 .8]);
-    hh = ishold;
-    hold on
-    plot(x,y,'k--','LineWidth',1);
-    if ~hh
-        hold off;
+    if nargin <= 2
+        wm = false;
     end
+    
+    if ~wm
+        plot(x,y,'LineWidth',3,'Color',[.8 .8 .8]);
+        hh = ishold;
+        hold on
+        plot(x,y,'k--','LineWidth',1);
+        if ~hh
+            hold off;
+        end
+    else
+        [lat,lon] = minvtran(DEM.georef.mstruct,x,y);
+        wmline(lat,lon)
+    end
+        
 elseif nargout == 1
     % One output argument, create mapping structure
     % split at nans
-    if ~isnan(x(end));
+    if ~isnan(x(end))
         x = [x;nan];
         y = [y;nan];
     end
@@ -97,7 +113,7 @@ elseif nargout == 1
     nrlines = nnz(I);
     ix = find(I)';
     ixs = [1; ix(1:end-1)'+1];
-    ixe = [ix-1];
+    ixe = ix-1;
     for r = 1:nrlines
         
         MS(r).Geometry = 'Polygon';

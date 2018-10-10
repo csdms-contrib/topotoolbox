@@ -20,7 +20,18 @@ function DEM = readopentopo(varargin)
 %     Parameter name values
 %     'filename'       provide filename. By default, the function will save
 %                      the DEM to a temporary file in the system's temporary 
-%                      folder.
+%                      folder. The option 'deletefile' controls whether the
+%                      file is kept on the hard drive.
+%     'extent'         GRIDobj or four element vector with geographical 
+%                      coordinates in the order [west east south north].
+%                      If a GRIDobj is supplied, readopentopo uses the
+%                      function GRIDobj/getextent to obtain the bounding
+%                      box in geographical coordinates. If extent is set,
+%                      then the following parameter names 'north',
+%                      'south', ... are ignored.
+%     'addmargin'      Expand the extent derived from 'extent',GRIDobj by a
+%                      scalar value in °. Default is 0.01. The option is
+%                      only applicable if extent is provided by a GRIDobj.
 %     'north'          northern boundary in geographic coordinates (WGS84)
 %     'south'          southern boundary
 %     'west'           western boundary
@@ -40,17 +51,29 @@ function DEM = readopentopo(varargin)
 %     DEM            Digital elevation model in geographic coordinates
 %                    (GRIDobj)
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     DEM2 = readopentopo('extent',DEM);
+%     DEM2 = reproject2utm(DEM2,90);
+%     imagesc(DEM2)
+%     hold on
+%     getoutline(DEM)
+%     hold off
+%
 % See also: GRIDobj, websave
 %
 % Reference: http://www.opentopography.org/developers
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. June, 2017
+% Date: 10. October, 2018
 
 
 p = inputParser;
 addParameter(p,'filename',[tempname '.tif']);
 addParameter(p,'interactive',false);
+addParameter(p,'extent',[]);
+addParameter(p,'addmargin',0.01);
 addParameter(p,'north',37.091337);
 addParameter(p,'south',36.738884);
 addParameter(p,'west',-120.168457);
@@ -61,7 +84,6 @@ addParameter(p,'verbose',true);
 parse(p,varargin{:});
 
 demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E'},'readopentopo');
-
 url = 'http://opentopo.sdsc.edu/otr/getdem';
 
 % create output file
@@ -71,11 +93,32 @@ f = fullfile(p.Results.filename);
 % save to drive
 options = weboptions('Timeout',100000);
 
-west = p.Results.west;
-east = p.Results.east;
-south = p.Results.south;
-north = p.Results.north;
+% get extent
+if ~isempty(p.Results.extent)
+    if isa(p.Results.extent,'GRIDobj')
+        ext = getextent(p.Results.extent,true);
+        west  = ext(1) - p.Results.addmargin;
+        east  = ext(2) + p.Results.addmargin;
+        south = ext(3) - p.Results.addmargin;
+        north = ext(4) + p.Results.addmargin;
+        
+    elseif numel(p.Results.extent) == 4
+        west = p.Results.extent(1);
+        east = p.Results.extent(2);
+        south = p.Results.extent(3);
+        north = p.Results.extent(4);
+    else
+        error('Unknown format of extent')
+    end
+else
+    west = p.Results.west;
+    east = p.Results.east;
+    south = p.Results.south;
+    north = p.Results.north;
+end
 
+% now we have an extent. Or did the user request interactively choosing
+% the extent.
 if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results.interactive
     wm = webmap;
     % get dialog box
