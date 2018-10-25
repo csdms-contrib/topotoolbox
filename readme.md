@@ -70,6 +70,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
 - new function: STREAMobj/sinuosity
+- new function: STREAMobj/clean
+- new function: STREAMobj/nal2nal
 - new function: GRIDobj/GRIDobj2im
 - new function: GRIDobj/getextent
 - changes to readopentopo, getcoordinates, getoutline, polygon2GRIDobj, line2GRIDobj
