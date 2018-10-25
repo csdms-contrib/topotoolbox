@@ -387,7 +387,7 @@ methods
                 switch preprocess
                     case 'carve'
                         CarveMinVal = 0.1;
-                        if ~isscalar(cweight);
+                        if ~isscalar(cweight)
                             D = (D + cweight);                            
                             D = linscale(D,0,100);
                         end
@@ -402,15 +402,18 @@ methods
                         
                         % -- Old version
                         CC = bwconncomp(I);                                
-                        for r = 1:CC.NumObjects;
-                            D(CC.PixelIdxList{r}) = (max(D(CC.PixelIdxList{r})) - D(CC.PixelIdxList{r})).^tweight + CarveMinVal;
+                        for r = 1:CC.NumObjects
+                            maxdepth = max(D(CC.PixelIdxList{r}));
+                            D(CC.PixelIdxList{r}) = (maxdepth - D(CC.PixelIdxList{r})).^tweight + CarveMinVal;
+%                             D(CC.PixelIdxList{r}) = maxdepth - D(CC.PixelIdxList{r});
+%                             D(CC.PixelIdxList{r}) = (D(CC.PixelIdxList{r})./maxdepth + CarveMinVal).^tweight;
                         end
                         clear CC
 
                         % enable that flow in flats follows digitized
                         % streams. Undocumented...
-                        if ~isscalar(streams);
-                        if islogical(streams);                        
+                        if ~isscalar(streams)
+                        if islogical(streams)                        
                             D(streams) = CarveMinVal;
                         else
                             D = max(D - D.*min(streams,0.99999),CarveMinVal);
@@ -425,7 +428,7 @@ methods
                 rowadd = [-1 -1 0 1 1  1  0 -1];
                 coladd = [ 0  1 1 1 0 -1 -1 -1];
                 PreSillPixel = [];
-                for r = 1:8;
+                for r = 1:8
                     rowp = row + rowadd(r);
                     colp = col + coladd(r);
                     
@@ -627,6 +630,35 @@ methods
             FD.ixcix  = [];
         end
     end
+    
+    function FD = multi_normalize(FD)
+        
+        if isempty(FD.fraction)
+            return
+        end
+        s = accumarray(FD.ix,FD.fraction,[prod(FD.size) 1],@sum);
+        FD.fraction = FD.fraction./s(FD.ix);
+    end
+    
+    function FD = multi_weights(FD,varargin)
+        
+        p = inputParser;
+        addParameter(p,'DEM',[],@(x) isa(x,'GRIDobj'));
+        addParameter(p,'type','random')
+        addParameter(p,'beta',1)
+        parse(p,varargin{:});
+        
+        switch p.Results.type
+            case 'random'
+                FD.fraction = rand(size(FD.fraction));
+        end
+        FD = multi_normalize(FD);
+        
+        
+        
+    end
+    
+            
 
 end
 end

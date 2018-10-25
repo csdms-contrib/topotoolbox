@@ -45,7 +45,7 @@ function z = cumtrapz(S,G)
 if isa(G,'GRIDobj')
     validatealignment(S,G);
     g = getnal(S,G);
-elseif isnal(S,G);
+elseif isnal(S,G)
     g = G;
 else
     error('Imcompatible format of second input argument')
@@ -57,7 +57,13 @@ d = distance(S,'node_to_node');
 ix  = S.ix;
 ixc = S.ixc;
 
-for r = numel(ix):-1:1;
+for r = numel(ix):-1:1
     z(ix(r)) = z(ixc(r)) + (g(ixc(r))+(g(ix(r))-g(ixc(r)))/2)*d(ix(r));
 end
+
+%% Is cumtrapz really working correctly. Here is the test:
+% d  = S.distance;
+% d2 = cumtrapz(S,ones(size(S.x)));
+% tf = isequal(d,d2)
+
 

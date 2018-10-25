@@ -62,6 +62,13 @@ for r = numel(ix):-1:1
     end
 end
 
+% there may be nodes that are neither receivers or givers. These nodes
+% still have the label zero. 
+maxlabel = max(label);
+iszero   = label==0;
+label(iszero) = (1:nnz(iszero))+maxlabel;
+
+
 if ~isinf(p.Results.seglength)
     maxdist   = p.Results.seglength;
     cs        = S.cellsize;

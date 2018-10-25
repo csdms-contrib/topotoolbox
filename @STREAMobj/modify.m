@@ -1,4 +1,4 @@
-function [S,nalix] = modify(S,varargin)
+function [Sout,nalix] = modify(S,varargin)
 
 %MODIFY modify instance of STREAMobj to meet user-defined criteria
 %
@@ -63,6 +63,10 @@ function [S,nalix] = modify(S,varargin)
 %     'rmconncomps_ch' scalar
 %     removes connected components (individual stream 'trees') that have
 %     less or equal the number of channel heads 
+%
+%     'rmupstreamtoch' STREAMobj
+%     removes nodes from S that are upstream to the channelheads of the
+%     supplied STREAMobj.
 %
 %     'rmnodes' STREAMobj
 %     removes nodes in S that belong to another stream network S2.
@@ -139,6 +143,7 @@ addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
 addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
 addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
+addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'nal',[],@(x) isnal(x,'STREAMobj'));
 
@@ -223,6 +228,23 @@ elseif ~isempty(p.Results.upstreamto)
     for r = numel(S.ix):-1:1
         I(S.ix(r)) = II.Z(S.IXgrid(S.ixc(r))) || I(S.ixc(r));
     end
+    
+elseif ~isempty(p.Results.rmupstreamtoch)
+    
+    S2 = p.Results.rmupstreamtoch;
+    ch = streampoi(S2,'channelhead','logical');
+    ch = nal2nal(S,S2,ch,false);
+    
+    I  = ch;
+    
+    for r = numel(S.ix):-1:1
+        I(S.ix(r)) = I(S.ix(r)) || I(S.ixc(r));
+    end
+    
+    I  = ~I;
+    % retain channelheads in the list
+    I(ch) = true;
+    
         
 elseif ~isempty(p.Results.downstreamto)
 %% downstream to    
@@ -257,12 +279,17 @@ elseif ~isempty(p.Results.tributaryto) || ~isempty(p.Results.tributaryto2)
     end
     
     II = ismember(S.IXgrid,Strunk.IXgrid);
-    I = false(size(S.x));
+    I  = false(size(S.x));
+    
     for r = numel(S.ix):-1:1
         I(S.ix(r)) = (II(S.ixc(r)) || I(S.ixc(r))) && ~II(S.ix(r));
     end
 
-    
+    if ~isempty(p.Results.tributaryto2)
+        % add trunk stream pixels
+        I(S.ixc(II(S.ixc) & ~II(S.ix))) = true;
+    end
+        
 elseif ~isempty(p.Results.shrinkfromtop)
 %% shrink from top
     d = distance(S,'max_from_ch');
@@ -370,37 +397,12 @@ end
 %% clean up
 if exist('I','var')
 
-L = I;
-if ~isempty(p.Results.tributaryto2)
-    I = L(S.ix);
-else
-    I = L(S.ix) & L(S.ixc);
-end
-
-S.ix  = S.ix(I);
-S.ixc = S.ixc(I);
-
-if ~isempty(p.Results.tributaryto2)
-    L(S.ixc) = true;
-end
-IX    = cumsum(L);
-
-S.ix  = IX(S.ix);
-S.ixc = IX(S.ixc);
-
-S.x   = S.x(L);
-S.y   = S.y(L);
-S.IXgrid   = S.IXgrid(L);
-
-if nargout == 2
-    nalix = find(L);
-end
-
-% if ~isempty(p.Results.interactive) && p.Results.interactive;
-%     hold on
-%     plot(S,'r')
-%     hold off
-% end
+    Sout = subgraph(S,I);
+    Sout = clean(Sout);
+    
+    if nargout == 2
+        [~,nalix] = ismember(Sout.IXgrid,S.IXgrid); 
+    end
 
 end
     

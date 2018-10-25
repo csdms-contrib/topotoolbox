@@ -48,7 +48,7 @@ function [DEMr,zone] = reproject2utm(DEM,res,varargin)
 % get latitude and longitude vectors
 [lon,lat] = getcoordinates(DEM);
 
-if ~isa(res,'GRIDobj');
+if ~isa(res,'GRIDobj')
     % and calculate centroid of DEM. The centroid is used to
     % get the utmzone
     lonc = sum(lon([1 end]))/2;
@@ -78,7 +78,7 @@ zone = p.Results.zone;
 
 
 % prepare mstruct (transformation structure) if only res supplied
-if ~isa(res,'GRIDobj');
+if ~isa(res,'GRIDobj')
     mstruct       = defaultm('utm');
     mstruct.zone  = p.Results.zone;
     mstruct.geoid = wgs84Ellipsoid;

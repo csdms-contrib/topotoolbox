@@ -132,11 +132,16 @@ methods
             
         end
         
-        % conn comps in W.Z must be larger than 2 pixel,
-        % thus, single pixel networks will be omitted.
+        % The stream obj should have only 
+        % Z = false(size(W.Z));
+        % Z(FD.ix) = W.Z(FD.ix);
+        % Z(FD.ixc) = W.Z(FD.ixc);
+        % W.Z = Z;
+        
         Z = false(size(W.Z));
-        Z(FD.ix) = W.Z(FD.ix);
-        Z(FD.ixc) = W.Z(FD.ixc);
+        Z(FD.ix)  = W.Z(FD.ix);
+        I = Z(FD.ix);
+        Z(FD.ixc(I)) = W.Z(FD.ixc(I));
         W.Z = Z;
 
         % transfer properties from FLOWobj to STREAMobj
@@ -274,6 +279,11 @@ methods
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
     addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
     parse(p,S,nal);
+    
+    if all(nal)
+        % do nothing
+        return
+    end
     
     I = nal(S.ix) & nal(S.ixc);
 
@@ -478,9 +488,44 @@ methods
     end
     tf = isequal(M2,M2|M);
     end
+
+
+    function S = clean(S)
+
+    %CLEAN remove non-connected nodes in stream networks
+    %
+    % Syntax
+    %
+    %     S = clean(S)
+    %
+    % Description
+    %
+    %     Modifying a STREAMobj S may sometimes generate nodes in S that have
+    %     neither an incoming nor outgoing edge. This functions removes these
+    %     nodes as most calculations on stream networks will dismiss them
+    %     anyway.
+    %
+    % Input arguments
+    %
+    %     S     STREAMobj
+    %
+    % Output arguments
+    %
+    %     Sc    cleaned STREAMobj
+
+
+
+    % non connected nodes in the stream network are those that have neither an
+    % incoming nor an outgoing edge
+
+    M = sparse(S.ix,S.ixc,true,numel(S.x),numel(S.y));
+    I = (sum(M,2) == 0) & (sum(M,1)' == 0);
+    S = rmnode(S,I);
+    end
+
+
 end
-end
-    
+end   
     
     
     
