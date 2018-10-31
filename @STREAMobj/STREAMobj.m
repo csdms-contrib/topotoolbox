@@ -496,7 +496,7 @@ methods
     %
     % Syntax
     %
-    %     S = clean(S)
+    %     Sc = clean(S)
     %
     % Description
     %
@@ -512,7 +512,11 @@ methods
     % Output arguments
     %
     %     Sc    cleaned STREAMobj
-
+    %
+    % See also: STREAMobj, STREAMobj/modify
+    %
+    % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+    % Date: 31. October, 2018
 
 
     % non connected nodes in the stream network are those that have neither an
