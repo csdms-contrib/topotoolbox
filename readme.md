@@ -66,6 +66,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
   if DEMs include topography and bathymetry
 - new function: ttscm for access to scientific colormaps;
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: mappingapp (lightweighed GUI for mapping points simultaneously in
+                planform and profile view) still beta!
 - new function: FLOWobj/mapfromnal
 - new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
