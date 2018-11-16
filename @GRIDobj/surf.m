@@ -28,11 +28,26 @@ function ht = surf(DEM,varargin)
 %      
 %     and all property name/value pairs allowed by surface objects.
 %
-% Example
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     surf(DEM)
 %     camlight
+%
+% Example 2
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     surf((DEM-800)*2,'block',true,'baselevel',-900*2,'sea',true,'exaggerate',1); camlight; colormap(ttcmap((DEM-800)*2,'cmap','france'))
+%     ax = gca;
+%     ax.Clipping = 'off';
+%     axis off
+%     ax.Projection = 'perspective';
+%
+%     FD = FLOWobj(DEM);
+%     S  = STREAMobj(FD,'minarea',1000);
+%     S  = modify(S,'upstreamto',(DEM-800)>0);
+%     hold on
+%     plot3(S,DEM-800,'b');
 %
 % See also: imageschs
 %
@@ -101,6 +116,18 @@ else
     baselevel = min(DEM)*.8;
 end
 
+% go through varargin to find 'sea'
+TF = strcmpi('sea',varargin);
+ix = find(TF);
+if ~isempty(ix)
+    sea = varargin{ix+1};
+    varargin([ix ix+1]) = [];
+else
+    sea = false;
+end
+
+
+
 [x,y] = refmat2XY(DEM.refmat,DEM.size);    
 
 if overlay
@@ -153,6 +180,67 @@ if block
     
     
     axislim = axis;
+    if baselevel < min(DEM)
+        axislim(5) = baselevel;
+    end
+    axis(axislim)
+end
+        
+
+if sea 
+    
+    if any(isnan(DEM))
+        error('TopoToolbox:wronginput','DEM must not have NaNs')
+    end
+    facecolor  = [1 1 1];
+    facecolordark = [0.8 .8 .8];
+    seaalpha   = .5;
+    sealevel   = 0;
+    
+    xp = x(:);
+    xp = [xp(1); xp; xp(end:-1:1)];
+    yp = repmat(y(1),size(xp));
+    zp = DEM.Z(1,:);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    p(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor,'FaceAlpha',seaalpha);
+    
+    yp = repmat(y(end),size(xp));
+    zp = DEM.Z(end,:);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    p(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor,'FaceAlpha',seaalpha);
+    
+    yp = y(:);
+    yp = [yp(1); yp; yp(end:-1:1)];
+    xp = repmat(x(1),size(yp));
+    zp = DEM.Z(:,1);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    p(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark,'FaceAlpha',seaalpha);
+    
+    xp = repmat(x(end),size(yp));
+    zp = DEM.Z(:,end);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    p(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark,'FaceAlpha',seaalpha);
+    
+    I  = DEM.Z>0;
+    H  = zeros(DEM.size);
+    H(I) = nan;
+    % Texturemap
+    I  = ~I;
+    TM = repmat(I,1,1,3);
+
+    hold on
+    h = surf(x,y,+I,'FaceAlpha',0.5,'FaceColor',facecolor,'EdgeColor','none');
+    hold off
+    
+    
+    set(p,'FaceLighting','none')
+    
+    
+    axislim = axis;
     axislim(5) = baselevel;
     axis(axislim)
     
@@ -160,9 +248,6 @@ if block
     
 
 end
-        
-
-
     
 if nargout == 1
     ht = h;

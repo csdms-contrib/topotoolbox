@@ -69,6 +69,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: mappingapp (lightweighed GUI for mapping points simultaneously in
                 planform and profile view) still beta!
 - new function: FLOWobj/mapfromnal
+- new function: STREAMobj/getvalue
 - new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder

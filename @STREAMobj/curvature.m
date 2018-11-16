@@ -19,7 +19,7 @@ function k = curvature(S,varargin)
 %
 %     There is no straightforward way to calculate curvature at river
 %     confluences since there are two or more pixels upstream. The 
-%     algorithm uses the upstream pixel with the long downstream flow
+%     algorithm uses the upstream pixel with the longest downstream flow
 %     distance to derive curvature.
 %
 % Input arguments
@@ -86,9 +86,9 @@ nr     = numel(S.x);
 Asd    = sparse(rowix(:),colix(:),val(:),nr,nr);
 
 % check input arguments
-if nargin == 1 || nargin == 3;
+if nargin == 1 || nargin == 3
     
-    if nargin == 1;
+    if nargin == 1
         x = S.x;
         y = S.y;
     else
@@ -112,7 +112,7 @@ else
     if isa(DEM,'GRIDobj')
         validatealignment(S,DEM);
         z = getnal(S,DEM);
-    elseif isnal(S,DEM);
+    elseif isnal(S,DEM)
         z = DEM;
     else
         error('Imcompatible format of second input argument')

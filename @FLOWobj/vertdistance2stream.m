@@ -33,7 +33,8 @@ function DZ = vertdistance2stream(FD,S,DEM)
 %     plot(S,'k','LineWidth',2)
 % 
 %
-% See also: FLOWobj, FLOWobj/flowdistance, GRIDobj, STREAMobj
+% See also: FLOWobj, FLOWobj/flowdistance, FLOWobj/mapfromnalGRIDobj, 
+%           STREAMobj
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 4. March, 2016
