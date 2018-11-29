@@ -71,7 +71,7 @@ end
 
 if nrargsin == 2
     % SEED pixels are either supplied as logical matrix, GRIDobj, or linear
-    % index
+    % index, or STREAMobj
     SEED = varargin{1};
     isGRIDobj = isa(SEED,'GRIDobj');   
     if (islogical(SEED) || isGRIDobj)

@@ -68,7 +68,7 @@ function [Sout,nalix] = modify(S,varargin)
 %     removes nodes from S that are upstream to the channelheads of the
 %     supplied STREAMobj.
 %
-%     'rmnodes' STREAMobj
+%     'rmnodes' STREAMobj 
 %     removes nodes in S that belong to another stream network S2.
 %
 %     'tributaryto' instance of STREAMobj
@@ -145,7 +145,7 @@ addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
-addParamValue(p,'nal',[],@(x) isnal(x,'STREAMobj'));
+addParamValue(p,'nal',[],@(x) isnal(S,x));
 
 parse(p,S,varargin{:});
 S   = p.Results.S;

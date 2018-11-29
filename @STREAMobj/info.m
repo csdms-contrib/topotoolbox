@@ -27,8 +27,8 @@ validargs = {'nrnodes' ...
              'nrconfluences' ...
              'maxstreamorder' ...
              'maxdistance'};
-if nargin == 1;
-    for r = 1: numel(validargs);
+if nargin == 1
+    for r = 1: numel(validargs)
         val.(validargs{r}) = info(S,validargs{r});
     end
     return

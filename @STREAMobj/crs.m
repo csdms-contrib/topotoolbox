@@ -110,11 +110,13 @@ if isa(DEM,'GRIDobj')
 elseif isnal(S,DEM)
     z = DEM;
 else
-    error('Imcompatible format of second input argument')
+    error('TopoToolbox:crs','Imcompatible format of second input argument')
 end
 
 if any(isnan(z))
-    error('DEM or z may not contain any NaNs')
+    error('TopoToolbox:crs',...
+        ['DEM or z may not contain any NaNs. Use STREAMobj/inpaintnans \n' ...
+         'to fill nan values using interpolation'])
 end
 
 % double precision is necessary

@@ -33,15 +33,20 @@ CS = STREAMobj2cell(S);
 fx = figure;
 
 % Create push button
-btn = uicontrol('Style', 'pushbutton', 'String', 'Export to workspace',...
-        'Position', [20 20 200 20],...
+btn1 = uicontrol('Style', 'pushbutton', 'String', 'Export to workspace',...
+        'Position', [20 20 150 20],...
         'Callback', @exporttoworkspace);    
+btn1 = uicontrol('Style', 'pushbutton', 'String', 'Switch selection',...
+        'Position', [170 20 150 20],...
+        'Callback', @switchselection);    
+
 
 ax = axes('parent',fx);
 hold on
 nc = numel(CS);
-clr_nonsel = [.6 .6 .6];
+clr_nonsel = [.6 .7 .7];
 clr_sel    = [0 0 0];
+sel = false(nc,1);
 for r = 1:nc
     h(r) = plot(CS{r},'color',clr_nonsel);
     h(r).ButtonDownFcn = @highlight;
@@ -51,7 +56,7 @@ axis image
 title('Click network to select/unselect.')
 
 
-
+%% --- Highlight function ----
 function highlight(h,~)
 
 if isequal(h.Color,clr_nonsel)
@@ -61,6 +66,18 @@ else
 end
 end
 
+%% --- Switch selection ----
+function switchselection(hh,~)
+    for r2 = 1:numel(h)
+        if isequal(h(r2).Color,clr_sel)
+            h(r2).Color = clr_nonsel;
+        else
+            h(r2).Color = clr_sel;
+        end
+    end
+end
+
+%% --- Export to workspace ----
 function exporttoworkspace(hh,~)
 
     I = false(nc,1);
