@@ -1,6 +1,6 @@
 function CA = cellarea(DEM,unit)
 
-% calculate cell areas of a GRIDobj in geographic coordinate system
+%CELLAREA calculate cell areas of a GRIDobj in geographic coordinate system
 %
 % Syntax
 %
@@ -26,15 +26,19 @@ function CA = cellarea(DEM,unit)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 20. May, 2016
 
-if isempty(DEM.georef)
-    error('no coordinate system defined')
+
+try 
+	GST = DEM.georef.SpatialRef.CoordinateSystemType;
+catch
+	GST = 'geographic';
 end
 
-switch DEM.georef.SpatialRef.CoordinateSystemType
+switch GST
     case 'geographic'
     otherwise
         error('DEM has a projected coordinate system')
 end
+
 
 switch lower(unit)
     case 'm'

@@ -6,7 +6,8 @@ function S = split(S,varargin)
 %
 %     Ss = split(S)
 %     Ss = split(S,ix)
-%     Ss = split(S,ix,removeedge)
+%     Ss = split(S,C)
+%     Ss = split(S,...,removeedge)
 %
 % Description
 %
@@ -24,6 +25,8 @@ function S = split(S,varargin)
 %     S     STREAMobj
 %     ix    linear index into DEM. The indexed pixels must be located on 
 %           the channel network, e.g. ismember(ix,S.IXgrid).
+%     C     GRIDobj. The GRIDobj should be a label grid. The stream network
+%           is split where it traverses different regions. 
 %     removeedge {'incoming'} or 'outgoing'. 'incoming' removes the edge or
 %           edges between ix and its upstream neighbor(s). 'outgoing'
 %           removes the downstream edge.
@@ -52,14 +55,19 @@ function S = split(S,varargin)
 %           STREAMobj/STREAMobj2cell
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. May, 2017
+% Date: 3. December, 2018
 
 
 narginchk(1,3)
 if nargin == 1
     V = streampoi(S,'confluences','logical');
 else
-    V = ismember(S.IXgrid,varargin{1});
+    if isa(varargin{1},'GRIDobj')
+        d = gradient(S,varargin{1});
+        V = d~=0;
+    else    
+        V = ismember(S.IXgrid,varargin{1});
+    end
 end
 
 if nargin <= 2
@@ -77,3 +85,5 @@ end
 
 S.ix(I) = [];
 S.ixc(I) = [];
+
+S = clean(S);
