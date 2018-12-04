@@ -26,8 +26,9 @@ function cmap = ttscm(name,n)
 %
 % Input arguments
 %
-%     zlimits        two element vector with maximum and minimum elevation
-%     DEM            GRIDobj from which zlimits will be calculated    
+%     name           name of colormap (run ttscm without in- and output
+%                    arguments for list)
+%     n              number of colors in colormap    
 %     
 % Output arguments
 %
@@ -95,7 +96,7 @@ cmaptype = validatestring(name,allowedcmaps);
 if nargin == 1
     n = 255;
 else
-    validateattributes(n,{'numeric'},{'>',1},ttscm,'n',2)
+    validateattributes(n,{'numeric'},{'>',1},'ttscm','n',2)
 end
 
 cmap = loadcmap(cmaptype);
