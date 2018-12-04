@@ -36,7 +36,7 @@ function DEMr = project(SOURCE,TARGET,varargin)
 %                    true (default) or false. If true, the OUT grid will be
 %                    spatially aligned with TARGET. This means, they have
 %                    the same extent and spatial alignment of cells. If
-%                    'align, true then setting the resolution 'res' will
+%                    'align', true then setting the resolution 'res' will
 %                    have no effect.
 %                    
 % Output arguments
@@ -44,7 +44,7 @@ function DEMr = project(SOURCE,TARGET,varargin)
 %     OUT            instance of GRIDobj
 %
 %
-% See also: GRIDobj, reproject2utm
+% See also: GRIDobj, reproject2utm, egm96heights
 %
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de) and Wolfgang
 %         Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)

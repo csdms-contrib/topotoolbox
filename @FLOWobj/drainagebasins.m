@@ -68,13 +68,24 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %     D = drainagebasins(FD,S,3);
 %     imageschs(DEM,D)
 %
+% Example 3: map values to drainage basins (e.g. basin wide erosion rates).
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S  = STREAMobj(FD,'minarea',1000);
+%     IX = randlocs(S,10);
+%     erosrate = rand(size(IX));
+%     D  = drainagebasins(FD,IX);
+%     E = GRIDobj(DEM)*nan;
+%     E.Z(D.Z~=0) = erosrate(D.Z(D.Z~=0));
+%     imageschs(DEM,E)
 %
 %
 % See also: FLOWobj, GRIDobj/snap2stream, FLOWobj/streamorder,
 %           GRIDobj/shufflelabel
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. September, 2016
+% Date: 3. December, 2018
 
 
 
@@ -82,6 +93,8 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 % FLOWobj/flowacc
 
 % 30/9/2016: bug removed when called with 2 or 3 outputs
+
+% 3/12/2018: new example and some additional error checking
 
 narginchk(1,3);
 
@@ -140,6 +153,11 @@ elseif nargin > 1
             % SEED pixels are supplied as coordinate pairs
             IX   = coord2ind(FD,varargin{1},varargin{2});
         end
+    end
+    
+    if any(IX<1) || any(IX>prod(FD.size))
+        error('TopoToolbox:drainagebasins',...
+            'Some of the locations are outside the grid boundaries.')
     end
  
     D = zeros(FD.size,'uint32');
