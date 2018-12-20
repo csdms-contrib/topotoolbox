@@ -157,7 +157,7 @@ elseif p.Results.split == 2
     
     params = p.Results;
     params.split = 0;
-    params.fixedoutlet = false;
+    % params.fixedoutlet = false;
     for r = 1:max(CID)
         ii = CID == r;
         if r > 1
