@@ -1,4 +1,4 @@
-function [V,IX] = mapfromnal(FD,S,nal)
+function [V,IX] = mapfromnal(FD,S,nal,cl)
 
 %MAPFROMNAL map values from node-attribute list to nearest upstream grid
 %
@@ -32,12 +32,23 @@ function [V,IX] = mapfromnal(FD,S,nal)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 6. November, 2018
 
-narginchk(3,3)
+narginchk(3,4)
 
 % If the variable nal is a GRIDobj than extract the nal
 if isa(nal,'GRIDobj')
     nal = getnal(S,nal);
+else
+    tf = isnal(S,nal);
+    if ~tf
+        error('3rd input argument is not a node-attribute list')
+    end
 end
+
+% check class
+if nargin == 3
+    cl = 'single';
+end
+    
 
 
 nrnal = numel(S.x);
@@ -56,10 +67,12 @@ for r = numel(ixc):-1:1
     end
 end
 
-V   = GRIDobj(I,'single');
-V.Z(:,:) = nan('single');
+V   = GRIDobj(I,cl);
+if isfloat(V.Z)    
+    V.Z(:,:) = nan(cl);
+end
 I   = IX~=0;
-V.Z(I) = nal(IX(I));
+V.Z(I) = cast(nal(IX(I)),cl);
 
 
 
