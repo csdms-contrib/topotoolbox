@@ -130,7 +130,7 @@ addParameter(p,'split',false);
 addParameter(p,'K',10,@(x) (isscalar(x) && x>0));
 addParameter(p,'nstribs',true,@(x) isscalar(x));
 addParameter(p,'positive',false,@(x) isscalar(x));
-addParameter(p,'weights',[],@(x) isa(x,'GRIDobj') || isnal(S,x));
+addParameter(p,'weights',[],@(x) isa(x,'GRIDobj') || isnal(S,x) || isempty(x));
 
 parse(p,varargin{:});
 
@@ -270,7 +270,7 @@ switch method
         if ~p.Results.positive
             zs     = C\b;
         else
-            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],z);
+            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[]);
         end
         
     case 'movmean'

@@ -73,6 +73,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
+- new function: STREAMobj/stackedplot
 - new function: STREAMobj/sinuosity
 - new function: STREAMobj/clean
 - new function: STREAMobj/nal2nal
@@ -80,6 +81,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: GRIDobj/getextent
 - renamed GRIDobj/project2GRIDobj to GRIDobj/project. In addition, the function has 
   a number of new functionalities.
+- modification: STREAMobj/modify has new options for interactively modifying stream networks
 - changes to readopentopo, getcoordinates, getoutline, polygon2GRIDobj, line2GRIDobj
 - new function: hydrosheds2FLOWobj (see in IOtools)
 - new function: egm96heights including the grid ww15mgh.grd that contains global geoid 

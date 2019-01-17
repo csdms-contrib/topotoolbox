@@ -5,6 +5,7 @@ function [Sout,nalix] = modify(S,varargin)
 % Syntax
 %
 %     S2 = modify(S,pn,pv)
+%     [S2,nalix] = ...
 %
 % Description
 %
@@ -82,17 +83,28 @@ function [Sout,nalix] = modify(S,varargin)
 %     removes parts of the stream network that are within the specified
 %     distance from the channelheads.
 %
+%     'clip' n*2 matrix or logical GRIDobj
+%     retains those parts of the network that are inside the polygon
+%     with vertices defined by the n*2 matrix with x values in the first
+%     column and y values in the second column. The function automatically
+%     closes the polygon if the first and the last row in the matrix
+%     differ.
+%
 %     'interactive'  string
 %        'polyselect': plots the stream network and starts a polygon tool to
 %                      select the stream network of interest.
 %        'reachselect': select a reach based on two locations on the network
 %        'channelheadselect': select a number of channel heads and derive 
 %                      stream network from them.
+%        'rectselect': like 'polyselect', but with a rectangle
+%        'ellipseselect': like 'polyselect', but with an ellipse
 %
 %
 % Output arguments
 %
-%     S2    modified stream network (class: STREAMobj)
+%     S2      modified stream network (class: STREAMobj)
+%     nalix   index into node attribute list nal of S, so that nal2 =
+%             nal(nalix)
 %
 % Examples
 %
@@ -123,7 +135,7 @@ function [Sout,nalix] = modify(S,varargin)
 % See also: STREAMobj, STREAMobj/trunk, demo_modifystreamnet
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 25. September, 2017
+% Date: 9. January, 2019
 
 narginchk(3,3)
 
@@ -135,7 +147,9 @@ addRequired(p,'S',@(x) isa(x,'STREAMobj'));
 addParamValue(p,'streamorder',[]);
 addParamValue(p,'distance',[],@(x) isnumeric(x) && numel(x)<=2);
 addParamValue(p,'maxdsdistance',[],@(x) isscalar(x) && x>0);
-addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect','channelheadselect'})));
+addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect',...
+                                                               'channelheadselect','rectselect',...
+                                                               'ellipseselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
@@ -145,6 +159,7 @@ addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'clip',[],@(x) (isnumeric(x) && size(x,2)==2 && size(x,1)>2) || isa(x,'GRIDobj'));
 addParamValue(p,'nal',[],@(x) isnal(S,x));
 
 parse(p,S,varargin{:});
@@ -314,13 +329,31 @@ elseif ~isempty(p.Results.rmnodes)
     
 elseif ~isempty(p.Results.nal)
     I = p.Results.nal;
-    
+
+elseif ~isempty(p.Results.clip)
+    if isa(p.Results.clip,'GRIDobj')
+        mask = p.Results.clip;
+        I    = mask.Z(S.IXgrid) > 0;
+    else
+        pos = p.Results.clip;
+        if ~isequal(pos(end,:),pos(1,:))
+            pos(end+1,:) = pos(1,:);
+        end
+        I = inpolygon(S.x,S.y,pos(:,1),pos(:,2));
+    end
+
 elseif ~isempty(p.Results.interactive)
 %% interactive    
     figure
-    plot(S,'k'); axis image
+    plot(S,'k'); axis equal
+    ax = gca;
+    % expand axes
+    lims = axis;
+    xlim(ax,[lims(1)-(lims(2)-lims(1))/20 lims(2)+(lims(2)-lims(1))/20])
+    ylim(ax,[lims(3)-(lims(4)-lims(3))/20 lims(4)+(lims(4)-lims(3))/20])
     
-    switch validatestring(p.Results.interactive,{'polyselect','reachselect','channelheadselect'})
+    meth = validatestring(p.Results.interactive,{'polyselect','reachselect','channelheadselect','rectselect','ellipseselect'});
+    switch meth
         case 'channelheadselect'
             title('map channel heads and enter any key to finalize')
             hold on
@@ -349,12 +382,30 @@ elseif ~isempty(p.Results.interactive)
             for r = 1:numel(S.ix)
                 I(S.ixc(r)) = I(S.ix(r)) || I(S.ixc(r));
             end
-            
-        case 'polyselect'
-            title('create a polygon and double-click to finalize')
-            hp = impoly;
-            pos = wait(hp);
-            pos(end+1,:) = pos(1,:);
+               
+        case {'polyselect', 'rectselect', 'ellipseselect'}
+            switch meth
+                case 'polyselect'
+                    title('create a polygon and double-click to finalize')
+                    hp = impoly;
+                    pos = wait(hp);
+                    pos(end+1,:) = pos(1,:);
+                case 'ellipseselect'
+                    title('create a ellipse and double-click to finalize')
+                    hp = imellipse;
+                    wait(hp);
+                    pos = getVertices(hp);
+                    pos(end+1,:) = pos(1,:);
+                case 'rectselect'
+                    title('create a rectangle and double-click to finalize')
+                    hp = imrect;
+                    pos = wait(hp);
+                    pos = [pos(1)         pos(2); ...
+                           pos(1)+pos(3)  pos(2); ...
+                           pos(1)+pos(3)  pos(2)+pos(4);...
+                           pos(1)         pos(2)+pos(4);...
+                           pos(1)         pos(2)];
+            end
 
             I = inpolygon(S.x,S.y,pos(:,1),pos(:,2));
             hold on
