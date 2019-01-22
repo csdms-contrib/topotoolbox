@@ -22,7 +22,7 @@ function val = getvalue(S,nal,varargin)
 %              
 %              getvalue takes one of the following pn/pv arguments
 %
-%     'distance'    scalar value of the distance measured from the outlet.
+%     'distance'    scalar or vector of the distance measured from the outlet.
 %                   This only works if S represents a single stream (i.e. S
 %                   has only one channelhead).
 %     'coordinates' pairs of x and y coordinates. Coordinates are snapped
@@ -44,19 +44,31 @@ function val = getvalue(S,nal,varargin)
 %     dlocs = getvalue(S,d,'IXgrid',IX);
 %     histogram(dlocs)
 %
+% Example 2: Get elevations of a stream along a set of distance values
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S  = STREAMobj(FD,'minarea',1000);
+%     S = trunk(klargestconncomps(S));
+%     nal = [getnal(S,DEM) gradient(S,DEM)];
+%     z = getvalue(S,nal,'distance',[20000 40000 30000]);
+%     plotdz(S,DEM);
+%     hold on
+%     plot([20000 40000 30000],z(:,1),'s');
+%     hold off
 % 
 %            
-% See also: imageschs
+% See also: STREAMobj, STREAMobj/distance, STREAMobj/getnal
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. November, 2018
+% Date: 21. January, 2019
 
 
 narginchk(4,4)
 p = inputParser;         
 p.FunctionName = 'STREAMobj/getvalue';
 
-addParamValue(p,'distance',[],@(x) isscalar(x));
+addParamValue(p,'distance',[]);
 addParamValue(p,'coordinates',[]);
 addParamValue(p,'IXgrid',[]);
 
@@ -74,9 +86,20 @@ if ~isempty(p.Results.distance)
             'STREAMobj/klargestconncomps for extracting single rivers.'])
     end
     
-    d = S.distance;
-    [~,ix] = min(abs(d - p.Results.distance));
-    val    = nal(ix,:);
+
+    nal = num2cell(nal,1);
+    
+    [~,~,d,nal{:}] = STREAMobj2XY(S,S.distance,nal{:});
+    nal = cell2mat(nal);
+    d(end) = [];
+    nal(end,:) = [];
+    
+    val = interp1(d,nal,p.Results.distance(:));
+    
+    % d = S.distance;
+    % [~,ix] = min(abs(d - p.Results.distance));
+    % val    = nal(ix,:);
+    
 elseif ~isempty(p.Results.coordinates)
     [~,~,IX,res] = snap2stream(S,p.Results.coordinates(:,1),p.Results.coordinates(:,2));
     [~,locb] = ismember(IX,S.IXgrid);
