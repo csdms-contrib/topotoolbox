@@ -79,6 +79,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/nal2nal
 - new function: GRIDobj/GRIDobj2im
 - new function: GRIDobj/getextent
+- new function: IOtools/readexample
 - renamed GRIDobj/project2GRIDobj to GRIDobj/project. In addition, the function has 
   a number of new functionalities.
 - modification: STREAMobj/modify has new options for interactively modifying stream networks
