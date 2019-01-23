@@ -146,9 +146,9 @@ end
 methods
     function FD = FLOWobj(DEM,varargin)
 
-        if nargin == 0;
+        if nargin == 0
             % Create an empty FLOWobj
-        elseif nargin >= 1 && nargin ~= 2;
+        elseif nargin >= 1 && nargin ~= 2
 
             % Parse inputs
             p = inputParser;
@@ -195,7 +195,7 @@ methods
                 ext = mexext;
                 mexx = exist(['steepestneighbor_mex.' ext],'file')==3 && ...
                        exist(['tsort_mex.' ext],'file')==3;
-                if mexx==0;
+                if mexx==0
                     warning('TopoToolbox:FLOWobj',...
                             ['cannot find compiled mex functions on the search path. \n'...
                              'FLOWobj continues with using slower m-functions']);
@@ -210,7 +210,7 @@ methods
                 FD.cellsize = p.Results.cellsize;
                 FD.refmat   = p.Results.refmat;
                 
-                if ~isempty(siz);
+                if ~isempty(siz)
                     FD.size = siz;
                 else
                     fprintf(['\n       The size of the DEM was not provided. It will be \n'...
@@ -356,17 +356,19 @@ methods
                     
                     DD = bwdist(~IntBasin.Z,'e');
                     STATS   = regionprops(IntBasin.Z,DD,'PixelIdxList','PixelValues');
-                    
-                    for r=1:numel(STATS);
-                        [~,ixm] = max(STATS(r).PixelValues);
-                        STATS(r).MaxIntIX = STATS(r).PixelIdxList(ixm);
-
-                        I(STATS(r).PixelIdxList(1)) = false;
-                        SILLS(STATS(r).PixelIdxList(1)) = true;
+                    if ~isempty(STATS)
+                        for r=1:numel(STATS)
+                            [~,ixm] = max(STATS(r).PixelValues);
+                            STATS(r).MaxIntIX = STATS(r).PixelIdxList(ixm);
+                            
+                            I(STATS(r).PixelIdxList(1)) = false;
+                            SILLS(STATS(r).PixelIdxList(1)) = true;
+                        end
+                        
+                        ixm = [STATS(r).MaxIntIX];
+                        I(ixm) = false;
+                        SILLS(ixm) = true;
                     end
-                    ixm = [STATS(r).MaxIntIX];
-                    I(ixm) = false;
-                    SILLS(ixm) = true;
                     clear InBasin STATS
                     
                     % A slightly faster but less elegant approach
