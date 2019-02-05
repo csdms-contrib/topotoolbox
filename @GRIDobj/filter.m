@@ -38,7 +38,9 @@ function DEM = filter(DEM,varargin)
 
 
 
-validmethods = {'mean','average','median','sobel','scharr','wiener'};
+validmethods = {'mean','average','median',...
+                'sobel','scharr','wiener',...
+                'std'};
 
 % Parse inputs
 p = inputParser;
@@ -94,6 +96,8 @@ switch method
         
     case 'wiener'
         dem     = wiener2(dem,ws);
+    case 'std'
+        dem     = stdfilt(dem,true(p.Results.kernel(1),p.Results.kernel(2)));
 end
 
 % and set nans at their previous position

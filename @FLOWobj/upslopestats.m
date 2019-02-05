@@ -68,7 +68,8 @@ end
 if nargin == 2
     meth = 'mean';
 else
-    meth = validatestring(meth,{'mean','std','var','min','max','sum'});
+    meth = validatestring(meth,{'mean','std','var','min','max','sum',...
+                                'nanmean'});
 end
 
 if nargin == 4
@@ -93,6 +94,15 @@ switch meth
         % Sum
         S = flowacc(FD,VAR);
         S = S.Z;
+    case 'nanmean'
+        % Count
+        I = isnan(VAR);
+        n = flowacc(FD,+(~I));
+        n = n.Z;
+        % Sum
+        VAR(I) = 0;
+        S = flowacc(FD,VAR);
+        S = S.Z;
 end
         
 
@@ -105,6 +115,9 @@ switch meth
     case 'mean'
         % Sum/Count
         VAR = S./n;
+    case 'nanmean'
+        VAR = S./n;
+        VAR(n==0) = nan; 
     case {'std','var'}
         % formula for calculating an unbiased estimate of the population variance
         % ! may be very much affected by round-off errors, arithmetic

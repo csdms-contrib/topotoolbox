@@ -22,12 +22,14 @@ function DEMr = project(SOURCE,TARGET,varargin)
 % Input arguments
 %
 %     SOURCE         instance of GRIDobj that shall be transformed
-%     TARGET         instance of GRIDobj with the target projection
+%     TARGET         instance of GRIDobj with the target projection or 
+%                    mapping projection structure (mstruct)
 %
 %     Parameter name/value pairs
 %     
 %     'res'          scalar
-%                    spatial resolution. Default is TARGET.cellsize
+%                    spatial resolution. Default is TARGET.cellsize. If
+%                    target is an mstruct, res must be supplied. 
 %     'method'       string
 %                    'bilinear' (default),'bicubic' or 'nearest'
 %     'fillvalue'    scalar
@@ -51,9 +53,20 @@ function DEMr = project(SOURCE,TARGET,varargin)
 % Date: 2. December, 2018
 
 
+narginchk(2,inf)
+
+if isa(TARGET,'GRIDobj')
+    cs = TARGET.cellsize;
+    targetisGRIDobj = true;
+elseif isstruct(TARGET)
+    % target is a mapping structure
+    cs = [];
+    targetisGRIDobj = false;
+end
+
 p = inputParser;
 p.FunctionName = 'GRIDobj/project';
-addParamValue(p,'res',  TARGET.cellsize,@(x) isscalar(x));
+addParamValue(p,'res',  cs,@(x) isscalar(x));
 addParamValue(p,'align',true,@(x) isscalar(x));
 addParamValue(p,'method','bilinear',@(x) ischar(x));
 addParamValue(p,'fillvalue',nan,@(x) isscalar(x));
@@ -62,6 +75,9 @@ parse(p,varargin{:});
 % Get mstruct of SOURCE
 try
     mstruct_s = SOURCE.georef.mstruct;
+    if isempty(mstruct_s)
+        error('error')
+    end
     %cstype_s = SOURCEDEM.georef.SpatialRef.CoordinateSystemType;
     pr2pr     = true;
 catch
@@ -72,10 +88,22 @@ catch
 end
     
 % Get mstruct of TARGET
-mstruct_t = TARGET.georef.mstruct;
+if targetisGRIDobj
+    mstruct_t = TARGET.georef.mstruct;
+    cs = p.Results.res;
+else
+    mstruct_t = TARGET;
+    cs = p.Results.res;
+    if isempty(cs)
+        error('Spatial resolution of the output GRIDobj must be set.');
+    end
+end
+    
+    
+    
 %cstype_t = TARGETDEM.georef.SpatialRef.CoordinateSystemType;
 
-if ~p.Results.align     
+if ~p.Results.align || ~targetisGRIDobj 
 
     [x0,y0]   = getcoordinates(SOURCE);
     x0        = x0(:);
@@ -89,7 +117,7 @@ if ~p.Results.align
         [lat,lon] = minvtran(mstruct_s,x,y);
         [x,y]     = mfwdtran(mstruct_t,lat,lon);
     else
-        [x,y]     = mfdwtran(mstruct_t,y,x);
+        [x,y]     = mfwdtran(mstruct_t,y,x);
     end
     
     tlims([1 2]) = [min(x),max(x)];
@@ -139,7 +167,7 @@ end
  
 Znew = flipud(Znew); 
 
-if p.Results.align
+if p.Results.align && targetisGRIDobj
     % If aligned, this is easy. The transformed GRIDobj will be perfectly
     % aligned with TARGET
     DEMr = TARGET;
@@ -158,8 +186,13 @@ else
     % Include geospatial and other information
     R = refmatToMapRasterReference(DEMr.refmat,DEMr.size);
     DEMr.georef.SpatialRef = R;
-    DEMr.georef.mstruct = TARGET.georef.mstruct;
-    DEMr.georef.GeoKeyDirectoryTag = TARGET.georef.GeoKeyDirectoryTag;
+    DEMr.georef.mstruct = mstruct_t;
+    if targetisGRIDobj
+        DEMr.georef.GeoKeyDirectoryTag = TARGET.georef.GeoKeyDirectoryTag;
+    else
+        DEMr.georef.GeoKeyDirectoryTag = [];
+        warning('Could not set GeoKeyDirectoryTag in output GRIDobj')
+    end
     DEMr.zunit = SOURCE.zunit;
     DEMr.xyunit = SOURCE.xyunit;
 end

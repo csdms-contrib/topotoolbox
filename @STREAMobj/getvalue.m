@@ -74,6 +74,16 @@ addParamValue(p,'IXgrid',[]);
 
 parse(p,varargin{:});
 
+if isa(nal,'GRIDobj')
+    nal = getnal(S,nal);
+elseif iscell(nal)
+    % nal is a cell array of GRIDobjs
+    nal = cellfun(@(x) getnal(S,x),nal,'UniformOutput',false);
+    nal = horzcat(nal{:});
+end
+    
+
+
 if ~isnal(S,nal(:,1))
     error('TopoToolbox:getvalue','nal is not a valid node-attribute list')
 end
@@ -115,7 +125,7 @@ elseif ~isempty(p.Results.coordinates)
 elseif ~isempty(p.Results.IXgrid)
     [I,locb] = ismember(p.Results.IXgrid,S.IXgrid);
     val = nan(numel(p.Results.IXgrid),size(nal,2));
-    val(I) = nal(locb(I),:);
+    val(I,:) = nal(locb(I),:);
     
     
     
