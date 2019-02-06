@@ -55,11 +55,4 @@ end
 
 
 [I,locb] = ismember(S1.IXgrid,S2.IXgrid);
-
-if ~all(I)
-    error('TopoToolbox:setnal',...
-            ['S1 must be a subgraph of S2. All nodes in S1\n'...
-             'must be a member of the network S2']);
-end
-    
-nal2(locb) = nal1;
+nal2(locb(I)) = nal1(I);
