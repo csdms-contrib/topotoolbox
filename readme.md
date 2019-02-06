@@ -73,7 +73,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
 - new function: STREAMobj/knickpointfinder
-- new function: STREAMobj/stackedplot
+- new function: STREAMobj/stackedplotdz
 - new function: STREAMobj/sinuosity
 - new function: STREAMobj/clean
 - new function: STREAMobj/nal2nal

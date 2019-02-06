@@ -28,6 +28,23 @@ function nal2 = nal2nal(S2,S1,nal1,fillval)
 %
 %     nalB     nal of SB
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM);
+%     S   = STREAMobj(FD,'minarea',1000);
+%     S   = klargestconncomps(S);
+% 
+%     A   = flowacc(FD);
+%     c   = chitransform(S,A); 
+%     S2  = modify(S,'streamorder',1);
+%     c2  = nal2nal(S2,S,c,0);
+%     plot(S,'k')
+%     hold on
+%     plotc(S2,c2); 
+%     h = colorbar;
+%     h.Label.String ='\chi'; 
+%
 %
 % See also: STREAMobj2GRIDobj
 %
