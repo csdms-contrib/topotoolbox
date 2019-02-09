@@ -22,7 +22,7 @@ function zs = aggregate(S,DEM,varargin)
 %
 % Parameter name/value pairs
 %
-%     'method'     {'reach'}, 'betweenconfluences'
+%     'method'     {'reach'}, 'betweenconfluences','drainagebasins'
 %     'split'      {false} or true. True will identify individual drainage
 %                  basins and process each individually in parallel (requires
 %                  the parallel processing toolbox).
@@ -69,7 +69,7 @@ addParameter(p,'seglength',S.cellsize*11);
 addParameter(p,'aggfun',@mean);
 
 parse(p,varargin{:});
-method = validatestring(p.Results.method,{'betweenconfluences','reach'});
+method = validatestring(p.Results.method,{'betweenconfluences','reach','drainagebasins'});
 
 % get node attribute list with elevation values
 if isa(DEM,'GRIDobj')
@@ -109,6 +109,10 @@ switch method
         zs = za(c);
     case 'reach'
         label = labelreach(S,'seglength',p.Results.seglength);   
+        zm    = accumarray(label,z,[max(label) 1],p.Results.aggfun,nan);
+        zs    = zm(label);
+    case 'drainagebasins'
+        label = conncomps(S);
         zm    = accumarray(label,z,[max(label) 1],p.Results.aggfun,nan);
         zs    = zm(label);
 end

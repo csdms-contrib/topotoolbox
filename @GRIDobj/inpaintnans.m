@@ -89,13 +89,20 @@ elseif isa(varargin{1},'GRIDobj')
     else
         method = varargin{2};
         method = validatestring(method,...
-        {'linear','nearest','spline','pchip','cubic'},'GRIDobj/inpaintnans','method',3);
+        {'linear','nearest','spline','pchip','cubic','tt'},'GRIDobj/inpaintnans','method',3);
     end
-    INAN = isnan(DEM);
-    IX   = find(INAN.Z);
-    [x,y] = ind2coord(DEM,IX);
-    znew  = interp(varargin{1},x,y,method);
-    DEM.Z(IX) = znew;
+    
+    switch method
+        case 'tt'
+            DEM = ttinpaint(DEM,varargin{1});
+        otherwise
+            INAN = isnan(DEM);
+            IX   = find(INAN.Z);
+            [x,y] = ind2coord(DEM,IX);
+            znew  = interp(varargin{1},x,y,method);
+            DEM.Z(IX) = znew;
+    end
+   
 end
 
 end
@@ -172,6 +179,27 @@ end
 end
 
 
+
+function DEM = ttinpaint(DEM,DEM2)
+
+INAN = isnan(DEM);
+INAN.Z = imclearborder(INAN.Z);
+B    = dilate(INAN,ones(5)) & ~INAN;
+IX   = find(B);
+[x,y] = ind2coord(B,IX);
+z     = interp(DEM2,x,y);
+
+DIFF = DEM;
+DIFF.Z(IX) = z-DIFF.Z(IX);
+
+DIFF = inpaintnans(DIFF,'laplace');
+DEM  = inpaintnans(DEM,DEM2);
+DEM.Z(INAN.Z) = DEM.Z(INAN.Z)+DIFF.Z(INAN.Z);
+
+
+
+
+end
 
 
 function DEM = interpneighborpixels(DEM)

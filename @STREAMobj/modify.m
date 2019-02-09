@@ -158,6 +158,7 @@ addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
 addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'fromch2IX',[]);
 addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'clip',[],@(x) (isnumeric(x) && size(x,2)==2 && size(x,1)>2) || isa(x,'GRIDobj'));
 addParamValue(p,'nal',[],@(x) isnal(S,x));
@@ -309,6 +310,24 @@ elseif ~isempty(p.Results.shrinkfromtop)
 %% shrink from top
     d = distance(S,'max_from_ch');
     I = d > p.Results.shrinkfromtop;
+elseif ~isempty(p.Results.fromch2IX)
+    ch = streampoi(S,'channelhead','logical');
+    en = ismember(S.IXgrid,p.Results.fromch2IX);
+    
+    pp = en;
+    for r = numel(S.ix):-1:1
+        if pp(S.ixc(r))
+            pp(S.ix(r)) = true;
+        end
+    end
+     
+    for r = 1:numel(S.ix)
+        if ch(S.ix(r)) && ~en(S.ixc(r)) && pp(S.ix(r))
+            ch(S.ixc(r)) = true;
+        end
+    end
+    
+    I = ch;
     
 elseif ~isempty(p.Results.rmconncomps)
 %% remove connected conn comps
