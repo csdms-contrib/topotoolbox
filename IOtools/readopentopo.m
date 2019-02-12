@@ -36,11 +36,12 @@ function DEM = readopentopo(varargin)
 %     'south'          southern boundary
 %     'west'           western boundary
 %     'east'           eastern boundary
-%     'demtype'        The global raster dataset - SRTM GL3 (90m) is 
-%                      'SRTMGL3' (default), SRTM GL1 (30m) is 'SRTMGL1',  
-%                      SRTM GL1 (Ellipsoidal) is 'SRTMGL1_E', ALOS World 3D 
-%                      30m is 'AW3D30', and ALOS World 3D (Ellipsoidal) is 
-%                      'AW3D30_E'.
+%     'demtype'        The global raster dataset 
+%                      {'SRTMGL3'}: SRTM GL3 (90m) (default) 
+%                      'SRTMGL1':   SRTM GL1 (30m)  
+%                      'SRTMGL1_E': SRTM GL1 (Ellipsoidal)  
+%                      'AW3D30':    ALOS World 3D 30m  
+%                      'AW3D30_E':  ALOS World 3D (Ellipsoidal)
 %     'verbose'        {true} or false. If true, then some information on
 %                      the process is shown in the command window
 %     'deletefile'     {true} or false. True, if file should be deleted

@@ -62,7 +62,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ### pre 2.3
 
 - Documentation in the documentation browser
-- new function: ttcmap for creating nice colormaps for DEMs, inparticularly
+- new function: ttcmap for creating nice colormaps for DEMs, particularly
   if DEMs include topography and bathymetry
 - new function: ttscm for access to scientific colormaps;
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)

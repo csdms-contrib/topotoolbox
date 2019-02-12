@@ -91,8 +91,10 @@ function [Sout,nalix] = modify(S,varargin)
 %     differ.
 %
 %     'interactive'  string
-%        'polyselect': plots the stream network and starts a polygon tool to
-%                      select the stream network of interest.
+%        'polyselect': plots the stream network and starts a polygon tool 
+%                      to select the stream network of interest.
+%        'outletselect': select a basin based on a manually selected
+%                      outlet.
 %        'reachselect': select a reach based on two locations on the network
 %        'channelheadselect': select a number of channel heads and derive 
 %                      stream network from them.
@@ -135,7 +137,7 @@ function [Sout,nalix] = modify(S,varargin)
 % See also: STREAMobj, STREAMobj/trunk, demo_modifystreamnet
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 9. January, 2019
+% Date: 12. February, 2019
 
 narginchk(3,3)
 
@@ -149,7 +151,7 @@ addParamValue(p,'distance',[],@(x) isnumeric(x) && numel(x)<=2);
 addParamValue(p,'maxdsdistance',[],@(x) isscalar(x) && x>0);
 addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','reachselect',...
                                                                'channelheadselect','rectselect',...
-                                                               'ellipseselect'})));
+                                                               'ellipseselect','outletselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
@@ -371,8 +373,25 @@ elseif ~isempty(p.Results.interactive)
     xlim(ax,[lims(1)-(lims(2)-lims(1))/20 lims(2)+(lims(2)-lims(1))/20])
     ylim(ax,[lims(3)-(lims(4)-lims(3))/20 lims(4)+(lims(4)-lims(3))/20])
     
-    meth = validatestring(p.Results.interactive,{'polyselect','reachselect','channelheadselect','rectselect','ellipseselect'});
+    meth = validatestring(p.Results.interactive,...
+        {'polyselect','reachselect','channelheadselect',...
+         'rectselect','ellipseselect','outletselect'});
     switch meth
+        case 'outletselect'
+            title('map outlet and double-click to finalize')
+            hold on
+            htemp = plot(ax,[],[]);
+            hp = impoint('PositionConstraintFcn',@getnearest);
+            addNewPositionCallback(hp,@drawbasin);
+            pos = wait(hp);
+            hold off
+            delete(hp);
+            I = S.x==pos(1) & S.y==pos(2);
+            for r = numel(S.ixc):-1:1
+                I(S.ix(r)) = I(S.ixc(r)) || I(S.ix(r));
+            end
+            
+        
         case 'channelheadselect'
             title('map channel heads and enter any key to finalize')
             hold on
@@ -522,6 +541,16 @@ function drawpath(pos)
     end
 end 
 
+    function II = drawbasin(pos)
+        II = S.x==pos(1) & S.y==pos(2);
+        IX = S.IXgrid(II);
+        Stemp = modify(S,'upstreamto',IX);
+        delete(htemp)
+        try
+            htemp = plot(Stemp,'r');
+        end
+        
+    end
         
 end
             
