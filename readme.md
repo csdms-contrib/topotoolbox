@@ -28,15 +28,43 @@ exchange with GIS software.
 When you use TopoToolbox in your work, please reference following 
 publication:
 
-Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+- Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
 software for topographic analysis and modeling in Earth surface sciences. 
 Earth Surface Dynamics, 2, 1-7. DOI: [10.5194/esurf-2-1-2014](http://dx.doi.org/10.5194/esurf-2-1-2014)
 
 If you are using version 1, then please refer to this publication:
 
-Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
+- Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
 functions for topographic analysis. Environmental Modelling & Software, 
 25, 770-781. DOI: [10.1016/j.envsoft.2009.12.002](http://dx.doi.org/10.1016/j.envsoft.2009.12.002)
+
+In addition, various models and algorithms used in TopoToolbox have been published in the following articles. 
+
+### DEM preprocessing and carving
+
+- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G. (2013): Flow network derivation from a high 
+resolution DEM in a low relief, agrarian landscape. Earth Surface Processes and Landforms, 38, 
+1576-1586. DOI: [10.1002/esp.3452](http://dx.doi.org/10.1002/esp.3452)
+
+- Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty assessment and smoothing 
+using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [10.5194/esurf-5-821-2017](https://doi.org/10.5194/esurf-5-821-2017)
+
+### TopoToolbox Landscape Evolution Modelling (TTLEM)
+
+- Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation of transient 
+landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
+Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
+
+### Excess topography
+
+- Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+
+### Knickpointfinder
+
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., 
+Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
+Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
+(The description here is very terse, yet)
 
 ## Getting started
 
@@ -57,6 +85,7 @@ sections (e.g. `help gradient8` or `help STREAMobj/modify`. An additional
 resource for code and examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 
+***
 ## Version History
 
 ### pre 2.3

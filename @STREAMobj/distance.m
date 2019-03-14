@@ -11,16 +11,16 @@ function d = distance(S,type)
 %
 % Description
 %
-%     This function returns a node attribute list with a distance value for  
+%     This function returns a node-attribute list with a distance value for  
 %     each node in the stream network S. Since distance can be calculated
 %     in different ways for a channelnetwork, the second input argument
-%     allows choosing between a number of different distance metrics. If
+%     lets you choose between a number of different distance metrics. If
 %     the second input argument S2 is a STREAMobj, distances will be based
 %     on the distances of S2. Note that S must be a subset of S2 then! 
 %
-%      If the second input argument is IX or xy then d will not be a
-%      node-attribute list, but a vector with as many locations in IX or
-%      xy.
+%     If the second input argument is IX or xy then d will not be a
+%     node-attribute list, but a vector with as many locations in IX or
+%     xy.
 %
 % Input arguments
 %

@@ -270,7 +270,10 @@ switch method
         if ~p.Results.positive
             zs     = C\b;
         else
-            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[]);
+            
+            options = optimset('Display','off');
+            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],[],options);
+
         end
         
     case 'movmean'
