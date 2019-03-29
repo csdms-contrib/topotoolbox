@@ -182,6 +182,7 @@ methods
     
     function distance = get.distance(S)
         % [dynamic property] distance from outlet
+        
         distance = zeros(numel(S.x),1);
         for r = numel(S.ix):-1:1
             distance(S.ix(r)) = distance(S.ixc(r)) + ...

@@ -26,7 +26,7 @@ else
         validatealignment(varargin{isGRIDobj},varargin{~isGRIDobj});
     end
     
-    if ref == 1;
+    if ref == 1
         OUT.Z = builtin(funname,varargin{isGRIDobj}.Z,varargin{~isGRIDobj});
     else
         OUT.Z = builtin(funname,varargin{~isGRIDobj},varargin{isGRIDobj}.Z);

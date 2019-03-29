@@ -93,6 +93,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - Documentation in the documentation browser
 - new function: ttcmap for creating nice colormaps for DEMs, particularly
   if DEMs include topography and bathymetry
+- FLOWobj2gradient renamed to gradient
 - new function: ttscm for access to scientific colormaps;
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: mappingapp (lightweighed GUI for mapping points simultaneously in
@@ -106,6 +107,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/sinuosity
 - new function: STREAMobj/clean
 - new function: STREAMobj/nal2nal
+- new function: GRIDobj/clip
 - new function: GRIDobj/GRIDobj2im
 - new function: GRIDobj/getextent
 - new function: IOtools/readexample

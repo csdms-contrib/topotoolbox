@@ -8,6 +8,6 @@ G = GRIDobj([]);
 pg = properties(G);
 pf = properties(FD);
 p  = intersect(pg,pf);
-for r = 1:numel(p);
+for r = 1:numel(p)
     G.(p{r}) = FD.(p{r});
 end
