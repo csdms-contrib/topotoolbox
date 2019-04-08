@@ -24,6 +24,7 @@ function theta = orientation(S,varargin)
 %             from top, wheras radians will be measured anti-clockwise from
 %             the x-axis. 'cart' returns the cartesian coordinates of the
 %             directional vectors.
+%     
 %
 % Output arguments
 %
@@ -71,5 +72,5 @@ theta = cart2pol(dx,dy);
 switch unit
     case 'degrees'
         theta = rad2deg(theta);
-        theta = mod(-90-theta,360);
+        theta = mod(-270-theta,360);
 end

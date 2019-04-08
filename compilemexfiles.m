@@ -47,6 +47,7 @@ try
     for r = 1:numel(files)
         funname = files(r).name;
         mex('-largeArrayDims',funname)
+        % mex('-R2018a',funname)
     end
 catch err
     cd(oldFolder);

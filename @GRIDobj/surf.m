@@ -146,13 +146,13 @@ if block
     zp = DEM.Z(1,:);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
+    pa(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
     
     yp = repmat(y(end),size(xp));
     zp = DEM.Z(end,:);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
+    pa(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
     
     yp = y(:);
     yp = [yp(1); yp; yp(end:-1:1)];
@@ -160,15 +160,15 @@ if block
     zp = DEM.Z(:,1);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
+    pa(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
     xp = repmat(x(end),size(yp));
     zp = DEM.Z(:,end);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
+    pa(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
-    set(p,'FaceLighting','none')
+    set(pa,'FaceLighting','none')
     
     
     axislim = axis;

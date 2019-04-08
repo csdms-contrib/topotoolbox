@@ -1,10 +1,10 @@
-function G = FLOWobj2gradient(FD,DEM)
+function G = gradient(FD,DEM)
 
-%FLOWOBJ2GRADIENT gradient along flow direction
+%GRADIENT gradient along flow direction
 %
 % Syntax 
 %
-%     G = FLOWobj2gradient(FD,DEM)
+%     G = gradient(FD,DEM)
 %
 % Description
 %
@@ -29,12 +29,13 @@ function G = FLOWobj2gradient(FD,DEM)
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','c');
-%     G  = FLOWobj2gradient(FD,DEM);
+%     G  = gradient(FD,DEM);
 %     imageschs(DEM,G)
 %
+% See also: GRIDobj/gradient8, GRIDobj/arcslope, STREAMobj/gradient
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. February, 2013
+% Date: 27. March, 2019
 
 validatealignment(FD,DEM)
 d = getdistance(FD.ix,FD.ixc,FD.size,FD.cellsize);

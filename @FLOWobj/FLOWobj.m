@@ -567,7 +567,7 @@ methods
                 end
                 
                         
-                end
+            end
             
         else
             %% Multiple flow direction

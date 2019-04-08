@@ -50,6 +50,12 @@ function varargout = getnal(S,varargin)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 18. August, 2017
 
+if nargin == 1
+    % return nal of zeros (double)
+    varargout{1} = zeros(size(S.x));
+    return
+end
+
 if ~ischar(varargin{end})
     varargout = cell(1,max(nargout,numel(varargin)));
     for r = 1:max(nargout,numel(varargin))
