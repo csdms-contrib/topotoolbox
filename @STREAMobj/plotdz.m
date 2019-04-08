@@ -117,7 +117,7 @@ addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParamValue(p,'annotation',[])
 addParamValue(p,'color',clr);
 addParamValue(p,'annotationtext',{});
-addParamValue(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
+addParamValue(p,'distance',[],@(x) isempty(x) || isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
 addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
 addParamValue(p,'doffset',0,@(x) isscalar(x));
 addParamValue(p,'colormap','parula');

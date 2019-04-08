@@ -96,6 +96,7 @@ elseif nargin >= 2
                 error('TopoToolbox:GRIDobj',...
                     ['Index must range between 1 and ' num2str(prod(DEM.size)) '.'])
             end
+            
         else
             % interactive part
             try

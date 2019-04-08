@@ -27,6 +27,7 @@ function h = plotc(S,DEM,varargin)
 %                  y-direction. Default = 0;
 %     'xyscale'    scalar. Scales the x and y coordinates by a factor.
 %                  Default = 1.
+%     'linewidth'  Default = 1.5
 %
 % Output arguments
 %

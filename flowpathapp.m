@@ -86,6 +86,8 @@ if nargin == 0
     end
 elseif nargin == 2
     snp = false;
+else
+    snp = true;
 end
 
 %% Check input arguments
@@ -137,7 +139,7 @@ hButtonExportSHP = uimenu(hMenuExport,'Label','Export streams to Shapefile','Cal
 
 % calculate hillshade
 
-hs = false;
+hs = true;
 if hs
     RGB  = imageschs(DEM,DEM,'colormap',[1 1 1]);
 else

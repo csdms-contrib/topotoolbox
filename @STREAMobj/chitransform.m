@@ -64,6 +64,7 @@ addParamValue(p,'mn',0.45,@(x) isscalar(x) || isempty(x));
 addParamValue(p,'a0',1e6,@(x) isscalar(x) && isnumeric(x));
 addParamValue(p,'plot',false);
 addParamValue(p,'correctcellsize',true,@(x) isscalar(x));
+addParamValue(p,'K',[],@(x) isempty(x) || isnal(S,x) || isa(x,'GRIDobj'));
 
 parse(p,S,A,varargin{:});
 
@@ -77,11 +78,29 @@ else
     error('Imcompatible format of second input argument')
 end
 
+if ~isempty(p.Results.K)
+    calcwithk = true;
+    if isnal(S,p.Results.K)
+        K = p.Results.K;
+    else 
+        K = getnal(S,p.Results.K);
+    end
+else
+    calcwithk = false;
+end
+        
+       
 if p.Results.correctcellsize
     a = a.*S.cellsize^2;
 end
 
-a = ((p.Results.a0) ./a).^p.Results.mn;
+if ~calcwithk
+    a = ((p.Results.a0) ./a).^p.Results.mn;
+else
+    % This transformation is only possible if we assume that n in the
+    % mn-ratio is one.
+    a = (1./(K.^p.Results.mn)).*((p.Results.a0)./a).^p.Results.mn;
+end
 c = cumtrapz(S,a);
 
 if p.Results.plot
