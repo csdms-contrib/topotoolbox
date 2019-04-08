@@ -87,8 +87,6 @@ if p.Results.excludestream
     I(S.IXgrid) = false;
 end
 
-    
-
 % grid values
 A  = A.Z(I);
 % closest pixel map

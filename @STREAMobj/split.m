@@ -62,7 +62,7 @@ narginchk(1,3)
 if nargin == 1
     V = streampoi(S,'confluences','logical');
 else
-    if isa(varargin{1},'GRIDobj')
+    if isa(varargin{1},'GRIDobj') || isnal(S,varargin{1})
         d = gradient(S,varargin{1});
         V = d~=0;
     else    

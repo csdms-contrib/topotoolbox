@@ -44,7 +44,7 @@ function varargout = contour(DEM,varargin)
 
 [Z,x,y] = GRIDobj2mat(DEM);
 if nargout == 0   
-    contour(x,y,double(Z),double(varargin{:}));
+    contour(x,y,double(Z),varargin{:});
     return
 end
 

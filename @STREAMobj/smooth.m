@@ -270,8 +270,14 @@ switch method
         if ~p.Results.positive
             zs     = C\b;
         else
-            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[]);
+%             zs = lsqnonneg(C,b);
+            options = optimoptions('lsqlin','Display','off');
+
+            tic;
+            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],[],options);
+            toc;
         end
+                    
         
     case 'movmean'
         
