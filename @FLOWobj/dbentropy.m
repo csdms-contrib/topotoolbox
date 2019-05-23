@@ -4,9 +4,10 @@ function [OUT,Pc] = dbentropy(FD,ix)
 %
 % Syntax
 %
-%     H = dbentropy(FD);
-%     [H,S] = dbentropy(FD);
-%     [H,S] = dbentropy(FD,IX)
+%     H = dbentropy(FD)
+%     [H,P] = dbentropy(FD)
+%     [H,P] = dbentropy(FD,IX)
+%     [H,P] = dbentropy(FD,S)
 %
 % Description
 %
@@ -23,13 +24,14 @@ function [OUT,Pc] = dbentropy(FD,ix)
 %
 %     FD    multiple flow direction FLOWobj
 %     IX    linear indices of outlets
+%     S     STREAMobj from which linear indices of outlets are derived
 %
 % Output arguments
 %  
 %     H     Shannon Entropy grid (GRIDobj)
-%     S     structure array with numel(ix) elements with additional 
-%           information to each outlet. S.P contains the probability grid
-%           for each outlet. S.IX is the outlet's linear index. CA01-99 are
+%     P     structure array with numel(ix) elements with additional 
+%           information to each outlet. P.P contains the probability grid
+%           for each outlet. P.IX is the outlet's linear index. CA01-99 are
 %           the error bounds for the drainage area.
 %
 % Example
@@ -94,6 +96,9 @@ if nargin == 1
     
 else
     nrc  = prod(siz);
+    if isa(ix,'STREAMobj')
+        ix = streampoi(ix,'outlets','ix');
+    end
     nrix = numel(ix);
     
     % create sinks at provided indices
