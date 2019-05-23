@@ -42,7 +42,13 @@ function ht = wmplot(S,varargin)
 
 
 % STREAMobj to lat lon
-[lat,lon] = STREAMobj2latlon(S);
+switch S.georef.SpatialRef.CoordinateSystemType
+    case 'geographic'
+        [lon,lat] = STREAMobj2XY(S);
+    otherwise
+        [lat,lon] = STREAMobj2latlon(S);
+end
+
 minlat = min(lat);
 maxlat = max(lat);
 minlon = min(lon);

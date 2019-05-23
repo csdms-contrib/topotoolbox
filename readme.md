@@ -99,6 +99,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: mappingapp (lightweighed GUI for mapping points simultaneously in
                 planform and profile view) still beta!
 - new function: FLOWobj/mapfromnal
+- enhancement:  FLOWobj/multi2single allows area thresholding
 - new function: STREAMobj/getvalue
 - new function: STREAMobj/hillslopearea
 - new function: STREAMobj/zerobaselevel
@@ -107,6 +108,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/sinuosity
 - new function: STREAMobj/clean
 - new function: STREAMobj/nal2nal
+- new function: STREAMobj/netdist
 - new function: GRIDobj/clip
 - new function: GRIDobj/GRIDobj2im
 - new function: GRIDobj/getextent
