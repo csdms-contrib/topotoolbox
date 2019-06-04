@@ -109,6 +109,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/clean
 - new function: STREAMobj/nal2nal
 - new function: STREAMobj/netdist
+- new function: STREAMobj/tribdir 
 - new function: GRIDobj/clip
 - new function: GRIDobj/GRIDobj2im
 - new function: GRIDobj/getextent
@@ -116,6 +117,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - renamed GRIDobj/project2GRIDobj to GRIDobj/project. In addition, the function has 
   a number of new functionalities.
 - modification: STREAMobj/modify has new options for interactively modifying stream networks
+  and to extract streams that confluence from a specified direction.
 - changes to readopentopo, getcoordinates, getoutline, polygon2GRIDobj, line2GRIDobj
 - new function: hydrosheds2FLOWobj (see in IOtools)
 - new function: egm96heights including the grid ww15mgh.grd that contains global geoid 

@@ -79,6 +79,15 @@ function [Sout,nalix] = modify(S,varargin)
 %     same as 'tributaryto' but tributaries include the pixel of the
 %     receiving stream.
 %
+%     'lefttrib' instance of STREAMobj
+%     returns the stream network that is tributary to a stream from the
+%     left. For example, modify(S,'lefttrib',trunk(S)) selects the streams
+%     in S that are left tributaries to the trunk stream of S.
+%
+%     'righttrib' instance of STREAMobj
+%     returns the stream network that is tributary to a stream from the
+%     right.
+%
 %     'shrinkfromtop' scalar distance
 %     removes parts of the stream network that are within the specified
 %     distance from the channelheads.
@@ -134,10 +143,11 @@ function [Sout,nalix] = modify(S,varargin)
 %     hold off
 %
 %     
-% See also: STREAMobj, STREAMobj/trunk, demo_modifystreamnet
+% See also: STREAMobj, STREAMobj/trunk, STREAMobj/subgraph, 
+%           demo_modifystreamnet
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 12. February, 2019
+% Date: 4. June, 2019
 
 narginchk(3,3)
 
@@ -154,6 +164,8 @@ addParamValue(p,'interactive',[],@(x) ischar(validatestring(x,{'polyselect','rea
                                                                'ellipseselect','outletselect'})));
 addParamValue(p,'tributaryto',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'righttrib',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'lefttrib',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
 addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
 addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
@@ -307,7 +319,27 @@ elseif ~isempty(p.Results.tributaryto) || ~isempty(p.Results.tributaryto2)
         % add trunk stream pixels
         I(S.ixc(II(S.ixc) & ~II(S.ix))) = true;
     end
-        
+
+elseif ~isempty(p.Results.righttrib) || ~isempty(p.Results.lefttrib)
+%% select tributaries from a specified direction    
+    % calculate directions
+    direc = tribdir(S);
+    
+    if ~isempty(p.Results.righttrib)
+        St = p.Results.righttrib;
+        val = 1;
+    else
+        St = p.Results.lefttrib;
+        val = -1;
+    end
+    II = STREAMobj2GRIDobj(St);
+    ii = II.Z(S.IXgrid(S.ixc)) & ~II.Z(S.IXgrid(S.ix)) & (direc(S.ix) == val);
+    
+    I = false(size(S.x));
+    for r = numel(S.ix):-1:1
+        I(S.ix(r)) = I(S.ixc(r)) || ii(r);
+    end
+    
 elseif ~isempty(p.Results.shrinkfromtop)
 %% shrink from top
     d = distance(S,'max_from_ch');
