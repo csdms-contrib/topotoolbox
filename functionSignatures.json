@@ -35,7 +35,7 @@
      "inputs":
      [
         {"name":"FD", "kind":"required", "type":["FLOWobj"]},
-		{"name":"FD", "kind":"required", "type":["GRIDobj"]}
+		{"name":"I", "kind":"required", "type":["GRIDobj"]}
      ]
   },
   "STREAMobj":
@@ -47,6 +47,16 @@
 		{"name":"unit", "kind":"namevalue", "type":"choices={'pixels','mapunits'}"},
 		{"name":"outlets", "kind":"namevalue"},
 		{"name":"channelheads", "kind":"namevalue"}
+     ]
+  }
+  "STREAMobj.chitransform":
+  {
+     "inputs":
+     [
+        {"name":"S", "kind":"required", "type":["STREAMobj"]},
+        {"name":"FD", "kind":"required"},
+		{"name":"mn", "kind":"namevalue"},
+		{"name":"a0", "kind":"namevalue"}
      ]
   }
 }

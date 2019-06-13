@@ -35,7 +35,7 @@ function [FD,S] = multi2single(FD,varargin)
 %           with single flow directions. Otherwise, FLOWobj will be of type 
 %           'multi'.
 %     S     STREAMobj (only applicable if 'minarea' is set >0 or
-%           channelheads are provided.
+%           channelheads are provided.)
 %     
 %
 % Example

@@ -273,13 +273,21 @@ methods
     %           STREAMobj/rmnode
     % 
     % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-    % Date: 26. September, 2017
+    % Date: 5. June, 2019
     
     p = inputParser;
     p.FunctionName = 'STREAMobj/rmnode';
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
-    addRequired(p,'nal',@(x) isnal(S,x) && islogical(x));
+    addRequired(p,'nal',@(x) isnal(S,x) || isa(x,'GRIDobj'));
     parse(p,S,nal);
+    
+    if isa(nal,'GRIDobj')
+        validatealignment(S,nal);
+        nal = getnal(S,nal);
+        nal = nal > 0;
+    else
+        nal = nal > 0;
+    end
     
     if all(nal)
         % do nothing
@@ -299,6 +307,8 @@ methods
     S.x   = S.x(nal);
     S.y   = S.y(nal);
     S.IXgrid   = S.IXgrid(nal);
+    
+    S     = clean(S);
      
     end
     

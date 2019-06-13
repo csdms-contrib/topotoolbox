@@ -126,7 +126,10 @@ is_hole = false(size(MS));
 is_hole(IX_hole) = true;
 
 % loop through features of mapping structure MS
+h = waitbar(0);
 for r = 1:numel(MS)
+    waitbar(r/numel(MS),h,...
+        ['Please wait (' num2str(r) '/' num2str(numel(MS)) ')']);
     
     % get coordinates
     x = MS(r).X;
@@ -171,6 +174,7 @@ for r = 1:numel(MS)
     P.Z(ext(1):ext(2),ext(3):ext(4)) = FillMat;
 
 end
+close(h)
 end
 
 function [BW,ext] = getmask(r,c,siz)

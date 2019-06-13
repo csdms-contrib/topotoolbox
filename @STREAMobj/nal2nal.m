@@ -1,6 +1,6 @@
 function nal2 = nal2nal(S2,S1,nal1,fillval)
 
-%SETNAL 
+%NAL2NAL map one node-attribute list to another 
 %
 % Syntax
 %
