@@ -1,5 +1,5 @@
 % TopoToolbox
-% Version 2.3 pre  13-Jun-2019
+% Version 2.3  13-Jun-2019
 %
 % TopoToolbox provides a set of Matlab functions that support the analysis
 % of relief and flow pathways in digital elevation models. The major 
