@@ -10,8 +10,8 @@ function G = gradient8(DEM,unit,varargin)
 %
 % Description
 %
-%     gradient8 returns the numerical steepest downward gradient and aspect 
-%     of a digital elevation model using an 8-connected neighborhood. 
+%     gradient8 returns the numerical steepest downward gradient of a
+%     digital elevation model using an 8-connected neighborhood. 
 %
 % Input
 %

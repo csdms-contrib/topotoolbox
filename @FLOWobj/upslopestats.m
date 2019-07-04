@@ -1,10 +1,12 @@
-function OUT = upslopestats(FD,VAR,meth)
+function OUT = upslopestats(FD,VAR,meth,S)
 
 %UPSLOPESTATS upslope statistics of a variable based on the flow direction matrix
 %
 % Syntax
 %
-%     S = upslopestats(FD,VAR,type)
+%     ST = upslopestats(FD,VAR)
+%     ST = upslopestats(FD,VAR,type)
+%     ST = upslopestats(FD,VAR,type,S)
 %
 % Description
 %
@@ -19,11 +21,16 @@ function OUT = upslopestats(FD,VAR,meth)
 %     FD        flow direction object (FLOWobj)
 %     VAR       variable (e.g. slope calculated by gradient8) (GRIDobj)
 %     type      'mean' (default), 'std' standard deviation, 
-%               'var' variance, 'min', 'max'               
+%               'var' variance, 'min', 'max', 'sum'    
+%     S         STREAMobj. Supplying S derived from FD will remove the
+%               channelized part from the flow network. For example, if you
+%               want to calculate the mean upstream hillslope gradient but 
+%               exclude the channelized part of the landscape, define the
+%               channelized part using the STREAMobj S.
 %
 % Output
 % 
-%     S         array same size as VAR
+%     ST         array same size as VAR
 %
 % Example
 %
@@ -39,7 +46,7 @@ function OUT = upslopestats(FD,VAR,meth)
 %     network-index-based version of TOPMODEL for use with high-resolution 
 %     digital topographic data Hydrological Processes, 18, 191-201. 
 %
-% See also: FLOWDIR, FLOWACC
+% See also: FLOWobj, FLOWACC
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 4. March, 2016
@@ -48,7 +55,9 @@ function OUT = upslopestats(FD,VAR,meth)
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
 % FLOWobj/flowacc
 
-narginchk(2,3)
+% 7/3/2018: option to remove channelized part
+
+narginchk(2,4)
 
 % check alignment
 validatealignment(FD,VAR);
@@ -56,11 +65,26 @@ if isa(VAR,'GRIDobj')
     VAR = VAR.Z;
 end
 
-if nargin == 2;
+if nargin == 2
     meth = 'mean';
 else
-    meth = validatestring(meth,{'mean','std','var','min','max','sum'});
+    meth = validatestring(meth,{'mean','std','var','min','max','sum',...
+                                'nanmean'});
 end
+
+if nargin == 4
+    % remove channelized part
+    validatealignment(S,VAR);
+    SGRID = STREAMobj2GRIDobj(S);
+    I     = SGRID.Z(FD.ix) & SGRID.Z(FD.ixc);
+    I     = ~I;
+    FD.ix = FD.ix(I);
+    FD.ixc = FD.ixc(I);
+    if ~isempty(FD.fraction)
+        FD.fraction = FD.fraction(I);
+    end
+end
+    
 
 switch meth
     case {'mean','std','var'}
@@ -68,6 +92,15 @@ switch meth
         n = flowacc(FD);
         n = n.Z;
         % Sum
+        S = flowacc(FD,VAR);
+        S = S.Z;
+    case 'nanmean'
+        % Count
+        I = isnan(VAR);
+        n = flowacc(FD,+(~I));
+        n = n.Z;
+        % Sum
+        VAR(I) = 0;
         S = flowacc(FD,VAR);
         S = S.Z;
 end
@@ -82,6 +115,9 @@ switch meth
     case 'mean'
         % Sum/Count
         VAR = S./n;
+    case 'nanmean'
+        VAR = S./n;
+        VAR(n==0) = nan; 
     case {'std','var'}
         % formula for calculating an unbiased estimate of the population variance
         % ! may be very much affected by round-off errors, arithmetic

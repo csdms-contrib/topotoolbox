@@ -65,13 +65,15 @@ I     = L(S.ix);
 S.ix  = S.ix(I);
 S.ixc = S.ixc(I);
 
-IX    = uint32(cumsum(L));
+IX    = cumsum(L);
 S.ix  = IX(S.ix);
 S.ixc = IX(S.ixc);
 
 S.x   = S.x(L);
 S.y   = S.y(L);
 S.IXgrid   = S.IXgrid(L);
+
+S = clean(S);
 
 
 

@@ -6,6 +6,7 @@ function varargout = randlocs(S,n,wr)
 %
 %     IX = randlocs(S,n)
 %     IX = randlocs(S,n,wr)
+%     [x,y] = randlocs(...)
 %
 % Descriptions
 %
@@ -45,19 +46,19 @@ function varargout = randlocs(S,n,wr)
 narginchk(2,3);
 nargoutchk(1,2);
 
-if nargin == 2;
-    wr = false;
+if nargin == 2
+    wr = true;
 else
     wr = wr>0;
 end
 
 if wr
-    idx = randi(numel(S.x),20,1);
+    idx = randi(numel(S.x),n,1);
 else
     idx = randperm(numel(S.x),n);    
 end
 
-if nargout == 1;
+if nargout == 1
     varargout{1} = S.IXgrid(idx);
 elseif nargout == 2
     varargout{1} = S.x(idx);

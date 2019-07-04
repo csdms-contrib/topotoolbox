@@ -1,4 +1,4 @@
-function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p,X,Y)
+function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p,X,Y,FD)
 % Function to update the drainage network
 %
 % Syntax
@@ -15,8 +15,10 @@ function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p
 %       BORDER    (GRIDobj) produced with getBORDER function
 %       W         Weights
 %       p         structure array with parameter definitions (see ttlemset)
-%       X         gridded X distance Y         gridded Y distance R
-%       Randomized matrix with dimensions of DEM.Z
+%       X         gridded X distance 
+%       Y         gridded Y distance
+%       R         Randomized matrix with dimensions of DEM.Z
+%       FD        Fixed drainage network
 %
 %
 % Output
@@ -51,10 +53,12 @@ function [FD,C,S,i,k,p,A,dx_ik,kk,ii,dx_centered] = updateDrainDir(H1,BORDER,W,p
 %-------------------------------------------------------------------------%
 
 % flow direction
-if p.FlowBC
-    FD = FLOWobj(H1+BORDER,'mex',true,'preprocess','carve');
-else
-    FD = FLOWobj(H1,'mex',true,'preprocess','carve');
+if nargin == 6
+    if p.FlowBC
+        FD = FLOWobj(H1+BORDER,'preprocess','carve');
+    else
+        FD = FLOWobj(H1,'preprocess','carve');
+    end
 end
 % upslope area ^m
 DA  = flowacc(FD,W);

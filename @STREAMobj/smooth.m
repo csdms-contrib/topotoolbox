@@ -16,6 +16,9 @@ function zs = smooth(S,DEM,varargin)
 %     smoothing. For further control on the results use the function
 %     STREAMobj/crs.
 %
+%     Smooth can handle nan values and takes weights as additional input
+%     arguments.
+%
 % Input parameters
 %
 %     S        STREAMobj
@@ -28,7 +31,8 @@ function zs = smooth(S,DEM,varargin)
 %                three-point moving average.
 %     'split'    {false} or true. True will identify individual drainage
 %                basins and process each individually in parallel (requires
-%                the parallel processing toolbox).
+%                the parallel processing toolbox). If there is only one
+%                drainage basin, there is no gain in setting split to true.
 %
 %     Only applicable if method = 'regularization'
 %
@@ -37,12 +41,14 @@ function zs = smooth(S,DEM,varargin)
 %                (default) or false)
 %     'positive' set true if zs must be positive (uses lsqlin and requires 
 %                the optimization toolbox)
+%     'weights'  GRIDobj or node-attribute list with weights. Weights must 
+%                be >= 0. By default, all weights are one. 
 %
 % Output parameters
 %
 %     zs     node attribute list with smoothed elevation values
 %
-% Example
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','carve');
@@ -61,18 +67,56 @@ function zs = smooth(S,DEM,varargin)
 %     box on
 %     colorbar
 %
+% Example 2
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',100);
+%     S = klargestconncomps(S);   
+%     St = trunk(S);
+%     G  = gradient8(DEM);
+%
+%     % Upstream hillslope area
+%     A  = upslopestats(FD,GRIDobj(DEM)+1,'sum',S);
+%     G  = upslopestats(FD,G,'mean',S);
+%     
+%     % Derive and plot mean hillslope angle along 
+%     % the trunk river
+%     plotdz(St,DEM);
+%     yyaxis right
+%     scatter(St.distance,getnal(St,G),getnal(St,A),'ko')
+%     gs = smooth(St,G,'K',1000);
+%     hold on
+%     plotdz(St,gs)
+%     gsw = smooth(St,G,'K',1000,'weights',A);
+%     plotdz(St,gsw,'LineWidth',2)
+%     ylabel('Gradient [-]')
+%     hold off
+%     legend('River profile',...
+%           'Hillslope gradient',...
+%           'Smoothed hillslope gradient',...
+%           'Weighted smoothed hillslope gradient')
+%
 % Algorithm
 %
-%     This algorithm uses regularized interpolation to smooth the data.
+%     This algorithm uses regularized interpolation to smooth the data. The
+%     algorithm is described in Schwanghart and Scherler (2017) (Eq. A6-A10). 
 %     Setting the 'positive' to true forces the returned values to be
 %     positive. In this case, the function uses nsqlin with a lower bound
 %     of zero for all nodes.
+%
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/crs, STREAMobj/crsapp, STREAMobj/inpaintnans,
 %           STREAMobj/quantcarve, STREAMobj/crslin
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. July, 2017
+% Date: 5. July, 2018
 
 
 % check and parse inputs
@@ -86,6 +130,7 @@ addParameter(p,'split',false);
 addParameter(p,'K',10,@(x) (isscalar(x) && x>0));
 addParameter(p,'nstribs',true,@(x) isscalar(x));
 addParameter(p,'positive',false,@(x) isscalar(x));
+addParameter(p,'weights',[],@(x) isa(x,'GRIDobj') || isnal(S,x) || isempty(x));
 
 parse(p,varargin{:});
 
@@ -101,9 +146,26 @@ else
     error('Imcompatible format of second input argument')
 end
 
+% handle weights
+weights = p.Results.weights;
+if isempty(weights) 
+elseif isa(weights,'GRIDobj')
+    validatealignment(S,weights);
+    weights = getnal(S,weights);
+elseif isnal(S,weights)
+    % great, go on
+end
+
 % check for nans
 if strcmp(p.Results.method,'regularization') && any(isnan(z))
-    error('DEM or z may not contain any NaNs if method is regularization.')
+    % error('DEM or z may not contain any NaNs if method is regularization.')
+    inan = isnan(z);
+    z = inpaintnans(S,z,true);
+    if isempty(weights)
+        weights = double(~inan);   
+    else
+        weights(inan) = 0;
+    end
 end
 
 % run in parallel if wanted
@@ -113,8 +175,21 @@ if p.Results.split
     [CS,locS] = STREAMobj2cell(S);
     Cz = cellfun(@(ix) z(ix),locS,'UniformOutput',false);
     Czs = cell(size(CS));
-    parfor r = 1:numel(CS)
-        Czs{r} = smooth(CS{r},Cz{r},params);
+    
+    if isempty(weights)
+        % Without weights
+        for r = 1:numel(CS)
+            Czs{r} = smooth(CS{r},Cz{r},params);
+        end
+        
+    else
+        % With weights
+        Cw = cellfun(@(ix) weights(ix),locS,'UniformOutput',false);
+        params = rmfield(params,'weights');
+        parfor r = 1:numel(CS)
+            Czs{r} = smooth(CS{r},Cz{r},params,'weights',Cw{r});
+        end
+        
     end
     
     zs = nan(size(z));
@@ -130,6 +205,12 @@ d  = S.distance;
 % nr of nodes
 nr = numel(S.IXgrid);
 
+if nr <= 2
+    % If there are no more than 2 nodes in the network, we won't smooth
+    zs = z;
+    return
+end
+
 switch method
     case 'regularization'
 
@@ -137,7 +218,8 @@ switch method
         %
         % This matrix is an identity matrix, since we are only interested in 
         % predicting values at the node locations of the network.
-        Afid = speye(nr,nr);      
+        
+        Afid = speye(nr,nr);  
 
         %% Second-derivate matrix
         %
@@ -172,13 +254,26 @@ switch method
         C      = [Afid;Asd];
         % right hand side of equation
         b      = [z;zeros(nrrows,1)]; % convex -> negative values
-
-        % no minimum gradient imposition involves only solving the
-        % overdetermined system of equations. 
+        b      = double(b);
+        
+        % use weighted least squares if required
+        % weights are normalized so that their sum equals the number
+        % of rows in the fidelity matrix. 
+        if ~isempty(weights)
+            weights = double(weights);
+            weights = weights./sum(weights) * nr;
+            W = spdiags([weights;ones(nrrows,1)],0,nr+nrrows,nr+nrrows);
+            C = W*C;
+            b = W*b;
+        end
+        
         if ~p.Results.positive
             zs     = C\b;
         else
-            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],z);
+            
+            options = optimset('Display','off');
+            zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],[],options);
+
         end
         
     case 'movmean'

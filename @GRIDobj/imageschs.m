@@ -67,6 +67,8 @@ function rgb = imageschs(DEM,A,varargin)
 %                      hillshading.
 %     medfilt          use median filter to smooth hillshading 
 %                      (default=false)
+%     method           'surfnorm' or 'mdow'. mdow is the multidirectional
+%                      oblique hillshade algorithm.
 %     azimuth          azimuth angle of illumination, (default=315)
 %     altitude         altitude angle of illumination, (default=60)
 %     exaggerate       elevation exaggeration (default=2). Increase to
@@ -126,6 +128,15 @@ function rgb = imageschs(DEM,A,varargin)
 %     geotiffwrite('file.tif',RGB,DEM.georef.SpatialRef,...
 %            'GeoKeyDirectoryTag',DEM.georef.GeoKeyDirectoryTag);
 %
+% Example 8: Calculate hillshade RGB and display using imshow
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     RGB = imageschs(DEM);
+%     RGB = flipud(RGB);
+%     [~,R] = GRIDobj2im(DEM);
+%     imshow(RGB,R)
+%     axis xy
+%
 % References
 %
 %     Katzil, Y., Doytsher, Y. (2003): A logarithmic and sub-pixel approach
@@ -148,6 +159,7 @@ function rgb = imageschs(DEM,A,varargin)
 % 18.3.2016: added option percentclip
 % 13.6.2016: added option makepermanent
 % 14.6.2016: added options 
+% 06.4.2018: new example
 
 persistent H
 
@@ -156,13 +168,13 @@ nargoutchk(0,1);
 
 % if A is not supplied to the function, coloring will be according to
 % values in DEM
-if nargin == 1 || (nargin>=2 && isempty(A));
+if nargin == 1 || (nargin>=2 && isempty(A))
     A = DEM;
 end
 
 %% Default values can be changed here
 % -----------------------------------
-defaultcolormap = 'jet';
+defaultcolormap = 'parula';
 defaulttruecolor = [0 1 0]; 
 defaultfalsecolor = [1 1 1]; 
 defaultnancolor = [1 1 1];
@@ -200,7 +212,7 @@ addParamValue(p,'usepermanent',false);
 addParamValue(p,'colorbarlabel',[],@(x) ischar(x));
 addParamValue(p,'colorbarylabel',[],@(x) ischar(x));
 addParamValue(p,'tickstokm',false,@(x) isscalar(x));
-addParamValue(p,'method','default');
+addParamValue(p,'method','surfnorm');
 parse(p,DEM,A,varargin{:});
 
 % required
@@ -218,7 +230,7 @@ usepermanent  = p.Results.usepermanent;
 tokm           = p.Results.tickstokm > 0;
 colorBarLabel  =p.Results.colorbarlabel;
 colorBarYLabel =p.Results.colorbarylabel;
-meth       = validatestring(p.Results.method,{'default','mdow'});
+meth       = validatestring(p.Results.method,{'default','surfnorm','mdow'});
 
 
 ticklabels = validatestring(p.Results.ticklabels,{'default','none','nice'});
@@ -267,12 +279,13 @@ nhs = 256;
 if usepermanent && isequal(size(H),DEM.size)
 
 else
-    switch meth
-        case 'default'    
-            H = hillshade(DEM,'exaggerate',exag,'azimuth',azi,'altitude',alti,'useparallel',p.Results.useparallel);
-        case 'mdow'
-            H = hillshademdow(DEM,'exaggerate',exag,'useparallel',p.Results.useparallel);
-    end
+    H = hillshade(DEM,'exaggerate',exag,'azimuth',azi,'altitude',alti,'useparallel',p.Results.useparallel,'method',meth);
+%     switch meth
+%         case 'default'    
+%             H = hillshade(DEM,'exaggerate',exag,'azimuth',azi,'altitude',alti,'useparallel',p.Results.useparallel);
+%         case 'mdow'
+%             H = hillshademdow(DEM,'exaggerate',exag,'useparallel',p.Results.useparallel);
+%     end
     H = H.Z;
     Inan = isnan(H);
     if any(Inan(:))
@@ -371,7 +384,7 @@ if nargout == 0
         if alims(1) ~= alims(2) 
             caxis(alims);
         end
-        colormap(cmap(nhs:nhs:nhs*ncolors,:));
+        colormap(gca,cmap(nhs:nhs:nhs*ncolors,:));
         cc = colorbar;%('location','south');
         if ~isempty(colorBarLabel)
             title(cc,colorBarLabel);

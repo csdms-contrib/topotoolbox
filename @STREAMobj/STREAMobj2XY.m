@@ -11,9 +11,9 @@ function [x,y,varargout] = STREAMobj2XY(S,varargin)
 %
 %     STREAMobj2XY returns the NaN-punctuated vectors x and y which can be
 %     used for easy plotting using the plot function. With additional input
-%     arguments that are instances of GRIDobj, additional vectors are
-%     generated with the respective values of the grids A, B, etc. at the
-%     locations x and y. 
+%     arguments that are instances of GRIDobj or node attribute lists,
+%     additional vectors are generated with the respective values of the
+%     grids A, B, etc. at the locations x and y.
 %
 % Input arguments
 %
@@ -45,19 +45,17 @@ x(I)  = S.x(order(I));
 y     = nan(size(order));
 y(I)  = S.y(order(I));
 
-% [x,y] = gplot(sparse(double(S.ix),double(S.ixc),1,numel(S.x),numel(S.x)),[S.x S.y]);
-
 nrnodes = numel(S.x);
-if nargin > 1;
+if nargin > 1
     varargout = cell(numel(varargin),1);
-    for r = 1:numel(varargin);
+    for r = 1:numel(varargin)
         
         if isa(varargin{r},'GRIDobj')
             % extract values from GRIDobj
             validatealignment(S,varargin{r})        
             varargout{r}    = nan(size(order));
             varargout{r}(I) = double(varargin{r}.Z(S.IXgrid(order(I))));
-        elseif numel(varargin{r}) == nrnodes;
+        elseif numel(varargin{r}) == nrnodes
             % extract values from node attribute list
             varargout{r}    = nan(size(order));
             varargout{r}(I) = double(varargin{r}(order(I)));

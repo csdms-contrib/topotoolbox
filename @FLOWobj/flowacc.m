@@ -17,7 +17,7 @@ function OUT = flowacc(FD,W0,RR)
 %
 %     The second input argument can be used to define spatially variable
 %     weights into the flow accumulation e.g., to simulate spatially
-%     variable precipitation patterns.
+%     variable precipitation patterns. By default, W0 is a grid of ones.
 %
 %     The third input argument is the runoff ratio. By default, the runoff
 %     ratio equals one everywhere. To simulate infiltration or channel
@@ -27,7 +27,7 @@ function OUT = flowacc(FD,W0,RR)
 % Input arguments
 %
 %     FD    Flow direction object (class: FLOWobj)
-%     W0    weight grid (class: GRIDobj)
+%     W0    weight grid (class: GRIDobj) 
 %     RR    runoff ratio grid (class: GRIDobj)
 %
 % Output arguments
@@ -37,9 +37,9 @@ function OUT = flowacc(FD,W0,RR)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD = FLOWobj(DEM,'preprocess','c');
+%     FD = FLOWobj(DEM);
 %     A = flowacc(FD);
-%     imageschs(DEM,sqrt(A))
+%     imageschs(DEM,dilate(sqrt(A),ones(5)),'colormap','flowcolor')
 %     
 % 
 % See also: FLOWobj, GRIDobj, FLOWobj/drainagebasins
@@ -58,15 +58,15 @@ if nargin >= 2
     if ~isempty(W0)
         validatealignment(FD,W0);
     end
-    if nargin == 3 && ~isempty(RR);
-        if isa(RR,'GRIDobj');
+    if nargin == 3 && ~isempty(RR)
+        if isa(RR,'GRIDobj')
             validatealignment(FD,RR);
         end
     end
 end
-          
-if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'single'));
-    if nargin == 1 || (nargin > 1 && isempty(W0));
+
+if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'single'))
+    if nargin == 1 || (nargin > 1 && isempty(W0))
         A = ones(FD.size);
     else        
         if isa(W0,'GRIDobj')
@@ -77,7 +77,7 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
         
     end
     
-    if nargin == 3;
+    if nargin == 3
         if isa(RR,'GRIDobj')
             RR = RR.Z;
         end   
@@ -91,11 +91,11 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
         case 'single'
             if nargin < 3
                 
-                for r = 1:numel(ix);
+                for r = 1:numel(ix)
                     A(ixc(r)) = A(ix(r))+A(ixc(r));
                 end
             else
-                if isscalar(RR);
+                if isscalar(RR)
                     % if RR is a scalar, RR is assumed to be the
                     % coefficient of a homogenous differential equation
                     % dA/dx = RR*A
@@ -109,11 +109,11 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
                     RR = exp(RR*dx);
                     clear dx
                     
-                    for r = 1:numel(ix);
+                    for r = 1:numel(ix)
 						A(ixc(r)) = A(ix(r))*RR(r)+A(ixc(r));
                     end
                 else
-                    for r = 1:numel(ix);
+                    for r = 1:numel(ix)
                         A(ixc(r)) = A(ix(r))*RR(ix(r)) + A(ixc(r));
                     end
                 end
@@ -124,23 +124,23 @@ if ~(exist(['flowacc_mex.' mexext],'file') == 3 && nargin<3 && strcmp(FD.type,'s
         case {'multi','Dinf'}
             fraction = FD.fraction;
             if nargin < 3
-                for r = 1:numel(ix);
+                for r = 1:numel(ix)
                     A(ixc(r)) = A(ix(r))*fraction(r) + A(ixc(r));
                 end
             else
-                for r = 1:numel(ix);
+                for r = 1:numel(ix)
                     A(ixc(r)) = A(ix(r))*fraction(r)*RR(ix(r)) + A(ixc(r));
                 end
             end
     end
 else
-    if nargin == 2;
+    if nargin == 2
         if isa(W0,'GRIDobj')
             A  = flowacc_mex(FD.ix,FD.ixc,double(W0.Z));
         else            
             A  = flowacc_mex(FD.ix,FD.ixc,double(W0));
         end
-    elseif nargin == 1;
+    elseif nargin == 1
         A  = flowacc_mex(FD.ix,FD.ixc,FD.size);
     end
 end

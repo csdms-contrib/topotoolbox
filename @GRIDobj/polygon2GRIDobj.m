@@ -5,13 +5,17 @@ function P = polygon2GRIDobj(DEM,MS,field)
 % Syntax
 %
 %     P = polygon2GRIDobj(DEM,MS)
-%     P = polygon2GRIDobj(DEM,MS,pn,pv,...)
+%     P = polygon2GRIDobj(DEM,MS,field)
 %
 % Description
 %
-%     line2GRIDobj grids a polyline defined by a set of x and y
-%     coordinates. Note that points must lie inside the grid. Segments with
-%     one or two points outside the grid will not be drawn.
+%     polygon2GRIDobj maps polygons in the mapping structure MS to a 
+%     GRIDobj with the same extent and resolution as the GRIDobj DEM.
+%
+%     Note that polygon2GRIDobj uses polyshape methods that have been
+%     released with MATLAB 2017b. The function runs for older versions,
+%     too, but may return different results if polygons in MS extend beyond
+%     the boundaries of DEM and contain holes.
 %     
 % Input arguments
 %
@@ -29,25 +33,26 @@ function P = polygon2GRIDobj(DEM,MS,field)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD = FLOWobj(DEM,'preprocess','carve');
-%     D = drainagebasins(FD);
-%     MS = GRIDobj2polygon(D);
-%     P = polygon2GRIDobj(D,MS,'ID');
+%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     D   = drainagebasins(FD);
+%     MS  = GRIDobj2polygon(D);
+%     P   = polygon2GRIDobj(D,MS,'ID');
 %
-% Note: In above example P will have a row of zeros on the top and column
-% of zeros on the left side of the grid. I have not yet resolved this
-% issue.
 %
-% See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates
+% Note: This function has not yet been fully tested. Please report bugs.
+%
+%
+% See also: GRIDobj/coord2ind, GRIDobj/sub2coord, GRIDobj/getcoordinates,
+%           GRIDobj/createmask, line2GRIDobj, GRIDobj2polygon
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 6. September, 2016
+% Date: 4. May, 2018
 
 
-if nargin == 2;
+% 2 or 3 input arguments?
+if nargin == 2
     P = GRIDobj(DEM,'logical');
     writelogical = true;
-    val = true;
     writeclass = @logical;
 else
     P = GRIDobj(DEM,'single');
@@ -59,19 +64,102 @@ end
 [X,Y] = getcoordinates(DEM);
 siz   = DEM.size;
 
+IX_hole = [];
+
+%which matlab version do we have. If MATLAB 9,3
+if ~verLessThan('matlab','9.3')
+    [xx,yy]  = getoutline(DEM);
+    poutline = polyshape(xx,yy);
+    poutline = polybuffer(poutline,DEM.cellsize/4);
+    warning off
+    for r = 1:numel(MS)
+        
+        psh = polyshape(MS(r).X,MS(r).Y);
+        psh = intersect(psh,poutline);
+        
+        if isempty(psh.Vertices)
+            % The feature is completely outside the DEM boundaries
+            MS(r).X = [];
+            MS(r).Y = [];
+            continue
+        end
+        
+        pshhole = holes(psh);
+        psh = rmholes(psh);
+        % Are the polygons multipart?
+        psh = regions(psh);
+        
+        % loop through regions
+        for r2 = 1:numel(psh)
+            if r2 == 1
+                nrnew = r;
+            else
+                nrnew = numel(MS);
+                nrnew = nrnew + 1;
+            end
+            xy  = psh(r2).Vertices;
+            MS(nrnew).X = xy(:,1);
+            MS(nrnew).Y = xy(:,2);
+            
+            if ~writelogical
+                MS(nrnew).(field) = MS(r).(field);
+            end
+        end
+            
+        % then loop through holes
+        for r2 = 1:numel(pshhole)
+            xy  = pshhole(r2).Vertices;
+            nrnew = numel(MS);
+            nrnew = nrnew + 1;
+            MS(nrnew).X = xy(:,1);
+            MS(nrnew).Y = xy(:,2);
+            IX_hole = [IX_hole nrnew]; %#ok<AGROW>
+
+        end  
+    end
+    warning on
+else
+    IX_hole = [];
+end
+
+is_hole = false(size(MS));
+is_hole(IX_hole) = true;
+
 % loop through features of mapping structure MS
-for r = 1:numel(MS);
+h = waitbar(0);
+for r = 1:numel(MS)
+    waitbar(r/numel(MS),h,...
+        ['Please wait (' num2str(r) '/' num2str(numel(MS)) ')']);
+    
     % get coordinates
     x = MS(r).X;
     y = MS(r).Y;
+    
+    if isempty(x)
+        continue
+    end
+    
     I = isnan(x) | isnan(y);
     x(I) = [];
     y(I) = [];
+  
     
     % if the value of that attribute should be written to the grid, this
     % value is extracted here.
     if ~writelogical
-        val = single([MS(r).(field)]);
+        
+        if ~is_hole(r)
+            val = single([MS(r).(field)]);
+        else
+            val = single(0);
+        end
+    else
+        if is_hole(r) 
+            val = false;
+        else
+            val = true;
+        end
+        
     end
     
     % convert coordinates to rows and columns
@@ -86,6 +174,7 @@ for r = 1:numel(MS);
     P.Z(ext(1):ext(2),ext(3):ext(4)) = FillMat;
 
 end
+close(h)
 end
 
 function [BW,ext] = getmask(r,c,siz)

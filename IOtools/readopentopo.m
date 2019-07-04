@@ -20,16 +20,31 @@ function DEM = readopentopo(varargin)
 %     Parameter name values
 %     'filename'       provide filename. By default, the function will save
 %                      the DEM to a temporary file in the system's temporary 
-%                      folder.
+%                      folder. The option 'deletefile' controls whether the
+%                      file is kept on the hard drive.
+%     'extent'         GRIDobj or four element vector with geographical 
+%                      coordinates in the order [west east south north].
+%                      If a GRIDobj is supplied, readopentopo uses the
+%                      function GRIDobj/getextent to obtain the bounding
+%                      box in geographical coordinates. If extent is set,
+%                      then the following parameter names 'north',
+%                      'south', ... are ignored.
+%     'addmargin'      Expand the extent derived from 'extent',GRIDobj by a
+%                      scalar value in °. Default is 0.01. The option is
+%                      only applicable if extent is provided by a GRIDobj.
 %     'north'          northern boundary in geographic coordinates (WGS84)
 %     'south'          southern boundary
 %     'west'           western boundary
 %     'east'           eastern boundary
-%     'demtype'        The global raster dataset - SRTM GL3 (90m) is 
-%                      'SRTMGL3', SRTM GL1 (30m) is 'SRTMGL1', SRTM GL1 
-%                      (Ellipsoidal) is 'SRTMGL1_E', and ALOS World 3D 30m  
-%                      is 'AW3D30'
-%     'deletefile'     'true' or false. True, if file should be deleted
+%     'demtype'        The global raster dataset 
+%                      {'SRTMGL3'}: SRTM GL3 (90m) (default) 
+%                      'SRTMGL1':   SRTM GL1 (30m)  
+%                      'SRTMGL1_E': SRTM GL1 (Ellipsoidal)  
+%                      'AW3D30':    ALOS World 3D 30m  
+%                      'AW3D30_E':  ALOS World 3D (Ellipsoidal)
+%     'verbose'        {true} or false. If true, then some information on
+%                      the process is shown in the command window
+%     'deletefile'     {true} or false. True, if file should be deleted
 %                      after it was downloaded and added to the workspace.
 % 
 % Output arguments
@@ -37,41 +52,75 @@ function DEM = readopentopo(varargin)
 %     DEM            Digital elevation model in geographic coordinates
 %                    (GRIDobj)
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     DEM2 = readopentopo('extent',DEM);
+%     DEM2 = reproject2utm(DEM2,90);
+%     imagesc(DEM2)
+%     hold on
+%     getoutline(DEM)
+%     hold off
+%
 % See also: GRIDobj, websave
 %
 % Reference: http://www.opentopography.org/developers
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. June, 2017
+% Date: 10. October, 2018
 
 
 p = inputParser;
 addParameter(p,'filename',[tempname '.tif']);
 addParameter(p,'interactive',false);
+addParameter(p,'extent',[]);
+addParameter(p,'addmargin',0.01);
 addParameter(p,'north',37.091337);
 addParameter(p,'south',36.738884);
 addParameter(p,'west',-120.168457);
 addParameter(p,'east',-119.465576);
 addParameter(p,'demtype','SRTMGL3');
 addParameter(p,'deletefile',true);
+addParameter(p,'verbose',true);
 parse(p,varargin{:});
 
-demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30'},'readopentopo');
-
+demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E'},'readopentopo');
 url = 'http://opentopo.sdsc.edu/otr/getdem';
 
 % create output file
 f = fullfile(p.Results.filename);
+    
 
 % save to drive
-options = weboptions('Timeout',inf);
+options = weboptions('Timeout',100000);
 
-west = p.Results.west;
-east = p.Results.east;
-south = p.Results.south;
-north = p.Results.north;
+% get extent
+if ~isempty(p.Results.extent)
+    if isa(p.Results.extent,'GRIDobj')
+        ext = getextent(p.Results.extent,true);
+        west  = ext(1) - p.Results.addmargin;
+        east  = ext(2) + p.Results.addmargin;
+        south = ext(3) - p.Results.addmargin;
+        north = ext(4) + p.Results.addmargin;
+        
+    elseif numel(p.Results.extent) == 4
+        west = p.Results.extent(1);
+        east = p.Results.extent(2);
+        south = p.Results.extent(3);
+        north = p.Results.extent(4);
+    else
+        error('Unknown format of extent')
+    end
+else
+    west = p.Results.west;
+    east = p.Results.east;
+    south = p.Results.south;
+    north = p.Results.north;
+end
 
-if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results.interactive;
+% now we have an extent. Or did the user request interactively choosing
+% the extent.
+if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results.interactive
     wm = webmap;
     % get dialog box
     messagetext = ['Zoom and resize the webmap window to choose DEM extent. ' ...
@@ -85,9 +134,21 @@ if any([isempty(west) isempty(east) isempty(south) isempty(north)]) || p.Results
     north = latlim(2);
 end
     
-    
+if p.Results.verbose
+    a = areaint([south south north north],...
+                [west east east west],almanac('earth','radius','kilometers'));
+    disp('-------------------------------------')
+    disp('readopentopo process:')
+    disp(['DEM type: ' demtype])
+    disp(['API url: ' url])
+    disp(['Local file name: ' f])
+    disp(['Area: ' num2str(a,2) ' sqkm'])
+    disp('-------------------------------------')
+    disp(['Starting download: ' datestr(now)])
+end
 
-websave(f,url,'west',west,...
+% Download with websave
+outfile = websave(f,url,'west',west,...
               'east',east,...
               'north',north,...
               'south',south,...
@@ -95,11 +156,50 @@ websave(f,url,'west',west,...
               'demtype', demtype, ...
               options);
 
-DEM      = GRIDobj(f);
-DEM.name = demtype;
+if p.Results.verbose
+    disp(['Download finished: ' datestr(now)])
+    disp(['Reading DEM: ' datestr(now)])
+end
+
+try
+    warning off
+    DEM      = GRIDobj(f);
+    warning on
+    
+    msg = lastwarn;
+    if ~isempty(msg)
+        disp(' ')
+        disp(msg)
+        disp(' ')
+    end
+    
+    DEM.name = demtype;
+    if p.Results.verbose
+        disp(['DEM read: ' datestr(now)])
+    end
+    
+catch
+    % Something went wrong. See whether we can derive some information.
+    fid = fopen(outfile);
+    in = textscan(fid,'%c');
+    disp('Could not retrieve DEM. This is the message returned by opentopography API:')
+    disp([in{1}]')
+    disp('readopentopo returns empty array')
+    fclose(fid);
+    DEM = [];
+end
+    
 
 if p.Results.deletefile
     delete(f);
+    if p.Results.verbose
+        disp('Temporary file deleted')
+    end
+end
+
+if p.Results.verbose
+    disp(['Done: ' datestr(now)])
+    disp('-------------------------------------')
 end
 end
 

@@ -33,7 +33,14 @@ function crsapp(S,DEM)
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     S = STREAMobj(FD,'minarea',1000);
 %     S = klargestconncomps(S);
-%     crsapp(S,DEM);    
+%     crsapp(S,DEM);  
+%
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/crs, STREAMobj/quantcarve, STREAMobj/smooth
 %
@@ -44,7 +51,7 @@ function crsapp(S,DEM)
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
@@ -222,7 +229,7 @@ end
 
 function exportnal(hObject,callbackdata)
         
-        if ~isempty(zs);
+        if ~isempty(zs)
             
             prompt = {'Enter variable name:'};
             title = 'Export';
@@ -240,7 +247,7 @@ function exportnal(hObject,callbackdata)
 end
 
 function exportparams(hObject,callbackdata)
-        if isfield(params,'Tau');
+        if isfield(params,'Tau')
             
             
             prompt = {'Enter variable name:'};

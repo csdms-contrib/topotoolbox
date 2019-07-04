@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding="utf-8"?>
+
+<toc version="2.0">
+<!-- First tocitem specifies top level in Help browser Contents pane -->
+<!-- This can be a roadmap page, as shown below, or a content page -->
+    <tocitem target="tt_product_page.html">TopoToolbox
+        <!-- Nest tocitems to create hierarchical entries in  Contents -->
+        <!-- To include icons, use the following syntax for tocitems: -->
+        <!-- <tocitem target="foo.html" image="HelpIcon.NAME"> -->
+        <!-- Title-of-Section </tocitem> -->
+        <!-- where NAME is one of the following (use capital letters): -->
+        <!-- FUNCTION, USER_GUIDE, EXAMPLES, BLOCK, GETTING_STARTED, -->
+        <!-- DEMOS, RELEASE_NOTES --> 
+        <!-- Icon images used for these entries are also stored in -->
+        <!-- matlabroot/toolbox/matlab/icons -->
+        <!-- A Getting Started Guide usually comes first -->
+        <tocitem target="tt_gs_0.html" image="HelpIcon.GETTING_STARTED">
+            Getting Started with TopoToolbox
+            <tocitem target="tt_gs_1.html">Load a DEM and display it
+            </tocitem>
+            <tocitem target="tt_gs_2.html">Calculate basic DEM attributes
+            </tocitem>
+            <tocitem target="tt_gs_3.html">Hydrological terrain attributes
+            </tocitem>
+            <tocitem target="tt_gs_4.html">Derive, modify and plot the stream network
+            </tocitem>
+        </tocitem>
+        <tocitem target="ttfunctions.html">Function reference
+        </tocitem>
+        <tocitem target="usersguide_0.html" 
+            image="HelpIcon.USER_GUIDE">TopoToolbox User Guide
+            <tocitem target="usersguide_1_intro.html">Introduction
+            </tocitem>
+            <tocitem target="usersguide_2_ksn.html">Calculating and plotting river steepness
+            </tocitem>
+            <tocitem target="usersguide_3_mfd.html">Multiple flow directions
+            </tocitem>
+            <tocitem target="usersguide_4_modify.html">Modifying the stream network
+            </tocitem>
+            <tocitem target="usersguide_5_smoothing.html">Smoothing of values measured along river networks
+            </tocitem>
+        </tocitem>
+        <!-- Optional link or links to your or other Web sites -->
+        <tocitem target="http://topotoolbox.wordpress.com" 
+                 image="$toolbox/matlab/icons/webicon.gif">
+        TopoToolbox blog (external website)
+        </tocitem>
+    </tocitem>
+</toc>

@@ -146,9 +146,9 @@ end
 methods
     function FD = FLOWobj(DEM,varargin)
 
-        if nargin == 0;
+        if nargin == 0
             % Create an empty FLOWobj
-        elseif nargin >= 1 && nargin ~= 2;
+        elseif nargin >= 1 && nargin ~= 2
 
             % Parse inputs
             p = inputParser;
@@ -195,7 +195,7 @@ methods
                 ext = mexext;
                 mexx = exist(['steepestneighbor_mex.' ext],'file')==3 && ...
                        exist(['tsort_mex.' ext],'file')==3;
-                if mexx==0;
+                if mexx==0
                     warning('TopoToolbox:FLOWobj',...
                             ['cannot find compiled mex functions on the search path. \n'...
                              'FLOWobj continues with using slower m-functions']);
@@ -210,7 +210,7 @@ methods
                 FD.cellsize = p.Results.cellsize;
                 FD.refmat   = p.Results.refmat;
                 
-                if ~isempty(siz);
+                if ~isempty(siz)
                     FD.size = siz;
                 else
                     fprintf(['\n       The size of the DEM was not provided. It will be \n'...
@@ -297,7 +297,7 @@ methods
                             disp([datestr(clock) ' -- Sink filling'])
                         end
                         
-                        if isempty(sinks);
+                        if isempty(sinks)
                             DEM = fillsinks(DEM);
                         else
                             DEM = fillsinks(DEM,sinks);
@@ -310,7 +310,7 @@ methods
                         if verbose
                             disp([datestr(clock) ' -- Sink filling'])
                         end
-                        if isempty(sinks);
+                        if isempty(sinks)
                             DEMF = fillsinks(DEM);
                         else
                             DEMF = fillsinks(DEM,sinks);
@@ -321,7 +321,7 @@ methods
                         % There is also a weights option, which is a
                         % GRIDobj with weights. But this is currently
                         % undocumented
-                        if isempty(weights);                            
+                        if isempty(weights)                            
                             D    = DEMF-DEM;
                         else
                             D    = -weights;
@@ -356,17 +356,19 @@ methods
                     
                     DD = bwdist(~IntBasin.Z,'e');
                     STATS   = regionprops(IntBasin.Z,DD,'PixelIdxList','PixelValues');
-                    
-                    for r=1:numel(STATS);
-                        [~,ixm] = max(STATS(r).PixelValues);
-                        STATS(r).MaxIntIX = STATS(r).PixelIdxList(ixm);
-
-                        I(STATS(r).PixelIdxList(1)) = false;
-                        SILLS(STATS(r).PixelIdxList(1)) = true;
+                    if ~isempty(STATS)
+                        for r=1:numel(STATS)
+                            [~,ixm] = max(STATS(r).PixelValues);
+                            STATS(r).MaxIntIX = STATS(r).PixelIdxList(ixm);
+                            
+                            I(STATS(r).PixelIdxList(1)) = false;
+                            SILLS(STATS(r).PixelIdxList(1)) = true;
+                        end
+                        
+                        ixm = [STATS(r).MaxIntIX];
+                        I(ixm) = false;
+                        SILLS(ixm) = true;
                     end
-                    ixm = [STATS(r).MaxIntIX];
-                    I(ixm) = false;
-                    SILLS(ixm) = true;
                     clear InBasin STATS
                     
                     % A slightly faster but less elegant approach
@@ -387,7 +389,7 @@ methods
                 switch preprocess
                     case 'carve'
                         CarveMinVal = 0.1;
-                        if ~isscalar(cweight);
+                        if ~isscalar(cweight)
                             D = (D + cweight);                            
                             D = linscale(D,0,100);
                         end
@@ -402,15 +404,18 @@ methods
                         
                         % -- Old version
                         CC = bwconncomp(I);                                
-                        for r = 1:CC.NumObjects;
-                            D(CC.PixelIdxList{r}) = (max(D(CC.PixelIdxList{r})) - D(CC.PixelIdxList{r})).^tweight + CarveMinVal;
+                        for r = 1:CC.NumObjects
+                            maxdepth = max(D(CC.PixelIdxList{r}));
+                            D(CC.PixelIdxList{r}) = (maxdepth - D(CC.PixelIdxList{r})).^tweight + CarveMinVal;
+%                             D(CC.PixelIdxList{r}) = maxdepth - D(CC.PixelIdxList{r});
+%                             D(CC.PixelIdxList{r}) = (D(CC.PixelIdxList{r})./maxdepth + CarveMinVal).^tweight;
                         end
                         clear CC
 
                         % enable that flow in flats follows digitized
                         % streams. Undocumented...
-                        if ~isscalar(streams);
-                        if islogical(streams);                        
+                        if ~isscalar(streams)
+                        if islogical(streams)                        
                             D(streams) = CarveMinVal;
                         else
                             D = max(D - D.*min(streams,0.99999),CarveMinVal);
@@ -425,7 +430,7 @@ methods
                 rowadd = [-1 -1 0 1 1  1  0 -1];
                 coladd = [ 0  1 1 1 0 -1 -1 -1];
                 PreSillPixel = [];
-                for r = 1:8;
+                for r = 1:8
                     rowp = row + rowadd(r);
                     colp = col + coladd(r);
                     
@@ -562,7 +567,7 @@ methods
                 end
                 
                         
-                end
+            end
             
         else
             %% Multiple flow direction
@@ -627,6 +632,35 @@ methods
             FD.ixcix  = [];
         end
     end
+    
+    function FD = multi_normalize(FD)
+        
+        if isempty(FD.fraction)
+            return
+        end
+        s = accumarray(FD.ix,FD.fraction,[prod(FD.size) 1],@sum);
+        FD.fraction = FD.fraction./s(FD.ix);
+    end
+    
+    function FD = multi_weights(FD,varargin)
+        
+        p = inputParser;
+        addParameter(p,'DEM',[],@(x) isa(x,'GRIDobj'));
+        addParameter(p,'type','random')
+        addParameter(p,'beta',1)
+        parse(p,varargin{:});
+        
+        switch p.Results.type
+            case 'random'
+                FD.fraction = rand(size(FD.fraction));
+        end
+        FD = multi_normalize(FD);
+        
+        
+        
+    end
+    
+            
 
 end
 end

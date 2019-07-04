@@ -48,7 +48,7 @@ function k = ksn(S,DEM,A,theta)
 % Date: 18. August, 2017
 
 narginchk(3,4);
-if nargin == 3;
+if nargin == 3
     theta = 0.45;
 end
 
@@ -56,7 +56,7 @@ end
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = double(getnal(S,DEM));
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = double(DEM);
 else
     error('Imcompatible format of second input argument')
@@ -66,7 +66,7 @@ end
 if isa(A,'GRIDobj')
     validatealignment(S,A);
     a = double(getnal(S,A));
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     a = double(DEM);
 else
     error('Imcompatible format of second input argument')
@@ -80,6 +80,7 @@ g = gradient(S,z);
 a = a.*S.cellsize.^2;
 
 k = g./(a.^(-theta));
+
 
 
 

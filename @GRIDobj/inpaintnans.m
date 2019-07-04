@@ -6,6 +6,7 @@ function DEM = inpaintnans(DEM,varargin)
 %
 %     DEMf = inpaintnans(DEM,type)
 %     DEMf = inpaintnans(DEM,type,k)
+%     DEMf = inpaintnans(DEM,type,k,conn)
 %     DEMf = inpaintnans(DEM,DEM2)
 %     DEMf = inpaintnans(DEM,DEM2,method)
 %
@@ -37,12 +38,20 @@ function DEM = inpaintnans(DEM,varargin)
 %                     the function nibble in ArcGIS Spatial Analyst)
 %               'nearest': nearest neighbor interpolation 
 %                     using bwdist
+%               'neighbors': this option does not close all nan-regions. It
+%                     adds a one-pixel wide boundary to the valid values in
+%                     the DEM and derives values for these pixels by a
+%                     distance-weighted average from the valid neighbor
+%                     pixels. This approach does not support the third input 
+%                     argument k.
 %     k         if supplied, only connected components with 
 %               less or equal number of k pixels are filled. Others
-%               remain nan
+%               remain nan. Set to inf if all pixels enclosed by non-nan
+%               pixels should be filled.
+%     conn      Connectivity, specified as scalar 4 or 8
 %     DEM2      if the second input argument is a GRIDobj, inpaintnans will
 %               interpolate from DEM2 to locations of missing values in
-%               DEM. This approach does not support a third input argument.
+%               DEM. 
 %     method    interpolation method if second input argument is a GRIDobj.
 %               {'linear'},'nearest','spline','pchip', or 'cubic'.
 %
@@ -64,11 +73,15 @@ function DEM = inpaintnans(DEM,varargin)
 % See also: ROIFILL, FILLSINKS, BWDIST
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. September, 2017
+% Date: 3. September, 2018
 
 if nargin == 1
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif ischar(varargin{1})
+    if strcmpi(varargin{1},'neighbors')
+        DEM = interpneighborpixels(DEM);
+        return
+    end
     DEM.Z = deminpaint(DEM.Z,varargin{:});
 elseif isa(varargin{1},'GRIDobj')
     if nargin == 2
@@ -76,36 +89,47 @@ elseif isa(varargin{1},'GRIDobj')
     else
         method = varargin{2};
         method = validatestring(method,...
-        {'linear','nearest','spline','pchip','cubic'},'GRIDobj/inpaintnans','method',3);
+        {'linear','nearest','spline','pchip','cubic','tt'},'GRIDobj/inpaintnans','method',3);
     end
-    INAN = isnan(DEM);
-    IX   = find(INAN.Z);
-    [x,y] = ind2coord(DEM,IX);
-    znew  = interp(varargin{1},x,y,method);
-    DEM.Z(IX) = znew;
+    
+    switch method
+        case 'tt'
+            DEM = ttinpaint(DEM,varargin{1});
+        otherwise
+            INAN = isnan(DEM);
+            IX   = find(INAN.Z);
+            [x,y] = ind2coord(DEM,IX);
+            znew  = interp(varargin{1},x,y,method);
+            DEM.Z(IX) = znew;
+    end
+   
 end
 
 end
 
-function dem = deminpaint(dem,type,k)
+function dem = deminpaint(dem,type,k,conn)
 if nargin == 1
     type = 'laplace';
     k    = inf;
+    conn = 8;
 elseif nargin == 2
     k    = inf;
+    conn = 8;
+elseif nargin == 3
+    conn = 8;
 end
    
 % error checking    
 % clean boundary
 I = isnan(dem);
-I = imclearborder(I);
+I = imclearborder(I,conn);
 
 if ~isinf(k)
-    I = xor(bwareaopen(I,k+1),I);
+    I = xor(bwareaopen(I,k+1,conn),I);
 end
 
 % 
-if numel(dem) < 10000^2 || ~strcmpi(type,'laplace');
+if numel(dem) < 10000^2 || ~strcmpi(type,'laplace')
 
 % interpolation
 switch lower(type)
@@ -127,14 +151,14 @@ switch lower(type)
         mask(I | isnan(dem)) = -inf;
         marker = -marker;
         mask   = -mask;
-        demrec = imreconstruct(marker,mask);
+        demrec = imreconstruct(marker,mask,conn);
         dem(I) = -demrec(I);
     otherwise
         error('type unknown')
 end
 
 else
-    CC = bwconncomp(I);
+    CC = bwconncomp(I,conn);
     STATS = regionprops(CC,'SubarrayIdx','Image');
    
     for r = 1:numel(STATS)
@@ -151,5 +175,82 @@ else
         demtemp = regionfill(demtemp,inatemp);  
         dem(rows(1):rows(2),cols(1):cols(2)) = demtemp;
     end
+end
+end
+
+
+
+function DEM = ttinpaint(DEM,DEM2)
+
+INAN = isnan(DEM);
+INAN.Z = imclearborder(INAN.Z);
+B    = dilate(INAN,ones(5)) & ~INAN;
+IX   = find(B);
+[x,y] = ind2coord(B,IX);
+z     = interp(DEM2,x,y);
+
+DIFF = DEM;
+DIFF.Z(IX) = z-DIFF.Z(IX);
+
+DIFF = inpaintnans(DIFF,'laplace');
+DEM  = inpaintnans(DEM,DEM2);
+DEM.Z(INAN.Z) = DEM.Z(INAN.Z)+DIFF.Z(INAN.Z);
+
+
+
+
+end
+
+
+function DEM = interpneighborpixels(DEM)
+
+%INTERPNEIGHBORPIXELS Interpolate pixels from their neighbor pixels
+%
+% Syntax
+%
+%     DEMi = interpneighborpixels(DEM)
+%
+% Description
+%
+%     INTERPNEIGHBORPIXELS uses distance weighted averages to calculate
+%     missing values (nans) for pixels that border pixels with valid
+%     values. 
+%
+% Input arguments
+%
+%     DEM      GRIDobj
+%
+% Output arguments
+%
+%     DEMi     GRIDobj with
+%
+
+
+I = isnan(DEM.Z);
+sq2 = sqrt(2);
+w = 1./[sq2 1 sq2; ...
+     1   0   1; ...
+     sq2 1 sq2];
+w = w(:);
+
+Z = nlfilter(DEM.Z,[3 3],@fun);
+DEM.Z = Z;
+
+function b = fun(a)
+
+a = a(:);    
+if ~isnan(a(5))
+    b = a(5);
+    return
+end
+
+I = isnan(a);
+if all(I)
+    b = nan;
+    return
+end
+
+I = ~I;
+b = sum(a(I).*(w(I)./sum(w(I))));
 end
 end

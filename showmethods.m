@@ -1,10 +1,11 @@
-function showmethods(classname)
+function showmethods(classname,showlink)
 
 % displays class method names and H1 lines in the command line
 %
 % Syntax
 %
 %     showmethods(classname)
+%     showmethods(classname,showlink)
 %
 % Description
 %
@@ -16,6 +17,9 @@ function showmethods(classname)
 % Input arguments
 %
 %     classname     string with class name (e.g. GRIDobj, FLOWobj)
+%     showlink      false or true (default). If true, the function displays
+%                   hyperlinks to the documentation.
+%                   
 %
 % Example
 %
@@ -24,9 +28,14 @@ function showmethods(classname)
 % See also: methods, properties, class
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 21. June, 2013
+% Date: 5. December, 2017
 
-narginchk(1,1)
+narginchk(1,2)
+
+if nargin == 1
+    showlink = true;
+end
+
 
 m = methods(classname);
 
@@ -45,7 +54,7 @@ for r = 1:numel(m)
             if isempty(tline)
                 continue
             end
-            if strcmp(tline(1),'%');
+            if strcmp(tline(1),'%')
                 H1line = true;
             end
         end
@@ -56,15 +65,18 @@ for r = 1:numel(m)
         end
         
         methodstr = m{r};
-        if numel(methodstr)<= maxmethcharacter;
-            methodstr = [methodstr repmat(' ',1,maxmethcharacter - numel(methodstr))]; %#ok<AGROW>
+        if numel(methodstr)<= maxmethcharacter
+            addblanks = repmat(' ',1,maxmethcharacter - numel(methodstr));
         end
         
         h1str = tline(2:end);
         ix    = strfind(h1str,' ');
         h1str = h1str(ix(1)+1:end);
-                        
-        disp([ upper(methodstr) ' : ' h1str]);
+        if ~showlink                
+            disp([ upper(methodstr) addblanks ' : ' h1str]);
+        else
+            disp(['<a href="matlab: doc ' classname '/' methodstr '">' upper(methodstr) '</a>' addblanks ' : ' h1str]);
+        end
         fclose(fileID);
         
     catch

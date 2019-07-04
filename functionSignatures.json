@@ -1,0 +1,62 @@
+{
+  "_schemaVersion": "1.0.0",
+  "GRIDobj":
+  {
+     "inputs":
+     [
+        {"name":"filename", "kind":"required", "type":[["file=*.tif,*.tiff,*.asc,*.txt"],["char"]]}
+     ]
+  },
+  "GRIDobj.gradient8":
+  {
+     "inputs":
+     [
+        {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
+        {"name":"unit", "kind":"required", "type":"choices={'tan','rad','deg','sin','per'}"},
+        {"name":"useblockproc", "kind":"namevalue", "type":[["logical"],["scalar"]]},
+		{"name":"blocksize", "kind":"namevalue", "type":"scalar"},
+		{"name":"useparallel", "kind":"namevalue", "type":"scalar"}
+     ]
+  },
+  "FLOWobj":
+  {
+     "inputs":
+     [
+        {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
+        {"name":"preprocess", "kind":"namevalue", "type":"choices={'carve','fill','none'}"},
+		{"name":"sinks", "kind":"namevalue", "type":"GRIDobj"},
+		{"name":"internaldrainage", "kind":"namevalue", "type":"scalar"},
+		{"name":"verbose", "kind":"namevalue", "type":"scalar"},
+		{"name":"mex", "kind":"namevalue", "type":"scalar"}
+     ]
+  },
+  "STREAMobj":
+  {
+     "inputs":
+     [
+        {"name":"FD", "kind":"required", "type":["FLOWobj"]},
+		{"name":"I", "kind":"required", "type":["GRIDobj"]}
+     ]
+  },
+  "STREAMobj":
+  {
+     "inputs":
+     [
+        {"name":"FD", "kind":"required", "type":["FLOWobj"]},
+        {"name":"minarea", "kind":"namevalue", "type":"scalar"},
+		{"name":"unit", "kind":"namevalue", "type":"choices={'pixels','mapunits'}"},
+		{"name":"outlets", "kind":"namevalue"},
+		{"name":"channelheads", "kind":"namevalue"}
+     ]
+  }
+  "STREAMobj.chitransform":
+  {
+     "inputs":
+     [
+        {"name":"S", "kind":"required", "type":["STREAMobj"]},
+        {"name":"FD", "kind":"required"},
+		{"name":"mn", "kind":"namevalue"},
+		{"name":"a0", "kind":"namevalue"}
+     ]
+  }
+}

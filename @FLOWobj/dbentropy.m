@@ -4,25 +4,34 @@ function [OUT,Pc] = dbentropy(FD,ix)
 %
 % Syntax
 %
-%     [H,S] = dbentropy(M,siz,ix)
+%     H = dbentropy(FD)
+%     [H,P] = dbentropy(FD)
+%     [H,P] = dbentropy(FD,IX)
+%     [H,P] = dbentropy(FD,S)
 %
 % Description
 %
-%     dbentropy calculates the Shannon Entropy (H) of a digital elevation
-%     model. H quantifies the uncertainty associated with each pixel in the
-%     DEM to drain towards a specific outlet.
+%     dbentropy calculates the drainage basin entropy H (Schwanghart and
+%     Heckmann 2012) based on multiple flow directions stored in FLOWobj
+%     FD. Drainage basin entropy is derived for each pixel and quantifies
+%     the uncertainty to assign an outlet pixel. Pixel that drain towards a
+%     single outlet pixel have low entropy values, whereas pixels with high
+%     values could be assigned to two or more outlet pixels. Drainage basin
+%     entropy relies on a probabilistic interpretation of multiple flow 
+%     directions.
 %
 % Input parameters
 %
 %     FD    multiple flow direction FLOWobj
-%     IX    linear indices into the DEM from which FD was derived.
+%     IX    linear indices of outlets
+%     S     STREAMobj from which linear indices of outlets are derived
 %
 % Output arguments
 %  
 %     H     Shannon Entropy grid (GRIDobj)
-%     S     structure array with numel(ix) elements with additional 
-%           information to each outlet. S.P contains the probability grid
-%           for each outlet. S.IX is the outlet's linear index. CA01-99 are
+%     P     structure array with numel(ix) elements with additional 
+%           information to each outlet. P.P contains the probability grid
+%           for each outlet. P.IX is the outlet's linear index. CA01-99 are
 %           the error bounds for the drainage area.
 %
 % Example
@@ -44,12 +53,12 @@ function [OUT,Pc] = dbentropy(FD,ix)
 % See also: drainagebasins, FLOWobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 07. October, 2016
+% Date: 21. March, 2019
 
 M = FLOWobj2M(FD);
 siz = FD.size;
 
-if nargin == 1;
+if nargin == 1
     ix = find(((sum(M,2)) == 0) & (sum(M,1)' > 0));
     nrix = numel(ix);
     % check the number of outlets and break the problems into chunks if
@@ -57,27 +66,29 @@ if nargin == 1;
     
     chunksize = 100;
     
-    if nrix > chunksize;
+    if nrix > chunksize
         chunks = true;
     else
         chunks = false;
     end
     
     % In addition, suggest to output only some of the larger fuzzy drainage basins 
-    if nargout >= 2 && chunks;
-        
-        
+    if nargout >= 2 && chunks
+              
         mess  = ['The number of probability matrices is quite large (k = ' num2str(nrix) ').\n' ...
                  'It is suggested to return only the probability matrices of\n'...
                  'the outlets with the largest drainage basins. Please provide\n'...
                  'a number of how many you want. The default is n = ' num2str(chunksize) '. n : '];
+             
         pout = input(mess);
+        
         if isempty(pout)
             pout = 10;
         end
         
-        A = (speye(prod(siz))-M')\ones(prod(siz),1);
-        [~,ixsort] = sort(A(ix),'descend');
+        % calculate flow accumulation
+        A = flowacc(FD);
+        [~,ixsort] = sort(A.Z(ix),'descend');
         ix = ix(ixsort);
         
     end
@@ -85,6 +96,9 @@ if nargin == 1;
     
 else
     nrc  = prod(siz);
+    if isa(ix,'STREAMobj')
+        ix = streampoi(ix,'outlets','ix');
+    end
     nrix = numel(ix);
     
     % create sinks at provided indices
@@ -103,7 +117,7 @@ S = sparse(ix,1:nrix,1,nrc,nrix);
 % B is the membership (partition) matrix (?) (fuzzy partition matrix). 
 % B contains the membership grades. (calculated by membership function below)
 
-if nargout >= 2;
+if nargout >= 2
     Pc = struct('P',{},'IX',{},'CA50',{},'CA99',{},...
                     'CA95',{},'CA66',{},'CA33',{},...
                     'CA05',{},'CA01',{});
@@ -120,8 +134,9 @@ if ~chunks
     
     if nargout >= 2
         
-        for r = 1:nrix;
-            Pc(r).P = full(reshape(P(:,r),siz));
+        for r = 1:nrix
+            Pc(r).P = GRIDobj(FD);
+            Pc(r).P.Z = full(reshape(P(:,r),siz));
             Pc(r).IX = ix(r);
             ptemp = sort(full(P(:,r)),'descend');
             [~,m] = unique(ptemp);
@@ -152,8 +167,12 @@ else
     H = zeros(siz);
     counter = 1;
     sP = zeros(prod(siz),1);
+	
+	h = waitbar(0,'Starting');
+	iters = ceil(nrix/chunksize);
     
-    for r = 1:ceil(nrix/chunksize);
+    for r = 1:iters
+		waitbar(r/iters,h,[num2str(r) ' / ' num2str(iters)]);
         cols = ((r-1)*chunksize + 1):r*chunksize;
         cols(cols>nrix) = [];
         
@@ -163,10 +182,11 @@ else
 
         if nargout >= 2
             
-            for rr = cols(1):cols(end);
+            for rr = cols(1):cols(end)
                 
                 if rr<=pout
-                    Pc(rr).P = full(reshape(P(:,counter),siz));
+                    Pc(rr).P = GRIDobj(FD);
+                    Pc(rr).P.Z = full(reshape(P(:,counter),siz));
                     ptemp    = sort(Pc(rr).P(:),'descend');
                 else
                     Pc(rr).P = [];
@@ -187,7 +207,7 @@ else
                 
                 
                 % reset counter if larger than chunksize
-                if counter >= chunksize;
+                if counter >= chunksize
                     counter = 1;
                 else
                     counter = counter+1;
@@ -197,6 +217,7 @@ else
             end
         end
     end 
+	close(h);
 %     H = H + reshape(1 - sP.*log2(sP),siz);
 end
 

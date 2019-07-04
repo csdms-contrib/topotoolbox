@@ -49,30 +49,82 @@ p = inputParser;
 p.FunctionName = 'STREAMobj/labelreach';
 addParamValue(p,'seglength',inf,@(x) isscalar(x) && x>0);
 addParamValue(p,'shuffle',false,@(x) isscalar(x));
+addParamValue(p,'exact',false,@(x) isscalar(x));
 parse(p,varargin{:});
 
-label = streampoi(S,{'bconfl','out'},'logical');
-label = cumsum(label).*label;
 
-ix = S.ix;
-ixc = S.ixc;
-for r = numel(ix):-1:1
-    if label(ix(r)) == 0
-        label(ix(r)) = label(ixc(r));
+if ~p.Results.exact
+    % The first approach will label all nodes in the stream network.
+    % It will split reaches according to segment length but also at
+    % confluences. This will result in segment lengths that are not exactly
+    % the provided value seglength.
+    label = streampoi(S,{'bconfl','out'},'logical');
+    label = cumsum(label).*label;
+    
+    ix = S.ix;
+    ixc = S.ixc;
+    for r = numel(ix):-1:1
+        if label(ix(r)) == 0
+            label(ix(r)) = label(ixc(r));
+        end
     end
+    
+    % there may be nodes that are neither receivers or givers. These nodes
+    % still have the label zero.
+    maxlabel = max(label);
+    iszero   = label==0;
+    label(iszero) = (1:nnz(iszero))+maxlabel;
+    
+    
+    if ~isinf(p.Results.seglength)
+        maxdist   = p.Results.seglength;
+        cs        = S.cellsize;
+        dist      = S.distance;
+        label2    = accumarray(label,(1:numel(S.x))',[max(label) 1],@(x) {split(x)});
+        labeltemp = zeros(size(label));
+        for r = 1:max(label)
+            labeltemp(label2{r}(:,2)) = label2{r}(:,1);
+        end
+        [~,~,label] = unique([label labeltemp],'rows');
+    end
+else
+    % If we choose the exact approach, then labelreach will not split at
+    % confluences. Parts close to channelheads that have length less than
+    % the value of seglength will get the label zero.
+    [CS,locS] = STREAMobj2cell(S,'tributaries');
+    labeltrib = zeros(size(S.x));
+    for r = 1:numel(locS)
+        labeltrib(locS{r}) = r;
+    end
+    
+    label     = zeros(size(S.x));
+    Clabel = cell(size(CS));
+    
+    for iter = 1:numel(CS)
+        d = CS{iter}.distance;
+        d = mod(d,p.Results.seglength);
+        I = double(gradient(CS{iter},d) < 0);
+        I(streampoi(CS{iter},'outlet','logical')) = 1;
+        
+        ix = CS{iter}.ix;
+        ixc = CS{iter}.ixc;
+        
+        for r = numel(ix):-1:1
+            I(ix(r)) = I(ixc(r)) + I(ix(r));
+        end
+        Clabel{iter} = I;
+    end
+    
+    for r = numel(CS):-1:1
+        label(locS{r}) = Clabel{r};
+    end
+    
+    % get unique labels
+    [~,~,label] = unique([label labeltrib],'rows');
+    
 end
+    
 
-if ~isinf(p.Results.seglength)
-    maxdist   = p.Results.seglength;
-    cs        = S.cellsize;
-    dist      = S.distance;
-    label2    = accumarray(label,(1:numel(S.x))',[max(label) 1],@(x) {split(x)});
-    labeltemp = zeros(size(label));
-    for r = 1:max(label)
-        labeltemp(label2{r}(:,2)) = label2{r}(:,1);
-    end
-    [~,~,label] = unique([label labeltemp],'rows');
-end
 
 %% Shuffle labels
 if p.Results.shuffle

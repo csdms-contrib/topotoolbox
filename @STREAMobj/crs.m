@@ -68,6 +68,18 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %            'original data',...
 %            'K=10, tau=0.5')
 %
+% Algorithm
+%
+%     This algorithm uses nonparametric quantile regression to smooth the
+%     data. The algorithm is described in Schwanghart and Scherler (2017)
+%     (Eq. A13-A15).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify,
 %           STREAMobj/crslin, STREAMobj/quantcarve, STREAMobj/smooth
@@ -98,11 +110,13 @@ if isa(DEM,'GRIDobj')
 elseif isnal(S,DEM)
     z = DEM;
 else
-    error('Imcompatible format of second input argument')
+    error('TopoToolbox:crs','Imcompatible format of second input argument')
 end
 
 if any(isnan(z))
-    error('DEM or z may not contain any NaNs')
+    error('TopoToolbox:crs',...
+        ['DEM or z may not contain any NaNs. Use STREAMobj/inpaintnans \n' ...
+         'to fill nan values using interpolation'])
 end
 
 % double precision is necessary
@@ -143,7 +157,7 @@ elseif p.Results.split == 2
     
     params = p.Results;
     params.split = 0;
-    params.fixedoutlet = false;
+    % params.fixedoutlet = false;
     for r = 1:max(CID)
         ii = CID == r;
         if r > 1

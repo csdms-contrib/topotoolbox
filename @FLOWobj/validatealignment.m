@@ -28,13 +28,13 @@ function tf = validatealignment(FD,G)
 % Date: 4. March, 2016
 
 % check if geometric properties of a FLOWobj and GRIDobj instance are equal
-if isa(G,'GRIDobj');
+if isa(G,'GRIDobj')
     TF = isequal(FD.size,G.size) && isequal(FD.refmat,G.refmat);
 else
     TF = isequal(FD.size,size(G));
 end
 
-if nargout == 1;
+if nargout == 1
     tf = TF;
 else
     if ~TF

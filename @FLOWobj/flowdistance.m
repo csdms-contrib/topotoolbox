@@ -41,7 +41,7 @@ function OUT = flowdistance(FD,varargin)
 % Example
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%     FD  = FLOWobj(DEM,'preprocess','carve');
+%     FD  = FLOWobj(DEM);
 %     D = flowdistance(FD);
 %     imageschs(DEM,D)
 %
@@ -69,17 +69,17 @@ end
 
 
 
-if nrargsin == 2;
+if nrargsin == 2
     % SEED pixels are either supplied as logical matrix, GRIDobj, or linear
-    % index
+    % index, or STREAMobj
     SEED = varargin{1};
     isGRIDobj = isa(SEED,'GRIDobj');   
     if (islogical(SEED) || isGRIDobj)
         validatealignment(FD,SEED);
-        if isGRIDobj;
+        if isGRIDobj
             SEED = SEED.Z;
         end
-    elseif isa(SEED,'STREAMobj');
+    elseif isa(SEED,'STREAMobj')
         ix = SEED.IXgrid;
         SEED = false(FD.size);
         SEED(ix) = true;
@@ -91,7 +91,7 @@ if nrargsin == 2;
         SEED = false(FD.size);
         SEED(ix) = true;
     end
-elseif nrargsin == 3;
+elseif nrargsin == 3
     % SEED pixels are supplied as coordinate pairs
     ix   = coord2ind(FD,varargin{1},varargin{2});
     SEED = false(FD.size);
@@ -110,17 +110,17 @@ cl   = class(DIST);
 switch direction
     case 'upstream'
         %% Upstream distance calculation
-        if nrargsin == 1;
+        if nrargsin == 1
             D     = zeros(FD.size,cl);
             start = numel(ixtemp);
-            for r = start:-1:1;
+            for r = start:-1:1
                 D(ixtemp(r)) = D(ixctemp(r))+DIST(r);
             end
         else
             D     = inf(FD.size,cl);
             D(SEED) = 0;
             start = find(SEED(ixctemp),1,'last');
-            for r = start:-1:1;
+            for r = start:-1:1
                 D(ixtemp(r)) = min(D(ixctemp(r))+DIST(r),D(ixtemp(r)));
             end
             
@@ -137,11 +137,11 @@ switch direction
             D(SEED) = 0;
         end
         
-        for r = 1:numel(FD.ix);
+        for r = 1:numel(FD.ix)
             D(FD.ixc(r)) = max(D(FD.ix(r))+DIST(r),D(FD.ixc(r)));
         end
         
-        if nrargsin >= 2;
+        if nrargsin >= 2
             D(isinf(D)) = nan;
         end
     case 'mindownstream'
@@ -150,7 +150,7 @@ switch direction
         D = inf(FD.size,cl);
         D(SEED) = 0;
         
-        for r = 1:numel(ixtemp);
+        for r = 1:numel(ixtemp)
             D(ixctemp(r)) = min(D(ixtemp(r))+DIST(r),D(ixctemp(r)));
         end
 end

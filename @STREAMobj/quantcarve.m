@@ -36,6 +36,8 @@ function [zs,output] = quantcarve(S,DEM,tau,varargin)
 %     'split'         {true} or false. If set to true, quantcarve will
 %                     split the network into individual drainage basins and 
 %                     process them in parallel.
+%     'waitbar'       {true} or false. Applies only if split option is set
+%                     to 2. 
 %
 %
 % Output parameters
@@ -60,6 +62,17 @@ function [zs,output] = quantcarve(S,DEM,tau,varargin)
 %     plotdz(S,zs50,'color','k','LineWidth',1.5)
 %     hold off
 %
+% Algorithm
+%
+%     This algorithm uses quantile carving to smooth the data. The
+%     algorithm is described in Schwanghart and Scherler (2017) (Eq. A12).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
 %
 % See also: STREAMobj/mincosthydrocon, STREAMobj/crs, STREAMobj/imposemin
 % 
@@ -78,6 +91,7 @@ p.FunctionName = 'STREAMobj/quantcarve';
 addParameter(p,'split',2);
 addParameter(p,'mingradient',0,@(x) isscalar(x) && x>=0);
 addParameter(p,'fixedoutlet',false);
+addParameter(p,'waitbar',true);
 parse(p,varargin{:});
 
 validateattributes(tau,{'numeric'},{'>',0,'<',1},'STREAMobj/quantcarve','tau',3);
@@ -100,6 +114,7 @@ z = double(z);
 
 %% Run in parallel
 if p.Results.split == 1
+    % Option 1: Process each drainage basin independently
     params = p.Results;
     params.split = false;
     [CS,locS] = STREAMobj2cell(S);
@@ -122,13 +137,27 @@ if p.Results.split == 1
     end
     
 elseif p.Results.split == 2
+    % Option 2: Process tributaries in parallel
     
     [CS,locb,CID] = STREAMobj2cell(S,'trib');
     
     params = p.Results;
     params.split = 0;
     params.fixedoutlet = false;
-    for r = 1:max(CID)
+    wb     = params.waitbar;
+    params.waitbar = false;
+    
+    if wb
+        h = waitbar(0,'Processing');
+    end
+    
+    
+    ntribs = max(CID);
+    
+    for r = 1:ntribs
+        if wb
+            waitbar(r/ntribs,h);
+        end
         ii = CID == r;
         if r > 1
             params.fixedoutlet = true;
@@ -145,6 +174,10 @@ elseif p.Results.split == 2
         for r2 = 1:numel(CStemp)
             z(locbtemp{r2}) = Czstemp{r2};
         end
+    end
+    
+    if wb
+        close(h)
     end
     
     zs = z;

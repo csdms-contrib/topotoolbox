@@ -21,11 +21,17 @@ function info(DEM)
 % Date: 8. January, 2013
 
 
+s = inputname(1);
 [ul] = [1 1 1] * DEM.refmat;
 [lr] = [DEM.size 1] * DEM.refmat;
 
 disp(' ')
-disp('TopoToolbox GRIDobj')
+if isempty(s)
+    disp('TopoToolbox GRIDobj')
+else
+    disp(['TopoToolbox GRIDobj ' s ' (' ...
+        '<a href = "matlab:openvar ' s '">show</a>/<a href = "matlab:imagesc(' s ')">plot</a>)']);
+end
 disp(['  name:                  ' DEM.name])
 disp(['  data type:             ' class(DEM.Z)])
 disp(['  number of rows:        ' num2str(DEM.size(1))])

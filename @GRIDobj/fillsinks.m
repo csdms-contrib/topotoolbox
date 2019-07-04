@@ -7,6 +7,7 @@ function DEM = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM)
 %     DEMfs = fillsinks(DEM,maxdepth)
 %     DEMfs = fillsinks(DEM,sinks)
+%     DEMfs = fillsinks(DEM,sinks,option)
 %
 % Description
 %
@@ -53,16 +54,16 @@ function DEM = fillsinks(DEM,maxdepth)
 % Check input arguments
 narginchk(1, 2)
 
-if nargin == 1;
+if nargin == 1
     
 else
-    if isscalar(maxdepth) && ~isa(maxdepth,'GRIDobj');
+    if isscalar(maxdepth) && ~isa(maxdepth,'GRIDobj')
         validateattributes(maxdepth,{'numeric'},{'>',0});
         md = true;
     else
         SINKS = maxdepth;
         validatealignment(DEM,SINKS);
-        if isa(SINKS,'GRIDobj');           
+        if isa(SINKS,'GRIDobj')           
             SINKS = SINKS.Z;
         end
         md = false;
@@ -78,11 +79,15 @@ Inan      = isnan(dem);
 % set nans to -inf
 dem(Inan) = -inf;
 
-if nargin == 1;
-    % fill depressions using imfill with an 8-neighborhood
-    demfs      = imfill(dem,8,'holes');
+if nargin == 1
+    % fill depressions using imreconstruct with an 8-neighborhood
+    marker     = -dem;
+    II         = false(size(dem));
+    II(2:end-1,2:end-1) = true;
+    marker(II & ~Inan) = -inf;
+    demfs      = -imreconstruct(marker,-dem,8);
     
-elseif nargin==2 && md;
+elseif nargin==2 && md
     
     % create mask
     % complement image
@@ -91,7 +96,7 @@ elseif nargin==2 && md;
     % create marker
     marker = dem;
     marker(2:end-1,2:end-1) = -inf;
-    if any(Inan);
+    if any(Inan)
         I = (imdilate(Inan,ones(3)) & ~Inan);
         marker(I) = dem(I); 
     end
@@ -109,8 +114,8 @@ elseif nargin==2 && md;
         I = D>0;
         STATS = regionprops(I,D,'MaxIntensity','PixelIdxList');
         
-        for r = 1:numel(STATS);
-            if STATS(r).MaxIntensity < maxdepth;
+        for r = 1:numel(STATS)
+            if STATS(r).MaxIntensity < maxdepth
                 % do nothing
             else
                 [~,ix] = max(D(STATS(r).PixelIdxList));
@@ -129,27 +134,27 @@ else
     % minima imposition
     I = true(size(dem));
     I(2:end-1,2:end-1) = false;
-    if any(Inan(:));
+    if any(Inan(:))
         I = (imdilate(Inan,ones(3)) & ~Inan) | I;
     end
     
     % Refine markers by identifying the lowest value in each sink
     STATS = regionprops(SINKS,dem,'MinIntensity','PixelIdxList');
     SINKS = false(size(SINKS));
-    for r = 1:numel(STATS);
+    for r = 1:numel(STATS)
         ix = find(dem(STATS(r).PixelIdxList)==STATS(r).MinIntensity,1,'first');
         SINKS(STATS(r).PixelIdxList(ix)) = true;
     end
     
-    marker = -inf(size(dem),class(dem));
+    marker        = -inf(size(dem),class(dem));
     marker(SINKS) = -dem(SINKS);
     marker(I)     = -dem(I);
-    demfs = -imreconstruct(marker,-dem);
+    demfs         = -imreconstruct(marker,-dem);
     
 end
 
 % nans in the dem are set to nan again
-try
+if isfloat(demfs)
     demfs(Inan) = nan;
 end
 DEM.Z = demfs;

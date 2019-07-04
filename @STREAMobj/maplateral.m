@@ -5,8 +5,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 % Syntax
 %
 %     a = maplateral(S,A,dist,aggfun)
-%     [a,mask] = ...
-%     
+%     [a,mask] = ...     
 %
 % Description
 %
@@ -46,16 +45,18 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %     S = STREAMobj(FD,'minarea',1000);
 %     S = klargestconncomps(S);
 %     S = trunk(S);
-%     g = maplateral(S,gradient8(DEM),100,{@min @max});
+%     g = maplateral(S,gradient8(DEM),100,{@min @max @mean});
 %     plotdz(S,DEM)
 %     yyaxis right
-%     plotdzshaded(S,g)
+%     plotdzshaded(S,g(:,[1 2])
+%     hold on
+%     plotdz(S,g(:,3))
 %     ylabel('Hillslope gradient [-]')
 %
-% See also: STREAMobj, SWATHobj
+% See also: STREAMobj, SWATHobj, STREAMobj/smooth
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 12. June, 2018
 
 % Input checking and parsing
 validatealignment(S,A)

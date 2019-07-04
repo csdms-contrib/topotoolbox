@@ -1,6 +1,6 @@
 function OUT = tidy(SW,varargin)
 
-% TIDY remove overlapping points from SWATHobj
+%TIDY remove overlapping points from SWATHobj
 %
 % Syntax
 %

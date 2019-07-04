@@ -35,14 +35,17 @@ function OUT = localtopography(DEM,varargin)
 %              'prctile', 'std' (standard deviation)
 %     'prc'    scalar between 0 and 100 [%]. Only applicable if 'prctile'
 %              is chosen as 'type'.
-%     'N'      enable speed improvement for 'max', 'min' and 'range'. 
-%              N must be 0, 4, 6,or 8. When N is greater than 0, the 
-%              disk-shaped structuring element is approximated by a sequence
-%              of N periodic-line structuring elements. When N equals 0, 
-%              no approximation is used, and the structuring element members 
-%              consist of all pixels whose centers are no greater than R 
-%              away from the origin. If N is not specified, the default 
-%              value is 0.
+%     'N'      enable speed improvement for 'max', 'min' and 'range'.
+%              N must be 0, 4, 6,or 8 (default). When N is greater than 0,
+%              the disk-shaped structuring element is approximated by a
+%              sequence of N periodic-line structuring elements. When N
+%              equals 0, no approximation is used, and the structuring
+%              element members consist of all pixels whose centers are no
+%              greater than R away from the origin. Choosing N entails a
+%              trade-off between how well the shape of the disc-shaped
+%              moving window is approximated and computational efficiency.
+%              If you choose a large radius, then N=0 can take a while to 
+%              evaluate.
 %
 % Output arguments
 %
@@ -70,7 +73,7 @@ addRequired(p,'DEM',@(x) issparse(x) || isa(x,'GRIDobj'));
 addOptional(p,'radius',5000,@(x) isscalar(x) && x>DEM.cellsize);
 
 addParamValue(p,'type','range',@(x) ischar(validatestring(x,expectedTypes)));
-addParamValue(p,'N',0,@(x) isscalar(x) && ismember(x,[0 4 6 8]));
+addParamValue(p,'N',8,@(x) isscalar(x) && ismember(x,[0 4 6 8]));
 addParamValue(p,'thin',1,@(x) x>0.1 && x<=1);
 addParamValue(p,'prc',90,@(x) x>0 && x<100);
 
@@ -91,35 +94,35 @@ SE = strel('disk',radiuspx,p.Results.N);
 switch p.Results.type
     case 'max'
         % Maximum filter
-        if flaginan;
+        if flaginan
             dem(INAN) = -inf;
         end
         H = imdilate(dem,SE);
     case 'min'
         % Minimum filter
-        if flaginan;
+        if flaginan
             dem(INAN) = inf;
         end
         H = imerode(dem,SE);
     case 'range'
-        if flaginan;
+        if flaginan
             dem(INAN) = -inf;
         end
         H1 = imdilate(dem,SE);
-        if flaginan;
+        if flaginan
             dem(INAN) = inf;
         end
         H2 = imerode(dem,SE);
         H  = H1-H2;
     case {'mean','average'}
-        if flaginan;
+        if flaginan
             [~,L] = bwdist(~INAN,'e');
             dem = dem(L);
         end            
         H   = fspecial('disk',radiuspx);
         H   = imfilter(dem,H,'symmetric','same','conv');
     case 'median'
-        if flaginan;
+        if flaginan
             [~,L] = bwdist(~INAN,'e');
             dem = dem(L);
         end
@@ -128,7 +131,7 @@ switch p.Results.type
         H   = ordfilt2(dem,n,H,'symmetric');
         
     case 'prctile'
-        if flaginan;
+        if flaginan
             [~,L] = bwdist(~INAN,'e');
             dem = dem(L);
         end
@@ -137,7 +140,7 @@ switch p.Results.type
         H   = ordfilt2(dem,n,H,'symmetric');
     
     case 'std'
-        if flaginan;
+        if flaginan
             [~,L] = bwdist(~INAN,'e');
             dem = dem(L);
         end
@@ -147,7 +150,7 @@ end
             
 
 % Handle nans
-if flaginan;
+if flaginan
     H(INAN) = nan;
 end
 

@@ -117,7 +117,7 @@ addRequired(p,'DEM', @(x) isa(x,'GRIDobj') || numel(x) == nrnodes);
 addParamValue(p,'annotation',[])
 addParamValue(p,'color',clr);
 addParamValue(p,'annotationtext',{});
-addParamValue(p,'distance',[],@(x) isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
+addParamValue(p,'distance',[],@(x) isempty(x) || isnal(S,x) || isa(x,'STREAMobj') || ischar(x));
 addParamValue(p,'dunit','m',@(x) ischar(validatestring(x,{'m' 'km'})));
 addParamValue(p,'doffset',0,@(x) isscalar(x));
 addParamValue(p,'colormap','parula');
@@ -142,7 +142,7 @@ type = validatestring(p.Results.type,{'plot','area','stairs','stairsarea'});
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     zz = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     zz = DEM;
 else
     error('Imcompatible format of second input argument')
@@ -156,10 +156,10 @@ end
 % get dynamic properties of S
 order    = S.orderednanlist;
 
-if isempty(p.Results.distance);
+if isempty(p.Results.distance)
     dist = S.distance;
 else
-    if isa(p.Results.distance,'STREAMobj');
+    if isa(p.Results.distance,'STREAMobj')
         dist = distance(S,p.Results.distance);
     elseif ischar(p.Results.distance)
         dist = S.distance;
@@ -170,7 +170,7 @@ else
 end
 
 
-switch lower(p.Results.dunit);
+switch lower(p.Results.dunit)
     case 'km'
         dist = dist/1000;
 end
@@ -227,6 +227,7 @@ else
             %% Plotting colored lines using undocumented Edges property
             % see here:
             % http://undocumentedmatlab.com/blog/plot-line-transparency-and-color-gradient
+            
             ht = plot(ax,d,z,'-');
             c     = zeros(size(order,1),3);
             minc  = min(+p.Results.color);
@@ -250,9 +251,10 @@ else
             set(ht.Edge, 'ColorBinding','interpolated', 'ColorData',c);
             
             if p.Results.colorbar
-                cc = colorbar;
+                cc = colorbar(ax);
                 caxis([minc maxc]);
             end
+            
             
         otherwise
             %% Plotting colored lines using surface
@@ -267,7 +269,7 @@ else
                 'linewidth',p.Results.linewidth,...
                 'parent',ax);
             if p.Results.colorbar
-                cc = colorbar;
+                cc = colorbar(ax);
             end
             
             

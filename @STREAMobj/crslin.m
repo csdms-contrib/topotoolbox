@@ -73,20 +73,32 @@ function [zs,exitflag,output] = crslin(S,DEM,varargin)
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     S = STREAMobj(FD,'minarea',1000);
 %     S = klargestconncomps(S);
-%     zs  = crs(S,DEM,'K',10000,'attachtomin',true);
-%     zs2 = crs(S,DEM,'K',100000);
+%     zs  = crslin(S,DEM,'K',10,'attachtomin',true);
+%     zs2 = crslin(S,DEM,'K',10);
 %     plotdz(S,DEM,'color',[0.6 0.6 0.6])  
 %     hold on
 %     plotdz(S,zs,'color','k')
 %     plotdz(S,zs2,'color','r')
 %     hold off
 %     legend('original data',...
-%            'K=10000, attached to minima',...
-%            'K=100000, not attached to minima')
+%            'K=10, attached to minima',...
+%            'K=10, not attached to minima')
 %
+% Algorithm
 %
-% See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify,
-%           STREAMobj/crs, STREAMobj/quantcarve, STREAMobj/smooth
+%     This algorithm uses linear nonparametric constrained regression to
+%     smooth the data. The algorithm is described in Schwanghart and
+%     Scherler (2017) (Eq. A6-A11).
+%     
+% References
+%
+%     Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: 
+%     uncertainty assessment and smoothing using quantile regression 
+%     techniques. Earth Surface Dynamics, 5, 821-839. 
+%     [DOI: 10.5194/esurf-5-821-2017]
+%
+% See also: STREAMobj/mincosthydrocon, quadprog, STREAMobj/crs, 
+%           STREAMobj/quantcarve, STREAMobj/smooth
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 11. May, 2016
@@ -96,7 +108,7 @@ function [zs,exitflag,output] = crslin(S,DEM,varargin)
 narginchk(2,inf)
 
 p = inputParser;
-p.FunctionName = 'STREAMobj/crs';
+p.FunctionName = 'STREAMobj/crslin';
 addParameter(p,'K',1,@(x) (isscalar(x) && x>0) || isa(x,'GRIDobj'));
 addParameter(p,'imposemin',false,@(x) isscalar(x));
 addParameter(p,'attachtomin',false,@(x) isscalar(x));
@@ -116,13 +128,13 @@ parse(p,varargin{:});
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
 end
 
-if any(isnan(z));
+if any(isnan(z))
     error('DEM or z may not contain any NaNs')
 end
 
@@ -147,7 +159,7 @@ end
     
 % minimum imposition
 if p.Results.imposemin
-    if ~exist('zimp','var');
+    if ~exist('zimp','var')
         z = imposemin(S,z);
     else
         z = zimp;
@@ -227,7 +239,7 @@ val    = [2./((d(colix(:,2))-d(colix(:,1))).*(d(colix(:,3))-d(colix(:,1)))) ...
           2./((d(colix(:,3))-d(colix(:,2))).*(d(colix(:,3))-d(colix(:,1))))];
       
 % matrix for maximum curvature constraint      
-if ~isinf(p.Results.maxcurvature);
+if ~isinf(p.Results.maxcurvature)
     nrrows = size(colix,1);
     rowix  = repmat((1:nrrows)',1,3);
     Asdc   = sparse(rowix(:),colix(:),val(:),nrrows,nr);
@@ -277,11 +289,11 @@ else
     d = 1./(d(S.ix)-d(S.ixc));
     A = (sparse(S.ix,S.ixc,d,nr,nr)-sparse(S.ix,S.ix,d,nr,nr));
     e = zeros(nr,1);
-    if p.Results.mingradient ~= 0;
+    if p.Results.mingradient ~= 0
         e(S.ix) = -p.Results.mingradient;
     end
     
-    if ~isinf(p.Results.maxcurvature);
+    if ~isinf(p.Results.maxcurvature)
         A = [A;-Asdc];
         e = [e;repmat(p.Results.maxcurvature,size(Asdc,1),1)];
     end
@@ -307,7 +319,7 @@ else
         eeq = [];
     end
     
-    if ~isempty(p.Results.precisecoords);
+    if ~isempty(p.Results.precisecoords)
         % Settings to force profiles to run through a prescribed set of 
         % elevations
         [~,~,IXp] = snap2stream(S,...
@@ -324,7 +336,7 @@ else
         precise(inan) = 0;
         Aeqb = spdiags(precise,0,nr,nr);
         
-        if isempty(Aeq);
+        if isempty(Aeq)
             Aeq = Aeqb;
             eeq = eeqb;
         else
@@ -334,7 +346,7 @@ else
     end
     
     % solve
-    if verLessThan('optim','6.3');
+    if verLessThan('optim','6.3')
         options = optimset('Display','off','Algorithm','interior-point-convex');
     else
         options = optimoptions('quadprog','Display','off');
@@ -372,7 +384,7 @@ function [fs,s] = identifyflats(S,DEM,varargin)
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
-elseif isnal(S,DEM);
+elseif isnal(S,DEM)
     z = DEM;
 else
     error('Imcompatible format of second input argument')
@@ -381,8 +393,8 @@ end
 fs = false(size(S.IXgrid));
 s  = zeros(size(S.IXgrid));
 
-for r=1:numel(S.ix);
-    if z(S.ixc(r)) == z(S.ix(r));
+for r=1:numel(S.ix)
+    if z(S.ixc(r)) == z(S.ix(r))
 %         fs(S.ix(r)) = true;
         fs(S.ixc(r)) = true;
     elseif fs(S.ix(r)) && z(S.ixc(r))< z(S.ix(r))

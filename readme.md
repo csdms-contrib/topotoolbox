@@ -28,43 +28,117 @@ exchange with GIS software.
 When you use TopoToolbox in your work, please reference following 
 publication:
 
-Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+- Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
 software for topographic analysis and modeling in Earth surface sciences. 
 Earth Surface Dynamics, 2, 1-7. DOI: [10.5194/esurf-2-1-2014](http://dx.doi.org/10.5194/esurf-2-1-2014)
 
 If you are using version 1, then please refer to this publication:
 
-Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
+- Schwanghart, W., Kuhn, N.J. (2010): TopoToolbox: a set of MATLAB 
 functions for topographic analysis. Environmental Modelling & Software, 
 25, 770-781. DOI: [10.1016/j.envsoft.2009.12.002](http://dx.doi.org/10.1016/j.envsoft.2009.12.002)
 
+In addition, various models and algorithms used in TopoToolbox have been published in the following articles. 
+
+### DEM preprocessing and carving
+
+- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G. (2013): Flow network derivation from a high 
+resolution DEM in a low relief, agrarian landscape. Earth Surface Processes and Landforms, 38, 
+1576-1586. DOI: [10.1002/esp.3452](http://dx.doi.org/10.1002/esp.3452)
+
+- Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty assessment and smoothing 
+using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [10.5194/esurf-5-821-2017](https://doi.org/10.5194/esurf-5-821-2017)
+
+### TopoToolbox Landscape Evolution Modelling (TTLEM)
+
+- Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation of transient 
+landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
+Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
+
+### Excess topography
+
+- Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+
+### Knickpointfinder
+
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., 
+Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
+Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
+(The description here is very terse, yet)
+
 ## Getting started
 
-Before working with TopoToolbox the functions need to be on the search 
+Before working with TopoToolbox the directories and functions must be on the search 
 path of Matlab. Enter following code into the command line:
 
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\utilities
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\IOtools
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\GIStools
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\topoapp
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\DEMdata
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox-2\ttlem
+        addpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2'))
+		
+To remove .git-folders from the path, run
 
-You may then either look at the user's guide to get an idea of how the 
-toolbox works or you may run some of the many examples in the help block
-of each function (help function). An additional resource for code and 
-examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
+        rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
+
+Type `doc` in the command line to open the main documentation page. You'll 
+find the TopoToolbox documentation in the section Supplemental Software.  
+The documentation contains several user's guides that will help you 
+getting started. In addition, TopoToolbox functions have extensive help 
+sections (e.g. `help gradient8` or `help STREAMobj/modify`. An additional 
+resource for code and examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 
+***
 ## Version History
+
+### pre 2.4
+
+
+### 2.3
+
+- Documentation in the documentation browser
+- new function: ttcmap for creating nice colormaps for DEMs, particularly
+  if DEMs include topography and bathymetry
+- FLOWobj2gradient renamed to gradient
+- new function: ttscm for access to scientific colormaps;
+  see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: mappingapp (lightweighed GUI for mapping points simultaneously in
+                planform and profile view) still beta!
+- new function: FLOWobj/mapfromnal
+- enhancement:  FLOWobj/multi2single allows area thresholding
+- new function: STREAMobj/getvalue
+- new function: STREAMobj/hillslopearea
+- new function: STREAMobj/zerobaselevel
+- new function: STREAMobj/knickpointfinder
+- new function: STREAMobj/stackedplotdz
+- new function: STREAMobj/sinuosity
+- new function: STREAMobj/clean
+- new function: STREAMobj/nal2nal
+- new function: STREAMobj/netdist
+- new function: STREAMobj/tribdir 
+- new function: GRIDobj/clip
+- new function: GRIDobj/GRIDobj2im
+- new function: GRIDobj/getextent
+- new function: IOtools/readexample
+- renamed GRIDobj/project2GRIDobj to GRIDobj/project. In addition, the function has 
+  a number of new functionalities.
+- modification: STREAMobj/modify has new options for interactively modifying stream networks
+  and to extract streams that confluence from a specified direction.
+- changes to readopentopo, getcoordinates, getoutline, polygon2GRIDobj, line2GRIDobj
+- new function: hydrosheds2FLOWobj (see in IOtools)
+- new function: egm96heights including the grid ww15mgh.grd that contains global geoid 
+                undulations based on the EGM96 geoid.
+
 
 ### 2.2
 
-- TTLEM is part of TopoToolbox
+- TTLEM is part of TopoToolbox;
+  see our paper: Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation 
+  of transient landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
+  Earth Surface Dynamics, 5, 47-66. [DOI: 10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 - new functions for smoothing and hydrological correction: 
   STREAMobj/crs, STREAMobj/crsapp, STREAMobj/smooth, STREAMobj/crslin, 
-  STREAMobj/quantcarve, FLOWobj/quantcarve
+  STREAMobj/quantcarve, FLOWobj/quantcarve;
+  see our paper: Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty 
+  assessment and smoothing using quantile regression techniques. Earth Surface Dynamics, 5, 
+  821-839. [DOI: 10.5194/esurf-5-821-2017](http://dx.doi.org/10.5194/esurf-5-821-2017)
 - modification: GRIDobj way to store referencing information was changed
 - modification: FLOWobj now supports multiple flow directions and Dinf.
 - modification: several new options for imageschs
@@ -122,7 +196,9 @@ examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
 
 ### 2.1
 
-- new function: GRIDobj/excesstopography
+- new function: GRIDobj/excesstopography; see our paper Blöthe, J.H., Korup, O., 
+  Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+  Himalaya-Karakorum ranges. Geology, 43, 523-526. [DOI: 10.1130/G36527.1](http://dx.doi.org/10.1130/G36527.1)
 - new function: GRIDobj/GRIDobj2polygon
 - new function: STREAMobj/getnal
 - new function: STREAMobj/sidebranching

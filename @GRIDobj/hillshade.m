@@ -31,6 +31,7 @@ function OUT2 = hillshade(DEM,varargin)
 %                       (see function blockproc)
 %     'useparallel'     true or {false}: use parallel computing toolbox
 %     'blocksize'       blocksize for blockproc (default: 5000)
+%     'method'          'surfnorm' (default) or 'mdow'
 %
 %
 % Output
@@ -67,6 +68,7 @@ addParamValue(p,'exaggerate',1,@(x) isscalar(x) && x>0);
 addParamValue(p,'useparallel',true);
 addParamValue(p,'blocksize',2000);
 addParamValue(p,'useblockproc',true,@(x) isscalar(x));
+addParamValue(p,'method','default');
 parse(p,varargin{:});
 
 OUT     = DEM;
@@ -76,27 +78,28 @@ cs      = DEM.cellsize;
 azimuth = p.Results.azimuth;
 altitude = p.Results.altitude;
 exaggerate = p.Results.exaggerate;
+method   = validatestring(p.Results.method,{'default','surfnorm','mdow'});
 
 % Large matrix support. Break calculations in chunks using blockproc
-if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc;
+if numel(DEM.Z)>(10001*10001) && p.Results.useblockproc
     blksiz = bestblk(size(DEM.Z),p.Results.blocksize);    
     padval = 'symmetric';
     Z      = DEM.Z;
     % The anonymous function must be defined as a variable: see bug 1157095
-    fun   = @(x) hsfun(x,cs,azimuth,altitude,exaggerate);
+    fun   = @(x) hsfun(x,cs,azimuth,altitude,exaggerate,method);
     HS = blockproc(Z,blksiz,fun,...
                 'BorderSize',[1 1],...
                 'padmethod',padval,...
                 'UseParallel',p.Results.useparallel);
     OUT.Z = HS;
 else
-    OUT.Z = hsfun(DEM.Z,cs,azimuth,altitude,exaggerate);
+    OUT.Z = hsfun(DEM.Z,cs,azimuth,altitude,exaggerate,method);
 end
 
 OUT.name = 'hillshade';
 OUT.zunit = '';
 
-if nargout == 0;
+if nargout == 0
     OUT.Z = uint8(OUT.Z*255);
     imagesc(OUT);
     colormap(gray)
@@ -106,36 +109,63 @@ end
 
 end
 %% Subfunction
-function H = hsfun(Z,cs,azimuth,altitude,exaggerate)
+function H = hsfun(Z,cs,azimuth,altitude,exaggerate,method)
 
 if isstruct(Z)
     Z = Z.data;    
 end
 
-% correct azimuth so that angles go clockwise from top
-azid = azimuth-90;
+switch method
+    case {'default','surfnorm'}
 
-% use radians
-altsource = altitude/180*pi;
-azisource = azid/180*pi;
+        % correct azimuth so that angles go clockwise from top
+        azid = azimuth-90;
+        
+        % use radians
+        altsource = altitude/180*pi;
+        azisource = azid/180*pi;
+        
+        % calculate solar vector
+        [sx,sy,sz] = sph2cart(azisource,altsource,1);
+        
+        % calculate surface normals
+        [Nx,Ny,Nz] = surfnorm(Z/cs*exaggerate);
+        
+        % calculate cos(angle)
+        % H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
+        % % reshape
+        % H = reshape(H,size(Nx));
+        
+        H = Nx*sx + Ny*sy + Nz*sz;
+        
+        % % usual GIS approach
+        % H = acos(H);
+        % % force H to range between 0 and 1
+        % H = H-min(H(:));
+        % H = H/max(H(:));
 
-% calculate solar vector
-[sx,sy,sz] = sph2cart(azisource,altsource,1);
+    case 'mdow'
 
-% calculate surface normals
-[Nx,Ny,Nz] = surfnorm(Z/cs*exaggerate);
+        
+        % correct azimuth so that angles go clockwise from top
+        azid = [360 315 225 270] - 90;
+        azisource = azid/180*pi;
+        
+        altsource = 30/180*pi;
+        altsource = repmat(altsource,size(azisource));
+        
+        % calculate solar vector
+        [sx,sy,sz] = sph2cart(azisource,altsource,1);
+        
+        % calculate surface normals
+        [Nx,Ny,Nz] = surfnorm(Z/cs*exaggerate);
+        
+        
+        H = bsxfun(@times,Nx(:),sx) + bsxfun(@times,Ny(:),sy) + bsxfun(@times,Nz(:),sz);
+        H = max(H,0);
+        H = sum(H,2)./3;
+        H = reshape(H,size(Z));
+end
 
-% calculate cos(angle)
-% H = [Nx(:) Ny(:) Nz(:)]*[sx;sy;sz];
-% % reshape
-% H = reshape(H,size(Nx)); 
-
-H = Nx*sx + Ny*sy + Nz*sz;
-
-% % usual GIS approach
-% H = acos(H);
-% % force H to range between 0 and 1
-% H = H-min(H(:));
-% H = H/max(H(:));
 
 end

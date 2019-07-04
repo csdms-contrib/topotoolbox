@@ -28,11 +28,26 @@ function ht = surf(DEM,varargin)
 %      
 %     and all property name/value pairs allowed by surface objects.
 %
-% Example
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     surf(DEM)
 %     camlight
+%
+% Example 2
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     surf((DEM-800)*2,'block',true,'baselevel',-900*2,'sea',true,'exaggerate',1); camlight; colormap(ttcmap((DEM-800)*2,'cmap','france'))
+%     ax = gca;
+%     ax.Clipping = 'off';
+%     axis off
+%     ax.Projection = 'perspective';
+%
+%     FD = FLOWobj(DEM);
+%     S  = STREAMobj(FD,'minarea',1000);
+%     S  = modify(S,'upstreamto',(DEM-800)>0);
+%     hold on
+%     plot3(S,DEM-800,'b');
 %
 % See also: imageschs
 %
@@ -40,19 +55,45 @@ function ht = surf(DEM,varargin)
 % Date: 30. January, 2013
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% change threshold (maximum number of rows or cols) here 
-maxrowsorcols = 2000;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Parse inputs
+p = inputParser;
+p.KeepUnmatched = true;
+addOptional(p,'A',[]);
+addParameter(p,'maxrowsorcols',2000)
+addParameter(p,'exaggerate',1);
+addParameter(p,'block',false);
+addParameter(p,'baselevel',[]);
+addParameter(p,'sea',false);
+addParameter(p,'sealevel',0);
+addParameter(p,'seaalpha',0.5);
+
+% Parse
+parse(p,varargin{:});
+
+% create variables
+maxrowsorcols = p.Results.maxrowsorcols;
+exagg = p.Results.exaggerate;
+block = p.Results.block;
+baselevel = p.Results.baselevel;
+
+if block
+    minz = min(DEM);
+    maxz = max(DEM);
+    baselevel = minz-(maxz-minz)*0.2;
+end    
+sea   = p.Results.sea;
+sealevel = p.Results.sealevel;
+seaalpha = p.Results.seaalpha;
+%%
 
 if max(DEM.size)>maxrowsorcols
     
     resamplecellsize = max(DEM.size)/(maxrowsorcols-1) * DEM.cellsize;
     DEM = resample(DEM,resamplecellsize);
     
-    if ~isempty(varargin) && isa(varargin{1},'GRIDobj')
-        A = varargin{1};
-        varargin(1) = [];
+    if ~isempty(p.Results.A)
+        A = p.Results.A;
         A = resample(A,DEM);
         overlay = true;
     else
@@ -61,9 +102,8 @@ if max(DEM.size)>maxrowsorcols
          
     
 else
-    if ~isempty(varargin) && isa(varargin{1},'GRIDobj')
-        A = varargin{1};
-        varargin(1) = [];
+    if ~isempty(p.Results.A)
+        A = p.Results.A;
         validatealignment(DEM,A);
         overlay = true;
     else
@@ -71,42 +111,21 @@ else
     end
 end
 
-% go through varargin to find 'exaggerate'
-TF = strcmpi('exaggerate',varargin);
-ix = find(TF);
-if ~isempty(ix)
-    exagg = varargin{ix+1};
-    varargin([ix ix+1]) = [];
-else
-    exagg = 1;
-end
 
-% go through varargin to find 'block'
-TF = strcmpi('block',varargin);
-ix = find(TF);
-if ~isempty(ix)
-    block = varargin{ix+1};
-    varargin([ix ix+1]) = [];
-else
-    block = false;
-end
+[x,y] = refmat2XY(DEM.refmat,DEM.size);
 
-% go through varargin to find 'baselevel'
-TF = strcmpi('baselevel',varargin);
-ix = find(TF);
-if ~isempty(ix)
-    baselevel = varargin{ix+1};
-    varargin([ix ix+1]) = [];
-else
-    baselevel = min(DEM)*.8;
-end
+% Create cellarray from p.Unmatched
+pn = fieldnames(p.Unmatched);
+pv = struct2cell(p.Unmatched);
 
-[x,y] = refmat2XY(DEM.refmat,DEM.size);    
+pnpv = [pn pv];
+pnpv = pnpv';
+pnpv = pnpv(:)';
 
 if overlay
-    h = surf(x,y,double(DEM.Z),double(A.Z),varargin{:});
+    h = surf(x,y,double(DEM.Z),double(A.Z),pnpv{:});
 else
-    h = surf(x,y,double(DEM.Z),varargin{:});
+    h = surf(x,y,double(DEM.Z),pnpv{:});
 end
 
 exaggerate(gca,exagg);
@@ -115,10 +134,11 @@ shading interp
 
 if block 
     
-    if any(isnan(DEM));
+    if any(isnan(DEM))
         error('TopoToolbox:wronginput','DEM must not have NaNs')
     end
     facecolor  = [.6 .6 .6];
+    facecolordark = brighten(facecolor,-0.2);
     
     xp = x(:);
     xp = [xp(1); xp; xp(end:-1:1)];
@@ -126,13 +146,13 @@ if block
     zp = DEM.Z(1,:);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
+    pa(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
     
     yp = repmat(y(end),size(xp));
     zp = DEM.Z(end,:);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
+    pa(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor);
     
     yp = y(:);
     yp = [yp(1); yp; yp(end:-1:1)];
@@ -140,39 +160,85 @@ if block
     zp = DEM.Z(:,1);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(3) = patch(xp,yp,zp,facecolor-0.1,'EdgeColor','none','FaceColor',facecolor-.1);
+    pa(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
     xp = repmat(x(end),size(yp));
     zp = DEM.Z(:,end);
     zp = zp(:);
     zp = [baselevel;zp;repmat(baselevel,size(zp))];
-    p(4) = patch(xp,yp,zp,facecolor-0.1,'EdgeColor','none','FaceColor',facecolor-.1);
+    pa(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark);
     
-    set(p,'FaceLighting','none')
+    set(pa,'FaceLighting','none')
     
     
     axislim = axis;
-    axislim(5) = baselevel;
+    if baselevel < min(DEM)
+        axislim(5) = baselevel;
+    end
     axis(axislim)
-    
-    
-    
-%     
-%     % plot patches on to specified depth
-%     B = bwboundaries(~isnan(DEM.Z));
-%     for r = 1:numel(B);
-%         [xb,yb] = sub2coord(DEM,B{r}(:,1),B{r}(:,2));
-%         zb = DEM.Z(sub2ind(DEM.size,B{r}(:,1),B{r}(:,2)));
-%         xb = [xb(1);xb; xb(end:-1:1)];
-%         yb = [yb(1);yb; yb(end:-1:1)];
-%         zb = [bottomelev;zb; zeros(numel(zb),1)+bottomelev];
-%         p  = patch(xb,yb,zb,zeros(size(zb)));
-%         set(p,'FaceColor',[0.7 0.7 0.7]);
-%     end
 end
         
 
+if sea 
+    
+    if any(isnan(DEM))
+        error('TopoToolbox:wronginput','DEM must not have NaNs')
+    end
+    facecolor  = [1 1 1];
+    facecolordark = [0.8 .8 .8];
+    
+    xp = x(:);
+    xp = [xp(1); xp; xp(end:-1:1)];
+    yp = repmat(y(1),size(xp));
+    zp = DEM.Z(1,:);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    pa(1) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor,'FaceAlpha',seaalpha);
+    
+    yp = repmat(y(end),size(xp));
+    zp = DEM.Z(end,:);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    pa(2) = patch(xp,yp,zp,facecolor,'EdgeColor','none','FaceColor',facecolor,'FaceAlpha',seaalpha);
+    
+    yp = y(:);
+    yp = [yp(1); yp; yp(end:-1:1)];
+    xp = repmat(x(1),size(yp));
+    zp = DEM.Z(:,1);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    pa(3) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark,'FaceAlpha',seaalpha);
+    
+    xp = repmat(x(end),size(yp));
+    zp = DEM.Z(:,end);
+    zp = min(zp(:),0);
+    zp = double([sealevel;zp;repmat(sealevel,size(zp))]);
+    pa(4) = patch(xp,yp,zp,facecolordark,'EdgeColor','none','FaceColor',facecolordark,'FaceAlpha',seaalpha);
+    
+    I  = DEM.Z>0;
+%     H  = zeros(DEM.size);
+%     H(I) = nan;
+%     % Texturemap
+%     I  = ~I;
+%     TM = repmat(I,1,1,3);
 
+    hold on
+    h = surf(x,y,+I,'FaceAlpha',0.5,'FaceColor',facecolor,'EdgeColor','none');
+    hold off
+    
+    
+    set(pa,'FaceLighting','none')
+    
+    if ~isempty(baselevel)
+    axislim = axis;
+    axislim(5) = baselevel;
+    axis(axislim)
+    end
+    
+    
+    
+
+end
     
 if nargout == 1
     ht = h;
@@ -214,7 +280,7 @@ function exaggerate(axes_handle,exagfactor)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 6. September, 2010
 
-if nargin == 1;
+if nargin == 1
     exagfactor = 1;
 end
 axis(axes_handle,'image');

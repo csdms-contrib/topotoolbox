@@ -27,6 +27,7 @@ function h = plotc(S,DEM,varargin)
 %                  y-direction. Default = 0;
 %     'xyscale'    scalar. Scales the x and y coordinates by a factor.
 %                  Default = 1.
+%     'linewidth'  Default = 1.5
 %
 % Output arguments
 %
@@ -61,7 +62,7 @@ p.FunctionName = 'STREAMobj/plotc';
 addParameter(p,'xyscale',1,@(x) isscalar(x));
 addParameter(p,'xoffset',0,@(x) isscalar(x));
 addParameter(p,'yoffset',0,@(x) isscalar(x));
-addParameter(p,'linewidth',2);
+addParameter(p,'linewidth',1.5);
 parse(p,varargin{:});
 
 [x,y,c] = STREAMobj2XY(S,DEM);
@@ -73,6 +74,6 @@ ht = surface([x x],[y y],[z z],[c c],...
         'facecolor','none',...
         'edgecolor','flat',...
         'linewidth',p.Results.linewidth);
-if nargout == 1;
+if nargout == 1
     h = ht;
 end

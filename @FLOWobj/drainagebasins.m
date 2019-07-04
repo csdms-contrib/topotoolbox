@@ -34,7 +34,7 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %     stream order for which drainage basins are to be derived. order = 1 
 %     for instance, outputs all first order drainage basins. Note that
 %     drainage basins are not calculated for stream links of specified 
-%     order that are attached to the grids edges.
+%     order that are attached to the grids edges. 
 %
 % Input
 %
@@ -68,13 +68,24 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 %     D = drainagebasins(FD,S,3);
 %     imageschs(DEM,D)
 %
+% Example 3: map values to drainage basins (e.g. basin wide erosion rates).
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S  = STREAMobj(FD,'minarea',1000);
+%     IX = randlocs(S,10);
+%     erosrate = rand(size(IX));
+%     D  = drainagebasins(FD,IX);
+%     E = GRIDobj(DEM)*nan;
+%     E.Z(D.Z~=0) = erosrate(D.Z(D.Z~=0));
+%     imageschs(DEM,E)
 %
 %
 % See also: FLOWobj, GRIDobj/snap2stream, FLOWobj/streamorder,
 %           GRIDobj/shufflelabel
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. September, 2016
+% Date: 3. December, 2018
 
 
 
@@ -83,12 +94,14 @@ function [OUT,varargout] = drainagebasins(FD,varargin)
 
 % 30/9/2016: bug removed when called with 2 or 3 outputs
 
+% 3/12/2018: new example and some additional error checking
+
 narginchk(1,3);
 
 switch lower(FD.type)
-    case {'multi','dinf'};
+    case {'multi','dinf'}
     error('TopoToolbox:drainagebasins',...
-        'drainage basins are not defined for divergent flows');
+        'Drainage basins are not defined for divergent flows');
 end
 
 % create temporary indices to gain speed with R2015b and later
@@ -96,18 +109,20 @@ ixtemp  = FD.ix;
 ixctemp = FD.ixc;
 
 
+% If the function is called with only one output and input argument, and if
+% the mex-function exists, then the mex-function will be called
 if exist(['drainagebasins_mex.' mexext],'file')==3 && ...
-   nargout==1 && nargin == 1;
+   nargout==1 && nargin == 1
     % Use mex-file
     D = drainagebasins_mex(ixtemp,ixctemp,FD.size);
-    
-elseif nargin == 1;
+
+elseif nargin == 1    
     % Don't use mex-file
     DBcounter = 0;
     D = zeros(FD.size,'uint32');
 
-    for r = numel(ixtemp):-1:1;
-        if D(ixctemp(r)) == 0;
+    for r = numel(ixtemp):-1:1
+        if D(ixctemp(r)) == 0
             DBcounter = DBcounter+1;
             D(ixctemp(r)) = DBcounter;
             outlets(DBcounter) = ixctemp(r);
@@ -117,10 +132,10 @@ elseif nargin == 1;
     
     outlets = double(outlets(:));
     
-elseif nargin > 1;
+elseif nargin > 1
     % ix,x and y, or Stream order grid and stream order are supplied
-    if nargin == 2;
-        if isa(varargin{1},'STREAMobj');
+    if nargin == 2
+        if isa(varargin{1},'STREAMobj')
             IX = streampoi(varargin{1},'outlets','ix');
         else
             % IX is supplied
@@ -139,12 +154,17 @@ elseif nargin > 1;
             IX   = coord2ind(FD,varargin{1},varargin{2});
         end
     end
+    
+    if any(IX<1) || any(IX>prod(FD.size))
+        error('TopoToolbox:drainagebasins',...
+            'Some of the locations are outside the grid boundaries.')
+    end
  
     D = zeros(FD.size,'uint32');
     D(IX) = cast(1:numel(IX),'uint32');
         
-    for r = numel(ixtemp):-1:1;
-        if D(ixctemp(r)) ~= 0 && D(ixtemp(r))==0;
+    for r = numel(ixtemp):-1:1
+        if D(ixctemp(r)) ~= 0 && D(ixtemp(r))==0
             D(ixtemp(r)) = D(ixctemp(r));
         end
     end
@@ -159,9 +179,9 @@ OUT.Z = D;
 OUT.zunit = '';
 OUT.name  = 'drainage basins';
 
-if nargout == 2;
+if nargout == 2
     varargout{1} = outlets;
-elseif nargout == 3;
+elseif nargout == 3
     [x,y] = ind2coord(FD,outlets);
     varargout{1} = x;
     varargout{2} = y;

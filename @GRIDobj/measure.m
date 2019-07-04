@@ -23,6 +23,7 @@ function measure(DEM,varargin)
 %     'slopeunit'     unit of slope ({'degree'},'tan','percent') 
 %     'showhelp'      show help window ({true} or false)
 %     'position'      nx2 matrix with x and y coordinates
+%     'colormap'      choose colormap. Default is parula
 % 
 % 
 % See also: IMDISTLINE, IMROI, IMPOLY, GRIDobj/DEMPROFILE
@@ -50,6 +51,12 @@ ymin  = min(Y);
 % default position
 defpos = [xmin + (xmax-xmin)*[1/3; 2/3] ymin + (ymax-ymin)*[2/3; 1/3]];
 
+% choose colormap
+if license('test', 'map_toolbox')
+    cmap = demcmap([max(DEM) min(DEM)]-1,255);
+else
+    cmap = parula(255);
+end
 
 p = inputParser;
 
@@ -57,6 +64,7 @@ p.FunctionName = 'STREAMobj';
 addParamValue(p,'xyprecision','%6.0f',@(x) ischar(x));
 addParamValue(p,'slopeunit','degree',@(x) ischar(validatestring(x,{'tan','degree','percent'})));
 addParamValue(p,'reset',false);
+addParamValue(p,'colormap',cmap);
 addParamValue(p,'showhelp',true,@(x) isscalar(x));
 addParamValue(p,'position',defpos,@(x) numel(x) >= 4 && size(x,2) == 2 && ...
     (max(x(:,1)) <= xmax && min(x(:,1)) >= xmin && ...
@@ -64,7 +72,7 @@ addParamValue(p,'position',defpos,@(x) numel(x) >= 4 && size(x,2) == 2 && ...
 parse(p,varargin{:});
 
 if ~p.Results.reset
-    imageschs(DEM)
+    imageschs(DEM,DEM,'colormap',p.Results.colormap)
     zoom reset
 end
     

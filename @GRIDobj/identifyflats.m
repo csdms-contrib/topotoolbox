@@ -35,10 +35,10 @@ function varargout = identifyflats(DEM)
 %     [FLATS,SILLS] = identifyflats(DEM);
 %     imageschs(DEM,FLATS+2*SILLS,'colormap','parula')
 % 
-% See also: ROUTEFLATS, CROSSFLATS
+% See also: GRIDobj, GRIDobj/fillsinks
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 26. April, 2018
 
 
 narginchk(1,1)
@@ -47,7 +47,7 @@ dem = DEM.Z;
 
 % handle NaNs
 log_nans = isnan(dem);
-if any(log_nans(:));
+if any(log_nans(:))
     flag_nans = true;
     dem(log_nans) = -inf;
 else
@@ -79,13 +79,13 @@ varargout{1}.Z = flats;
 varargout{1}.name = 'flats';
 
 % identify sills
-if nargout >= 2;    
+if nargout >= 2   
     % find sills and set marker
     Imr = -inf(size(dem));
     Imr(flats) = dem(flats);
     Imr = (imdilate(Imr,ones(3)) == dem) & ~flats;
     
-    if flag_nans;
+    if flag_nans
         Imr(log_nans) = false;
     end
     % prepare output
@@ -99,7 +99,7 @@ if nargout >= 3
     varargout{3} = DEM;
     varargout{3}.Z = imregionalmin(dem);
     
-    if flag_nans;
+    if flag_nans
         varargout{3}.Z = varargout{3}.Z | log_nans;
         varargout{3}.Z = imclearborder(varargout{3}.Z);
         varargout{3}.Z(log_nans) = false;
