@@ -157,9 +157,9 @@ p.FunctionName = 'ttlemset';
 %% Spatial and temporal domain
 
 % Time span in [years]
-addParameter(p,'TimeSpan',2000000,@(x) isscalar(x) && x>0); 
+addParameter(p,'TimeSpan',200000,@(x) isscalar(x) && x>0); 
 % Time step for outer loop [years]
-addParameter(p,'TimeStep',20000,@(x) isscalar(x) && x>0);
+addParameter(p,'TimeStep',1000,@(x) isscalar(x) && x>0);
 
 %% Boundary conditions
 %Main model boundary conditions
@@ -173,7 +173,7 @@ addParameter(p,'BC_dir_Dist_Value',1,@(x) isscalar(x) && x>0 && x<10);
 
 
 %% River incision
-addParameter(p,'Kw',3e-6,@(x) isscalar(x) && x>=0);
+addParameter(p,'Kw',3e-6,@(x) (isscalar(x) && x>=0) || isa(x,'GRIDobj') || iscell(x));
 addParameter(p,'m',.5,@(x) isscalar(x) && x>0);
 addParameter(p,'n',1,@(x) isscalar(x) && x>0);
 addParameter(p,'K_weight',[],@(x) isempty(x) || isa(x,'GRIDobj'));
@@ -189,7 +189,7 @@ addParameter(p,'parallel',false,@(x) isscalar(x));
 
 
 %% Hillslope processes
-addParameter(p,'diffScheme','imp_lin_sc',@(x) ischar(validatestring(x,{'imp_lin','imp_lin_sc','imp_nonlin','imp_nonlin_sc','only_sc'})));
+addParameter(p,'diffScheme','imp_lin',@(x) ischar(validatestring(x,{'imp_lin','imp_lin_sc','imp_nonlin','imp_nonlin_sc','only_sc'})));
 addParameter(p,'DiffToRiv',false,@(x) islogical(x));
 addParameter(p,'D',.01,@(x) isscalar(x) && x>=0);
 

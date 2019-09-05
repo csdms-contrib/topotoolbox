@@ -46,8 +46,16 @@ function [mn,results] = mnoptim(S,DEM,A,varargin)
 %     'UseParallel' {true} or false.
 %     'crossval'  {true} or false.   
 %
+% Other bayesopt parameter name/value pairs (see help bayesopt for details)
+%
+%     'MaxObjectiveEvaluations'
+%
 %
 % Output arguments
+%
+%     mn       table with results (best point)
+%     results  BayesianOptimization object. Continue with optimization
+%              with the command resultsnew = resume(results).
 %
 % Example
 %
@@ -116,6 +124,15 @@ for r = numel(S.ixc):-1:1
 end
 z = z-zbase;
 
+%% ----- beta ------------------------------------------------------------
+% set all rivers to have the same gradient 
+
+
+
+
+
+%% -----------------------------------------------------------------------
+
 if p.Results.crossval
     [~,locb] = STREAMobj2cell(S);
     cv = true;
@@ -138,6 +155,11 @@ if ischar(p.Results.lossfun)
             lossfun = @(x,xhat)mean(sum((x-xhat).^2));
         case 'linear'
             lossfun = @(x,xhat)var((x+1)./(xhat+1));
+        case 'linearcc'
+            cc = conncomps(S);
+            lossfun = @(x,xhat) sum(accumarray(cc,(x+1)./(xhat+1),[],@std)).^2;
+%             lossfun = @(x,xhat)var((x+1)./(xhat+1));
+            
         case 'coeffdeterm'
             take2elem = @(x) x(2);
             lossfun = @(x,xhat)1-(take2elem(corrcoef(x,xhat))).^2;

@@ -12,10 +12,57 @@
      "inputs":
      [
         {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
-        {"name":"unit", "kind":"required", "type":"choices={'tan','rad','deg','sin','per'}"},
+        {"name":"unit", "kind":"ordered", "type":"choices={'tan','rad','deg','sin','per'}"},
         {"name":"useblockproc", "kind":"namevalue", "type":[["logical"],["scalar"]]},
 		{"name":"blocksize", "kind":"namevalue", "type":"scalar"},
 		{"name":"useparallel", "kind":"namevalue", "type":"scalar"}
+     ]
+  },
+  "GRIDobj.createmask":
+  {
+     "inputs":
+     [
+        {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
+        {"name":"usehillshade", "kind":"ordered", "type":"scalar"}
+     ]
+  },
+  "GRIDobj.curvature":
+  {
+     "inputs":
+     [
+        {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
+        {"name":"type", "kind":"required", "type":"choices={'profc','planc','tangc','meanc','total'}"},
+        {"name":"useblockproc", "kind":"namevalue", "type":[["logical"],["scalar"]]},
+		{"name":"blocksize", "kind":"namevalue", "type":"scalar"},
+		{"name":"meanfilt", "kind":"namevalue", "type":"scalar"},
+		{"name":"useparallel", "kind":"namevalue", "type":"scalar"}
+     ]
+  },
+  "GRIDobj.imageschs":
+  {
+     "inputs":
+     [
+        {"name":"DEM", "kind":"required", "type":["GRIDobj"]},
+		{"name":"VAR", "kind":"required", "type":["GRIDobj"]},
+        {"name":"caxis", "kind":"namevalue", "type":["numeric"]},
+		{"name":"colorbar", "kind":"namevalue", "type":["logical","scalar"]},
+		{"name":"colorbarylabel", "kind":"namevalue", "type":"char"},
+		{"name":"colormap", "kind":"namevalue", "type":["char","numeric"]},
+		{"name":"percentclip", "kind":"namevalue", "type":"scalar"},
+		{"name":"truecolor", "kind":"namevalue", "type":"numeric"},
+		{"name":"falsecolor", "kind":"namevalue", "type":"numeric"},
+		{"name":"nancolor", "kind":"namevalue", "type":"numeric"},
+		{"name":"usepermanent", "kind":"namevalue", "type":["logical","scalar"]},
+		{"name":"method", "kind":"namevalue", "type":"choices={'surfnorm','mdow'}"},
+		{"name":"azimuth", "kind":"namevalue", "type":["numeric","scalar"]},
+		{"name":"altitude", "kind":"namevalue", "type":["numeric","scalar"]},
+		{"name":"exaggerate", "kind":"namevalue", "type":["numeric","scalar"]},
+		{"name":"ticklabels", "kind":"namevalue", "type":"choices={'default','nice','none'}"},
+		{"name":"tickstokm", "kind":"namevalue", "type":["logical","scalar"]},
+		{"name":"tickstokm", "kind":"namevalue", "type":["logical","scalar"]},
+		{"name":"gridmarkers", "kind":"namevalue", "type":"numeric"},
+		{"name":"gridmarkercolor", "kind":"namevalue", "type":"numeric"},
+		{"name":"medfilt", "kind":"namevalue", "type":["logical","scalar"]}
      ]
   },
   "FLOWobj":
@@ -48,7 +95,7 @@
 		{"name":"outlets", "kind":"namevalue"},
 		{"name":"channelheads", "kind":"namevalue"}
      ]
-  }
+  },
   "STREAMobj.chitransform":
   {
      "inputs":

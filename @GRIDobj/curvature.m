@@ -29,6 +29,8 @@ function C = curvature(DEM,ctype,varargin)
 %                       (see function blockproc)
 %     'useparallel'     true or {false}: use parallel computing toolbox
 %     'blocksize'       blocksize for blockproc (default: 5000)
+%     'meanfilt'        true or {false}: if true, preprocess DEM with 
+%                       [3x3] mean filter. 
 %
 % Output arguments
 %
@@ -74,8 +76,12 @@ p.FunctionName = 'GRIDobj/curvature';
 addParamValue(p,'useblockproc',false,@(x) isscalar(x));
 addParamValue(p,'blocksize',5000,@(x) isscalar(x));
 addParamValue(p,'useparallel',false,@(x) isscalar(x));
+addParamValue(p,'meanfilt',false,@(x) isscalar(x));
 parse(p,varargin{:});
 
+if p.Results.meanfilt
+    DEM = filter(DEM);
+end
 
 % create a copy of the DEM instance
 C = DEM;

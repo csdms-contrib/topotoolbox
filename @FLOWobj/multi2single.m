@@ -40,14 +40,16 @@ function [FD,S] = multi2single(FD,varargin)
 %
 % Example
 % 
-%       DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
-%       FD  = FLOWobj(DEM,'preprocess','carve','mex',true);
-%       DEM = imposemin(FD,DEM,0.0001);
-%       S   = STREAMobj(FD,'minarea',1000);
-%       DEMc = DEM;
-%       DEMc.Z(S.IXgrid) = DEMc.Z(S.IXgrid)-100; 
-%       FD  = FLOWobj(DEMc,'multi');
-%       FD  = multi2single(FD,'minarea',100);
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','carve','mex',true);
+%     DEM = imposemin(FD,DEM,0.0001);
+%     FD  = FLOWobj(DEM,'multi');
+%     [FD,S]  = multi2single(FD,'minarea',100);
+%     A   = flowacc(FD);
+%     imageschs(DEM,log(A),'colormap',flowcolor)
+%     hold on
+%     plot(S,'k')
+%     hold off
 %
 % See also: FLOWobj
 %
@@ -60,6 +62,8 @@ addParameter(p,'minarea',0,@(x) isscalar(x));
 addParameter(p,'unit','pixels',@(x) ischar(validatestring(x, ...
                             {'pixels', 'mapunits'})));
 addParameter(p,'channelheads',[])
+addParameter(p,'probability',false)
+addParameter(p,'randomize',false)
                         
 parse(p,varargin{:});
 
@@ -69,6 +73,10 @@ switch FD.type
         % do nothing
         
     otherwise
+        
+        if p.Results.randomize
+            FD = randomize(FD);
+        end
         
         if p.Results.minarea > 0 || ~isempty(p.Results.channelheads)
             
@@ -117,8 +125,40 @@ switch FD.type
         
         RR = (1:numel(FD.ix))';
         IX = double(FD.ix);
-        S  = sparse(RR,IX,FD.fraction,max(RR),max(IX));
-        [~,ii] = max(S,[],1);
+        if ~p.Results.probability
+            S  = sparse(RR,IX,FD.fraction,max(RR),max(IX));
+            [~,ii] = max(S,[],1);
+        else
+            [IXX,ix] = sort(IX);
+            c = FD.fraction(ix);
+            
+            % cumulative probabilities for each edge leaving each giver
+            for r = 2:numel(IXX)
+                if IXX(r) == IXX(r-1)
+                    c(r) = c(r)+c(r-1);
+                end
+            end
+            
+            [~,a,b] = unique(IXX);
+            R = rand(size(a));
+            R = R(b);
+            
+            II = c > R;
+            I = II;
+            for r = 2:numel(IXX)
+                if IXX(r) == IXX(r-1) && II(r-1)
+                    I(r) = false;
+                end
+            end
+            
+            frac = false(size(FD.fraction));
+            frac(ix) = I;
+            S  = sparse(RR,IX,frac,max(RR),max(IX));
+            [~,ii] = max(S,[],1);
+                    
+            
+            
+        end
         I  = false(size(RR));
         I(ii) = true;
         
@@ -162,3 +202,6 @@ switch FD.type
         
 end
 end
+
+
+
