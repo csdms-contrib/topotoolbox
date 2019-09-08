@@ -1,10 +1,12 @@
-function S = trunk(S)
+function S = trunk(S,varargin)
 
 %TRUNK extract trunk stream (longest stream) 
 %
 % Syntax
 %
 %     S2 = trunk(S)
+%     S2 = trunk(S,A)
+%     S2 = trunk(S,a)
 %
 % Description
 %
@@ -12,6 +14,10 @@ function S = trunk(S)
 %     network tree (e.g. connected component). The algorithm identifies
 %     the main trunk by sequently tracing the maximum downstream 
 %     distance in upstream direction. 
+%
+%     If the second input argument is a flow accumulation grid A (or node
+%     attribute list a) than the function will extract the main trunk by
+%     tracing the maximum upstream area in upstream direction.
 %
 % Input 
 %
@@ -21,6 +27,9 @@ function S = trunk(S)
 %
 %     S2   stream network (STREAMobj) with only trunk streams in each
 %          connecoted component
+%     A    GRIDobj with flow accumulation values (as returned by the
+%          function flowacc). 
+%     a    node-attribute list (nal) (e.g. getnal(S,flowacc(FD))).
 %
 % Example
 %
@@ -37,14 +46,31 @@ function S = trunk(S)
 % See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps
 %  
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 8. September, 2019
 
 
-narginchk(1,1);
+narginchk(1,2);
+
+if nargin == 2
+    if isa(varargin{1},'GRIDobj')
+        a = getnal(S,varargin{1});
+    elseif isnal(S,varargin{1})
+        a = varargin{1};
+    else
+        error('Cannot handle second input argument.');
+    end
+end
+        
+        
 
 % downstream distance
 nrc = numel(S.x);
-dds = distance(S,'max_from_ch');
+
+if nargin == 1
+    dds = distance(S,'max_from_ch');
+else
+    dds = a;
+end
 
 D        = sparse(double(S.ix),double(S.ixc),dds(S.ix)+1,nrc,nrc);
 OUTLET   = any(D,1)' & ~any(D,2);
