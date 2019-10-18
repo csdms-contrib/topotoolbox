@@ -26,6 +26,9 @@ function CA = cellarea(DEM,unit)
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 20. May, 2016
 
+if nargin == 1
+    unit = 'm';
+end
 
 try 
 	GST = DEM.georef.SpatialRef.CoordinateSystemType;

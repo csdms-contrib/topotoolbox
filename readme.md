@@ -90,6 +90,10 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 ### pre 2.4
 
+- modification: STREAMobj/modify 
+- modification: STREAMobj/wmplot
+- new function: STREAMobj/STREAMobj2shape
+
 
 ### 2.3
 
