@@ -83,8 +83,8 @@ switch unit
         y = smooth(S,S.y,'K',p.Results.K);
         x = smooth(S,S.x,'K',p.Results.K);
         
-        dx = gradient(S,x);
-        dy = gradient(S,y);
+        dx = -gradient(S,x);
+        dy = -gradient(S,y);
         
         switch unit
             case 'cart'

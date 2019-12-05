@@ -68,7 +68,7 @@ function cmap = ttscm(name,n)
 % See also: IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 13. August, 2018
+% Date: 5. December, 2019
 
 allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'buda' ...
