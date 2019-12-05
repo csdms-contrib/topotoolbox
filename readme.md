@@ -10,7 +10,7 @@ of GIS-specific and other quantitative methods.
 
 If you have any questions or remarks, please contact the authors:
 
-[Wolfgang Schwanghart](http://www.geo.uni-potsdam.de/mitarbeiterdetails/show/421/Wolfgang_Schwanghart.html)
+[Wolfgang Schwanghart](https://www.uni-potsdam.de/de/umwelt/institut/alle-mitarbeiterinnen/schwanghart-wolfgang.html)
 w.schwanghart[at]geo.uni-potsdam.de
 
 [Dirk Scherler](https://sites.google.com/site/scherlerdirk/home)
@@ -21,7 +21,9 @@ scherler[at]gfz-potsdam.de
 TopoToolbox is plat-form independent and requires
 Matlab 2014b or higher and the Image Processing Toolbox. The Mapping
 Toolbox is not mandatory, but good to have to facilitate easy data
-exchange with GIS software.
+exchange with GIS software. Some functions support parallelisation using the 
+Parallel Toolbox. Few functions require the Optimization or Statistics
+and Machine Learning Toolbox.
 
 ## References
 

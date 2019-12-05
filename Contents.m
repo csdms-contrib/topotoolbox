@@ -132,6 +132,7 @@
 %     DRAINAGEBASINS      : drainage basin delineation/catchments
 %     DRAINAGEBASINSTATS  : zonal statistics on drainage basins
 %     FIND                : find indices and values of edges in the flow direction graph
+%     FLIPDIR             : Flip direction of flow
 %     FLOWACC             : flow accumulation (upslope area, contributing area)
 %     FLOWCONVERGENCE     : compute flow convergence of a digital elevation model
 %     FLOWDISTANCE        : flow distance in upstream and downstream direction
@@ -147,6 +148,7 @@
 %     MULTI_NORMALIZE     : create flow direction object
 %     MULTI_WEIGHTS       : create flow direction object
 %     QUANTCARVE          : quantile carving
+%     RANDOMIZE           : randomize multiple flow directions
 %     SAVEOBJ             : create flow direction object
 %     STREAMORDER         : calculates a stream order GRIDobj from FLOWobj
 %     STREAMPOI           : stream points of interest
@@ -164,6 +166,7 @@
 %     STREAMOBJ2CELL      : convert instance of STREAMobj to cell array of stream objects
 %     STREAMOBJ2LATLON    : convert instance of STREAMobj to NaN-separated geographic coordinates
 %     STREAMOBJ2MAPSTRUCT : convert instance of STREAMobj to mapstruct
+%     STREAMOBJ2SHAPE     : Convert STREAMobj to geoshape or mapshape
 %     AGGREGATE           : aggregating values of reaches
 %     CHIPLOT             : CHI analysis for bedrock river analysis
 %     CHITRANSFORM        : Coordinate transformation using the integral approach
@@ -173,6 +176,7 @@
 %     CRSAPP              : interactive smoothing of river long profiles
 %     CRSLIN              : constrained regularized smoothing of the channel length profile
 %     CUMMAXUPSTREAM      : cumulative maximum in upstream direction
+%     CUMSUM              : cumulative sum on stream network
 %     CUMTRAPZ            : Cumulative trapezoidal numerical integration along a stream network
 %     CURVATURE           : curvature or 2nd derivative of a STREAMobj
 %     DENSIFY             : Increase number of vertices in stream network using splines
@@ -190,6 +194,7 @@
 %     INTERP              : interpolate data on STREAMobj (single river only)
 %     INTERSECT           : intersect different instances of STREAMobj 
 %     INTERSECTLOCS       : Derive locations where two STREAMobj start to have a common network
+%     ISGEOGRAPHIC        : Determines if STREAMobj S has a geographic coordinate system
 %     ISNAL               : test whether a vector is a node attribute list of a STREAMobj
 %     ISSUBGRAPH          : Create stream object (STREAMobj)
 %     KLARGESTCONNCOMPS   : retain k largest connected components in an instance of STREAMobj
@@ -214,6 +219,7 @@
 %     PLOTDZSHADED        : plot upstream distance version elevation of a stream network
 %     PLOTSEGMENTGEOMETRY : Plot segment geometry obtained from the function networksegment
 %     PLOTSTREAMORDER     : calculate stream order from STREAMobj
+%     PSITRANSFORM        : Parse Inputs
 %     QUANTCARVE          : quantile carving
 %     RANDLOCS            : Random locations along the stream network
 %     REMOVEEDGEEFFECTS   : remove potential edge effects
