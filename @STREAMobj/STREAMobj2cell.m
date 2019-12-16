@@ -115,20 +115,9 @@ switch lower(ref)
         end
         
         for r = 1:nc
-            CS{r} = S;
-            L     = LL==r;
-            I     = L(CS{r}.ix);
-            CS{r}.ix  = CS{r}.ix(I);
-            CS{r}.ixc = CS{r}.ixc(I);
             
-            IX    = cumsum(L);
-            CS{r}.ix  = IX(CS{r}.ix);
-            CS{r}.ixc = IX(CS{r}.ixc);
-            
-            CS{r}.x   = CS{r}.x(L);
-            CS{r}.y   = CS{r}.y(L);
-            CS{r}.IXgrid   = CS{r}.IXgrid(L);
-            
+            CS{r} = subgraph(S,LL==r);
+        
             if nargout == 2
                 locS{r} = find(L);
             end
