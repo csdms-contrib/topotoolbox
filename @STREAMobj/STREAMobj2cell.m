@@ -112,14 +112,14 @@ switch lower(ref)
         
         if nargout == 2
             locS = cell(1,nc);
+            
         end
         
         for r = 1:nc
-            
-            CS{r} = subgraph(S,LL==r);
-        
-            if nargout == 2
-                locS{r} = find(L);
+            if nargout == 2           
+                [CS{r},locS{r}] = subgraph(S,LL==r);
+            else                
+                CS{r} = subgraph(S,LL==r);
             end
                 
             
