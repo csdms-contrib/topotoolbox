@@ -11,6 +11,7 @@ function DEM = readexample(example,varargin)
 %     readexample reads DEMs from the TopoToolbox DEM repository.
 %     Currently available examples are
 %
+%     'taalvolcano'
 %     'taiwan'
 %     'tibet'
 %
@@ -49,6 +50,9 @@ switch example
         istif = true;
     case 'tibet'
         url = 'https://github.com/wschwanghart/DEMs/raw/master/tibet.tif';
+        istif = true;
+    case 'taalvolcano'
+        url = 'https://github.com/wschwanghart/DEMs/raw/master/taalvolcano.tif';
         istif = true;
     otherwise 
         error('There is no such example file.')
