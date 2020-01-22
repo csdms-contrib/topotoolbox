@@ -28,7 +28,7 @@ function tf = validatealignment(GRID1,GRID2)
 % Date: 8. August, 2015 
 
 % check if geometric properties of a FLOWobj and GRIDobj instance are equal
-if isa(GRID2,'GRIDobj');
+if isa(GRID2,'GRIDobj')
     TF = isequal(GRID1.size,GRID2.size) && isequal(GRID1.refmat,GRID2.refmat);
 else
     TF = isequal(GRID1.size,size(GRID2));

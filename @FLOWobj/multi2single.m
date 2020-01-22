@@ -28,6 +28,7 @@ function [FD,S] = multi2single(FD,varargin)
 %     'unit'         unit of value determined with the parameter 'minarea':
 %                    'pixels' (default) or 'mapunits'.
 %     'channelheads' linear index into DEM with channelheads. 
+%     'W'            GRIDobj with weights for weighted flow accumulation
 %
 % Output arguments
 %
@@ -54,7 +55,7 @@ function [FD,S] = multi2single(FD,varargin)
 % See also: FLOWobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. May, 2019
+% Date: 17. January, 2020
 
 p = inputParser;
 p.FunctionName = 'FLOWobj/multi2single';
@@ -64,6 +65,7 @@ addParameter(p,'unit','pixels',@(x) ischar(validatestring(x, ...
 addParameter(p,'channelheads',[])
 addParameter(p,'probability',false)
 addParameter(p,'randomize',false)
+addParameter(p,'W',GRIDobj(FD)+1,@(x) validatealignment(FD,x));
                         
 parse(p,varargin{:});
 
@@ -98,7 +100,7 @@ switch FD.type
                 ix  = FD.ix;
                 ixc = FD.ixc;
                 fr  = FD.fraction;
-                A   = ones(FD.size);
+                A   = p.Results.W.Z;
                 ini = false(FD.size);
                 for r = 1:numel(ix)
                     if A(ix(r)) < minarea
