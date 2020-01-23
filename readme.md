@@ -95,6 +95,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
+- new function: STREAMobj/isequal
+- new function: STREAMobj/STREAMobj2kml
 
 
 ### 2.3

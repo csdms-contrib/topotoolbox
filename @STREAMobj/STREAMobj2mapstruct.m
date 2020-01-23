@@ -64,7 +64,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %
 % Parameter name/value pairs
 %
-%     'seglength'   approximate segment length
+%     'seglength'   approximate segment length (scalar, map units)
 %     'attributes'  1 x n*3 cell array where n is the number of attributes,
 %                   and elements refer repeatively to
 %                   {'fieldname' var aggfunction ...}
@@ -104,10 +104,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %
 %     % then export MS as shapefile using shapewrite
 %     
-%
-%
 % See also: shapewrite
-%
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 23. April, 2013
