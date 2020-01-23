@@ -97,6 +97,9 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
 - new function: STREAMobj/STREAMobj2kml
+- topoapp was removed from this version 
+- updates to utilities: setextent and getextent 
+- new function: padextent
 
 
 ### 2.3

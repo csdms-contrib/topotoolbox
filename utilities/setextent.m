@@ -1,13 +1,16 @@
 function setextent(extent,ax)
 
-% set current axis extent 
+%SETEXTENT set current axis extent 
 %
 % Syntax
 %
-%     setextent(extent,ax)
-%     setextent(DEM,ax)
-%     setextent(
-%
+%     setextent(extent)
+%     setextent(DEM)
+%     setextent(S)
+%     setextent(xy)
+%	  setextent(MS)
+%     setextent(...,ax)
+%     
 % Description
 %
 %     getextent and setextent are two small wrapper functions (around set
@@ -15,23 +18,30 @@ function setextent(extent,ax)
 %
 % Input parameters
 %
-%     
+%     extent    cell array as returned by getextent
+%     DEM       GRIDobj
+%     S         STREAMobj
+%     xy        nx2 array with n coordinate pairs
+%     MS        mapstruct (must have the fields X and Y)
+%     ax        target axes (default is gca)
 %
 % Example
 % 
-%     load exampledem
-%     imageschs(X,Y,dem)
-%     % execute til here and zoom to a desired level using the zoom tool
-%     e = getextent;
-%     imageschs(X,Y,dem,gradient8(dem))
-%     setextent(e)
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM);
+%     S   = STREAMobj(FD,'minarea',1000);
+%     S   = modify(S,'distance',20000);
+%     S   = klargestconncomps(S);
+%     imageschs(DEM);
+%     hold on
+%     plot(S,'w')
+%     hold off
+%     setextent(S)
 %
-% See also: IMAGESCHS, GETEXTENT
+% See also: IMAGESCHS, GETEXTENT, PADEXTENT
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 11. April, 2011
-
-
+% Date: 23. January, 2020
 
 if nargin == 1
     ax = gca;
@@ -53,7 +63,8 @@ elseif isa(extent,'STREAMobj')
 elseif isnumeric(extent)
     x = extent(:,1);
     y = extent(:,2);
+	
     set(ax,'xlim',[min(x) max(x)],'ylim',[min(y) max(y)]);
     
 end
-    
+ 
