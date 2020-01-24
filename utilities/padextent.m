@@ -1,4 +1,4 @@
-function padextent(padval,ax)
+function extout = padextent(padval,varargin)
 
 %PADEXTENT pad current axis extent 
 %
@@ -7,6 +7,9 @@ function padextent(padval,ax)
 %     padextent(padval)
 %     padextent([padvalx padvaly])
 %     padextent([pvleft pvright pvbottom pvtop])
+%     padextent(...,ax)
+%     padextent(...,pn,pv)
+%     extent = padextent(...)
 %     
 % Description
 %
@@ -20,9 +23,13 @@ function padextent(padval,ax)
 %     padvalx, padvaly allow you to define different pad distances
 %                in x and y direction.
 %     pleft, ... let you define values in all directions individually
-%     
+%     ax         handle to axes (by default gca)
 %
-% Example
+%     Parameter name/value pairs
+%
+%     'unit'     {'map'} or 'percent'
+%     
+% Example 1
 % 
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD  = FLOWobj(DEM);
@@ -36,16 +43,47 @@ function padextent(padval,ax)
 %     setextent(S)
 %     padextent(2000)
 %
+% Example 2: Zoom in
+%
+%     imageschs(DEM,[],'colorbar',false,'ticklabels','none')
+%     for r = 1:100; padextent(-1,'unit','perc'); pause(.01); end
+%
 % See also: IMAGESCHS, GETEXTENT, SETEXTENT
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 23. January, 2020
 
-if nargin == 1
-    ax = gca;
+p = inputParser;
+addRequired(p,'padval');
+addOptional(p,'ax',gca)
+addParameter(p,'unit','map')
+parse(p,padval,varargin{:});
+
+ax  = p.Results.ax;
+ext = getextent(ax);
+
+unit = validatestring(p.Results.unit,{'map' 'percent'});
+
+% padextent will use map units, hence any conversion is done here
+switch unit
+    case 'percent'
+        padval = padval/100;
+        if isscalar(padval)
+            padvalmapx = padval * abs(diff(ext{1}));
+            padvalmapy = padval * abs(diff(ext{2}));
+            padval = [padvalmapx padvalmapy];
+        elseif isnumeric(padval) && numel(padval) == 2
+            padvalmapx = padval(1) * abs(diff(ext{1}));
+            padvalmapy = padval(2) * abs(diff(ext{2}));
+            padval = [padvalmapx padvalmapy];
+        elseif isnumeric(padval) && numel(padval) == 4
+            padvalmapx = padval([1 2]) * abs(diff(ext{1}));
+            padvalmapy = padval([3 4]) * abs(diff(ext{2}));
+            padval = [padvalmapx padvalmapy];
+        end
 end
 
-ext = getextent(ax);
+
 
 if isscalar(padval)
     ext{1} = ext{1} + [-1 1]*padval;
@@ -60,3 +98,7 @@ elseif isnumeric(padval) && numel(padval) == 4
     ext{2} = ext{2} + [-1 1].*padval([3 4]);
 end
 setextent(ext,ax);
+
+if nargout == 1
+    extout = ext;
+end

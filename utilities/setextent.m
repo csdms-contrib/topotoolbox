@@ -1,4 +1,4 @@
-function setextent(extent,ax)
+function extout = setextent(extent,ax)
 
 %SETEXTENT set current axis extent 
 %
@@ -10,6 +10,7 @@ function setextent(extent,ax)
 %     setextent(xy)
 %	  setextent(MS)
 %     setextent(...,ax)
+%     ext = setextent(...)
 %     
 % Description
 %
@@ -67,4 +68,7 @@ elseif isnumeric(extent)
     set(ax,'xlim',[min(x) max(x)],'ylim',[min(y) max(y)]);
     
 end
- 
+
+if nargout == 1
+    extout = getextent(ax);
+end

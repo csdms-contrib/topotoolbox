@@ -157,7 +157,7 @@ end
         
         title(['distance: ' num2str(totdist)]);
         
-        if showpointtext;
+        if showpointtext
             axlim = axis;
             xoffset = axlim(2)-axlim(1);
             yoffset = axlim(4)-axlim(3);

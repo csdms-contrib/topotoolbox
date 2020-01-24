@@ -92,6 +92,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 ### pre 2.4
 
+- modification: update to ttscm to include cyclic colormaps 
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape

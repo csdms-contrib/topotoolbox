@@ -20,7 +20,7 @@ function extent = getextent(ax)
 %     imageschs(DEM,gradient8(DEM))
 %     setextent(e)
 %
-% See also: IMAGESCHS, SETEXTENT
+% See also: IMAGESCHS, SETEXTENT, PADEXTENT
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
 % Date: 23. January, 2020
