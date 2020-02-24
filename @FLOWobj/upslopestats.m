@@ -1,6 +1,6 @@
 function OUT = upslopestats(FD,VAR,meth,S)
 
-%UPSLOPESTATS upslope statistics of a variable based on the flow direction matrix
+%UPSLOPESTATS upslope statistics computed in flow directions
 %
 % Syntax
 %
@@ -139,14 +139,14 @@ switch meth
         ix = FD.ix;
         ixc = FD.ixc;
         % minimum imposition
-        for r = 1:numel(ix);
+        for r = 1:numel(ix)
             VAR(ixc(r)) = min(VAR(ix(r)),VAR(ixc(r)));
         end
     case 'max'
         ix = FD.ix;
         ixc = FD.ixc;
         % maximum imposition
-        for r = 1:numel(ix);
+        for r = 1:numel(ix)
             VAR(ixc(r)) = max(VAR(ix(r)),VAR(ixc(r)));
         end
 end
