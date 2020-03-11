@@ -51,6 +51,7 @@ function MS = zonalstats(MS,attributes,varargin)
 %
 % Parameter name/value functions
 %
+%      'waitbar'     {true} or false
 %      'overlapping' true or {false}. Set to false if polygons in MS are not
 %                    overlapping. This will signicantly increase the speed
 %                    of the function.
@@ -73,9 +74,9 @@ function MS = zonalstats(MS,attributes,varargin)
 % See also: polygon2GRIDobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. July, 2016
+% Date: 11. March, 2020
 
-if nargin == 1;
+if nargin == 1
     a = cellfun(@(x,y) getarea(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.area] = a{:};
     return
@@ -83,7 +84,7 @@ end
 
 % check attributes
 if mod(numel(attributes),3) ~= 0
-    error('additional arguments must come in triplets')
+    error('attribute cell array has wrong size')
 end
 
 % check the attributes
@@ -97,32 +98,33 @@ addParameter(p,'overlapping',false)
 addParameter(p,'centroid',false)
 addParameter(p,'area',false)
 addParameter(p,'perimeter',false)
+addParameter(p,'waitbar',true)
 parse(p,varargin{:});
     
 % convert strings to functions, if necessary
-for r = 1:nrattributes;
+for r = 1:nrattributes
     if ischar(attfun{r}) && ~isempty(attfun{r})
         attfun{r} = str2func(attfun{r});
     elseif isempty(attfun{r})
         % do nothing
     end
     
-    if r > 2;
+    if r > 2
         validatealignment(attgrid{r},attgrid{1});
     end
     
 end
 
-if p.Results.area;
+if p.Results.area
     a = cellfun(@(x,y) getarea(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.area] = a{:};
 end
-if p.Results.centroid;
+if p.Results.centroid
     [xc,yc] = cellfun(@(x,y) getcentroid(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.xc] = xc{:};
     [MS.yc] = yc{:};
 end
-if p.Results.perimeter;
+if p.Results.perimeter
     p = cellfun(@(x,y) getperimeter(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.perimeter] = p{:};
 end
@@ -140,13 +142,14 @@ end
 
 nr = numel(MS);
 
-if nr > 2;
+if nr > 2 && p.Results.waitbar
 h = waitbar(0,['0 processed, ' num2str(nr) ' remaining']);
 wb = true;
 else
 wb = false;
 end
-for r = 1:nr;
+
+for r = 1:nr
     
     if p.Results.overlapping
         II = polygon2GRIDobj(attgrid{1},MS(r));
@@ -167,7 +170,7 @@ for r = 1:nr;
             minz = min(z);
             maxz = max(z);
             if isempty(minz); minz = nan; end
-            if isempty(maxz); maxz = nan; end;
+            if isempty(maxz); maxz = nan; end
             MS(r).([attname{r2} '_min']) = minz;
             MS(r).([attname{r2} '_max']) = maxz;
             MS(r).([attname{r2} '_median']) = median(z);
