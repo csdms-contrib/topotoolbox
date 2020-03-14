@@ -10,6 +10,24 @@ TTLEM comes as a part of the newest release of TopoToolbox and can be downloaded
 For further instructions:
 https://github.com/wschwanghart/topotoolbox/blob/master/readme.md
 
+## Getting started
+
+Before working with TopoToolbox the directories and functions must be on the search 
+path of Matlab. Enter following code into the command line:
+
+        addpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2'))
+		
+To remove .git-folders from the path, run
+
+        rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
+
+Type `doc` in the command line to open the main documentation page. You'll 
+find the TopoToolbox documentation in the section Supplemental Software.  
+The documentation contains several user's guides that will help you 
+getting started. In addition, TopoToolbox functions have extensive help 
+sections (e.g. `help gradient8` or `help STREAMobj/modify`. An additional 
+resource for code and examples is the [TopoToolbox blog](http://topotoolbox.wordpress.com).
+
 ## Who should use TTLEM?
 TTLEM is developed to be easy accessible and adaptable and requires knowledge of the Matlab syntax. Users should be able to readily run TTLEM with both synthetic land evolution models and natural simulations, starting from an existing digital elevation model. With TTLEM, we target the same users than those who are using TopoToolpox and want to explore landscape functioning beyond present day topographic indices.
 
