@@ -1,7 +1,7 @@
 function [Qs,Qs_in]=UpdateSedFlux(i,k,phi,E_reg,dx2,Ff,E_bed,V,Q)
 % function part of HyLands: Hybrid Landscape evolution model
 %
-% See also: HYLANDS_set, HYLANDS
+% See also: HYLANDS_set, HYLANDS 
 %
 % =========================================================================
 % Papers to cite when using HyLands:
