@@ -1,6 +1,6 @@
 # TTLEM and HyLands
 
-<img src= "https://github.com/BCampforts/topotoolbox/blob/master/ttlem/Fig_5%20Syntehtic%20DEM.jpg" align=" center" >
+<img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/Fig_5%20Syntehtic%20DEM.jpg" align=" center" >
 
 ## What is TTLEM
 TTLEM is a grid based object oriented Landscape Evolution Model based on the TopoToolbox library. The aim of TTLEM is to provide an accurate numerical tool to simulate landscape evolution in eroding regions. TTLEM is multi-process based and hence allows a modular use of the code depending on the requirements of the end user. The LEM has a good overall computational performance and obtains a high numerical accuracy in solving the partial differential equations involved when simulating landscape evolution.
@@ -34,7 +34,7 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 
 ## User manual HyLands
 
-<img src= "https://github.com/BCampforts/topotoolbox/blob/master/ttlem/HyLands.jpg" align=" center" >
+<img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/HyLands.jpg" align=" center" >
 
 HyLands and the corresponding parameter values are fully document. For documentation, enter: doc HYLANDS or doc HYLANDS_set in the command window. 
 HyLands comes with 1 tutorial (the example given in the HyLands function), and 7 sripts, described in full length in the GMD discussion paper: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. Discussion paper in Geoscientific Model Development, https://geoscientific-model-development.net
