@@ -39,7 +39,7 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 HyLands and the corresponding parameter values are fully document. For documentation, enter: doc HYLANDS or doc HYLANDS_set in the command window. 
 HyLands comes with 1 tutorial (the example given in the HyLands function), and 7 sripts, described in full length in the GMD discussion paper: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. Discussion paper in Geoscientific Model Development, https://geoscientific-model-development.net
 
-All the scripts can be downloaded from https://github.com/BCampforts/pub_hylands_campforts_etal_GMD and executed in Matlab. E.g., for the first example just enter the comment: 'HyLands_NoLS_DL' in the command window.
+All the scripts can be downloaded from https://github.com/BCampforts/pub_hylands_campforts_etal_GMD and executed in Matlab. 
 - HyLands_NoLS_DL.m;    https://doi.org/10.5446/45969
 - HyLands_NoLS_TL.m;    https://doi.org/10.5446/45967
 - HyLands_NoLS_Mixed.m; https://doi.org/10.5446/45968
