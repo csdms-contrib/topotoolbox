@@ -11,7 +11,7 @@ TTLEM and HyLands are a part of the newest release of TopoToolbox and can be dow
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
 
-        addpath C:\path\to\wherever\you\installed\this\TopoToolbox
+        addpath C:\path\to\wherever\you\installed\this\topotoolbox-v2.4-HyLands-v1.0
 
 ## Who should use TTLEM?
 TTLEM is developed to be easy accessible and adaptable and requires knowledge of the Matlab syntax. Users should be able to readily run TTLEM with both synthetic land evolution models and natural simulations, starting from an existing digital elevation model. With TTLEM, we target the same users than those who are using TopoToolpox and want to explore landscape functioning beyond present day topographic indices.
