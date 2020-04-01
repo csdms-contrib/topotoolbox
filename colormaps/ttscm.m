@@ -48,13 +48,24 @@ function cmap = ttscm(name,n)
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     cmaps = ttscm;
 %     for r = 1:numel(cmaps); 
-%        subplot(6,4,r); 
+%        subplot(7,4,r); 
 %        imageschs(DEM,[],'colormap', ttscm(cmaps{r}),...
 %                         'colorbar',false,'ticklabels','none');
 %        title(cmaps{r});
 %     end
 %
+% Example 3: Same as example 2, but using the new tiledlayout (2019b)
 %     
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     cmaps = ttscm;
+%     tiledlayout('flow','tilespacing','none','padding','none')
+%     for r = 1:numel(cmaps); 
+%        nexttile 
+%        imageschs(DEM,[],'colormap', ttscm(cmaps{r}),...
+%                         'colorbar',false,'ticklabels','none');
+%        title(cmaps{r});
+%     end
+%
 % References: 
 %
 %      Crameri, F., (2018). Scientific colour-maps. Zenodo. 
@@ -75,7 +86,7 @@ allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'devon','davos','oslo','bilbao','lajolla',...
                 'grayC','broc','cork','vik','lisbon','tofino',...
 				'berlin','turku','tokyo','lapaz','roma','oleron', ...
-                'brocO','corkO','vikO'};
+                'brocO','corkO','romaO','vikO'};
 
 				
 % get location of this function
@@ -86,7 +97,8 @@ if nargin == 0 && nargout == 0
            
 	imshow([p filesep 'private' ...
             filesep '+ScientificColourMaps_FabioCrameri.png'],...
-            'InitialMagnification','fit')
+            'InitialMagnification','fit',...
+		   'Border','tight')
 	return
 elseif nargin == 0 && nargout == 1
     cmap = allowedcmaps;
