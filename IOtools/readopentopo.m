@@ -85,7 +85,7 @@ addParameter(p,'verbose',true);
 parse(p,varargin{:});
 
 demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E'},'readopentopo');
-url = 'http://opentopo.sdsc.edu/otr/getdem';
+url = 'http://portal.opentopography.org/otr/getdem';
 
 % create output file
 f = fullfile(p.Results.filename);
