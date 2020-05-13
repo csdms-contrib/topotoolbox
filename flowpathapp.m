@@ -421,7 +421,7 @@ hPlotProfiles = [];
     function [D,header] = makedataset(IXchannel,distance)
                 
         A = flowacc(FD);
-        G = FLOWobj2gradient(FD,DEM);
+        G = gradient(FD,DEM);
         D = cell(numel(IXchannel),1);
         for r = 1:numel(IXchannel);
             D{r}(1:numel(IXchannel{r}),1) = repmat(r,numel(IXchannel{r}),1);
