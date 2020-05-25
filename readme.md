@@ -21,7 +21,7 @@ scherler[at]gfz-potsdam.de
 ## Requirements
 
 TopoToolbox is plat-form independent and requires
-Matlab 2014b or higher and the Image Processing Toolbox. The Mapping
+Matlab 2016b or higher and the Image Processing Toolbox. The Mapping
 Toolbox is not mandatory, but good to have to facilitate easy data
 exchange with GIS software. Some functions support parallelisation using the 
 Parallel Toolbox. Few functions require the Optimization or Statistics
@@ -46,7 +46,7 @@ In addition, various models and algorithms used in TopoToolbox have been publish
 
 ### DEM preprocessing and carving
 
-- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G. (2013): Flow network derivation from a high 
+- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G., 2013: Flow network derivation from a high 
 resolution DEM in a low relief, agrarian landscape. Earth Surface Processes and Landforms, 38, 
 1576-1586. DOI: [10.1002/esp.3452](http://dx.doi.org/10.1002/esp.3452)
 
@@ -61,7 +61,7 @@ Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.o
 
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the 
 
 ### Knickpointfinder
 
@@ -69,6 +69,12 @@ Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.o
 Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
 Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
 (The description here is very terse, yet)
+
+### Divide functions
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 1: Identification and ordering in digital elevation models. Earth Surface Dynamics, 8, 245–259. [DOI: 10.5194/esurf-8-245-2020](http://dx.doi.org/10.5194/esurf-8-245-2020)
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 2: Response to perturbations. Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.doi.org/10.5194/esurf-8-261-2020)
 
 ## Getting started
 
@@ -94,6 +100,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 ### pre 2.4
 
+- new class: DIVIDEobj 
 - modification: update to ttscm to include cyclic colormaps; 
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - modification: STREAMobj/modify 

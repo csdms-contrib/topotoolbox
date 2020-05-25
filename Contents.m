@@ -1,5 +1,5 @@
 % TopoToolbox
-% Version 2.3  13-Jun-2019
+% Version pre 2.4  25-May-2020
 %
 % TopoToolbox provides a set of Matlab functions that support the analysis
 % of relief and flow pathways in digital elevation models. The major 
@@ -32,13 +32,13 @@
 %     GRIDobj         - object for gridded, geospatial data
 %     FLOWobj         - object for flow direction
 %     STREAMobj       - object for stream (channel) networks
+%     DIVIDEobj       - object for drainage divide networks
 %     SWATHobj        - object for swath profiles
 %
 % Graphical user interfaces
 %
 %     flowpathapp     - Map, visualize and export flowpaths that start at manually set channelheads                     
 %     slopeareatool   - Interactively create slope area plots and fit power laws                    
-%     topoapp         - Create instance of a topoapp
 %     mappingapp      - Map points combining river planform and profile view
 %
 % GRIDobj methods
@@ -245,6 +245,27 @@
 %     WIDENSTREAM         : level elevations adjacent to the stream network
 %     WMPLOT              : plot stream network in the webmap browser
 %     ZEROBASELEVEL       : set base level to zero
+%
+% DIVIDEobj methods
+%
+%     DIVIDEOBJ           : Create divide object (DIVIDEobj)
+%     DIVIDEOBJ2MAPSTRUCT : obtain divide properties from GRIDobj
+%     ASYMMETRY           : directional asymmetry of divide segments
+%     CLEANEDGES          : Delete divides on the edges of DEM
+%     COORD2IND           : convert x and y coordinates to linear index
+%     DIST2NODE           : network distance to nodes
+%     DIVDIST             : DIVDIST   Assign distance to divide segments
+%     DIVNET              : Create divide object (DIVIDEobj)
+%     DIVORDER            : Assign order to divide segments
+%     GETVALUE            : get grid values adjacent to divides
+%     IND2COORD           : convert linear index to x and y coordinates
+%     JCTANGLE            : angles between divide segments at junctions
+%     JCTCON              : compute junction connectivity
+%     PLOT                : plot the divide network 
+%     PLOTC               : Create colored plot of drainage divide network
+%     REMOVESHORTDIVIDES  : Remove short first-order divides
+%     SHRINK              : Shrink divide network
+%     SORT                : Sort divide segments by network structure.
 % 
 % SWATHobj methods
 % 
