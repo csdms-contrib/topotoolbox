@@ -61,13 +61,11 @@ Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.o
 
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the 
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
 
 ### Knickpointfinder
 
-- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., 
-Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
-Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
 (The description here is very terse, yet)
 
 ### Divide functions
@@ -75,6 +73,10 @@ Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](http
 - Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 1: Identification and ordering in digital elevation models. Earth Surface Dynamics, 8, 245–259. [DOI: 10.5194/esurf-8-245-2020](http://dx.doi.org/10.5194/esurf-8-245-2020)
 
 - Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 2: Response to perturbations. Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.doi.org/10.5194/esurf-8-261-2020)
+
+### Point patterns on stream networks
+
+- Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A systematic approach and software for the analysis of point patterns on river networks. EarthArXiv preprint. [DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r)
 
 ## Getting started
 
@@ -101,6 +103,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ### pre 2.4
 
 - new class: DIVIDEobj 
+- new class: PPS
 - modification: update to ttscm to include cyclic colormaps; 
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - modification: STREAMobj/modify 

@@ -7,6 +7,7 @@ function extout = setextent(extent,ax)
 %     setextent(extent)
 %     setextent(DEM)
 %     setextent(S)
+%     setextent(P)
 %     setextent(xy)
 %	  setextent(MS)
 %     setextent(...,ax)
@@ -22,6 +23,7 @@ function extout = setextent(extent,ax)
 %     extent    cell array as returned by getextent
 %     DEM       GRIDobj
 %     S         STREAMobj
+%     P         PPS
 %     xy        nx2 array with n coordinate pairs
 %     MS        mapstruct (must have the fields X and Y)
 %     ax        target axes (default is gca)
@@ -60,6 +62,9 @@ elseif isstruct(extent)
     set(ax,'xlim',[min(x) max(x)],'ylim',[min(y) max(y)]);
 elseif isa(extent,'STREAMobj')
     v = info(extent,'boundingbox');
+    set(ax,'xlim',v(1:2),'ylim',v(3:4));
+elseif isa(extent,'PPS')
+	v = info(extent.S,'boundingbox');
     set(ax,'xlim',v(1:2),'ylim',v(3:4));
 elseif isnumeric(extent)
     x = extent(:,1);

@@ -34,6 +34,7 @@
 %     STREAMobj       - object for stream (channel) networks
 %     DIVIDEobj       - object for drainage divide networks
 %     SWATHobj        - object for swath profiles
+%     PPS             - object for point patterns on stream networks
 %
 % Graphical user interfaces
 %
@@ -278,6 +279,44 @@
 %     PLOTDZM          : create color-coded distance-elevation plot from SWATHobj and GRIDobj
 %     PROFILES         : obtain profiles from a SWATHobj
 %     TIDY             : remove overlapping points from SWATHobj
+%
+% PPS methods
+%
+%     PPS              : Point patterns on stream networks
+%     AGGREGATE        : Aggregate points in PPS to new point pattern
+%     AS               : Convert PPS object into various data formats 
+%     CLUSTER          : hierarchical clustering of points in PPS
+%     CONVHULL         : convex hull around points in PPS
+%     DENSITY          : nonparametric density estimation on network
+%     ECDF             : Empirical cumulative distribution function of a covariate 
+%     EXTENDEDNETWORK  : extend network to account for duplicate points
+%     FITLOGLINEAR     : fit loglinear model to point pattern
+%     GETMARKS         : extract point marks
+%     GFUN             : G-function (nearest inter-point distance distribution)
+%     HASDUPLICATES    : checks whether there are duplicate points
+%     HISTOGRAM        : histogram of point pattern on stream network
+%     INTENSITY        : calculate intensity (density) of points on the stream network
+%     NETDIST          : Shortest network distance
+%     NPOINTS          : number of points in the point pattern
+%     PLOT             : plot instance of PPS
+%     PLOTC            : plot a colored stream network
+%     PLOTDZ           : plot upstream distance version elevation or covariate of a PPS
+%     PLOTEFFECTS      : Plot of slices through fitted generalized linear regression
+%     PLOTPOINTS       : plot points of PPS
+%     POINTDISTANCES   : inter-point distance
+%     POINTS           : extract a list of points from the point pattern
+%     QUADRATCOUNT     : Quadrat count and chi2 test
+%     RANDOM           : random realisation of a (inhomogeneous) point process
+%     REGULARPOINTS    : Generate non-random points on stream network
+%     REMOVEDUPLICATES : removes duplicate points
+%     REMOVEPOINTS     : Remove points in point pattern
+%     RHOHAT           : nonparametric estimation of point pattern dependence on covariate
+%     ROC              : receiver-operating characteristics of point pattern
+%     SHAPEWRITE       : write point pattern to shapefile
+%     SIMULATE         : simulate point pattern using random thinning
+%     TLENGTH          : total length of the stream network
+%     VORONOI          : nearest neighbor search on a stream network
+%     WMPLOT           : plot instance of PPS in webmap browser
 %
 % TTLEM (TopoToolbox Landscape Evolution Model)
 %

@@ -47,7 +47,23 @@ if nargin <= 5
 end
 
 if usemap
-    arclen = distance(lat1,lon1,lat2,lon2,ellipsoid,'degrees');
+    if numel(lat1) < 1e4    
+        arclen = distance(lat1,lon1,lat2,lon2,ellipsoid,'degrees');
+    else
+        chunksize = 10000;
+        chunks = [0:chunksize:numel(lat1)];
+        if chunks(end) ~= numel(lat1)
+            w = numel(lat1)-chunks(end);
+            chunks = [chunks  chunks(end)+w];
+        end
+        arclen = zeros(size(lat1));
+        for r = 1:numel(chunks)-1
+            c = chunks(r)+1:chunks(r+1);
+            arclen(c) = distance(lat1(c),lon1(c),...
+                lat2(c),lon2(c),ellipsoid,'degrees');
+        end
+    end
+            
 else
     % ellipsoid is provided as two-element vector 
     % [semimajor_axis exccentricity]
