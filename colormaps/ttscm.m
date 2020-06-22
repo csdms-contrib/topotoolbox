@@ -1,6 +1,6 @@
 function cmap = ttscm(name,n,percrange)
 
-%TTSCM scientific colormaps
+%TTSCM Scientific colormaps by Fabio Crameri
 %
 % Syntax
 %     
@@ -75,7 +75,7 @@ function cmap = ttscm(name,n,percrange)
 %      doi:10.5194/gmd-11-2541-2018
 %
 %
-% See also: IMAGESCHS, ttcmap
+% See also: GRIDobj/IMAGESCHS, ttcmap
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 22. June, 2020
@@ -84,7 +84,8 @@ allowedcmaps = {'acton' 'bamako', 'batlow', 'hawaii', 'imola' 'nuuk' ...
                 'buda' ...
                 'devon','davos','oslo','bilbao','lajolla',...
                 'grayC','broc','cork','vik','lisbon','tofino',...
-				'berlin','turku','tokyo','lapaz','roma','oleron'};
+				'berlin','turku','tokyo','lapaz','roma','oleron', ...
+                'brocO','corkO','vikO'};
 
 				
 % get location of this function
