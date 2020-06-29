@@ -300,6 +300,23 @@ methods
         
     end
     
+    function P = subsref(P,S)
+        switch S(1).type
+            case '()'
+                if numel(S.subs) == 1
+                    ix = S.subs{1};
+                    ix = ix(:);
+                    P.PP = P.PP(ix);
+                else
+                    error('Subscript indexing not allowed.')
+                end
+            case '.'
+                P = P.(S.subs);
+            otherwise
+                error('Only linear indexing with () allowed')
+        end
+    end
+    
     %% methods to access and set properties
     function P = set.z(P,DEM)
         

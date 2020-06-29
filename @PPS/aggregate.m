@@ -1,4 +1,4 @@
-function P = aggregate(P,c,varargin)
+function [P,locb] = aggregate(P,c,varargin)
 
 %AGGREGATE Aggregate points in PPS to new point pattern
 %
@@ -30,6 +30,8 @@ function P = aggregate(P,c,varargin)
 %                    'euclideancentroid' calculates the centroid of all
 %                    points with the same label and snaps the location of
 %                    the centroid to the stream network. 
+%                    'nearesttocentroid' calculates the centroid and then
+%                    chooses the point that is nearest to this centroid.
 %
 % Output arguments
 %
@@ -54,7 +56,7 @@ function P = aggregate(P,c,varargin)
 % See also: PPS, PPS/cluster, PPS/convhull
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. September, 2019
+% Date: 29. June, 2020
 
 
 p = inputParser;
@@ -67,6 +69,10 @@ addParameter(p,'useparallel',true);
 % Parse
 parse(p,P,c,varargin{:});
 
+type = validatestring(p.Results.type,...
+    {'centroid','euclideancentroid',...
+    'nearesttocentroid','mostupstream','mostdownstream'});
+
 % make sure that one label does not occur in multiple drainage basins.
 concom = conncomps(P.S);
 concom = getmarks(P,concom);
@@ -75,10 +81,38 @@ if any(tf>1)
     error('Labels span across more than one drainage basin.')
 end
 
-switch lower(p.Results.type)
+switch lower(type)
+    case {'mostupstream','mostdownstream'}
+        [uniquec,~,locb] = unique(c);
+        d = P.S.distance;
+        d = getmarks(P,d);
+        switch lower(type)
+            case 'mostdownstream'
+                d = 1./d;
+        end
+        d = sparse((1:numel(locb))',locb,d,numel(locb),max(locb));
+        [~,ix] = max(d);
+        P.PP = P.PP(ix);
+    
+    case 'nearesttocentroid'
+        % Calculate centroids
+        [Pc,locb] = aggregate(P,c,'useparallel',p.Results.useparallel);
+        % Nearest to centroid
+        G  = as(P,'graph');
+        d = distances(G,P.PP,Pc.PP);
+        % get distance from each point to centroid of its group
+        ix = sub2ind(size(d),(1:size(d,1))',locb);
+        I  = true(size(d));
+        I(ix) = false;
+        d(I)  = inf; 
+        
+        [~,ix] = min(d);
+        
+        P.PP = P.PP(ix);
+    
     case 'euclideancentroid'
         % Euclidean distance is easy. 
-        [uniquec,~,locb] = unique(c,'stable'); 
+        [uniquec,~,locb] = unique(c); 
         nc    = numel(uniquec);
         [x,y] = points(P);
         % calculate centroids for each label
@@ -96,6 +130,11 @@ switch lower(p.Results.type)
         G    = as(P,'graph');
         % This line returns for each label the edges that belong to the
         % minimum spanning tree that connects the points
+        [~,~,c] = unique(c);
+        locb = c;
+        G.Nodes.group = zeros(size(P.S.x));
+        G.Nodes.group(P.PP) = c;
+
         E    = accumarray(c,P.PP,[max(c) 1],@(x) {spedges(x)});
         % list the edges
         E    = vertcat(E{:});
@@ -114,6 +153,8 @@ switch lower(p.Results.type)
         
         % Go through the individual connected components
         ix      = zeros(size(cc));
+        cl      = zeros(size(cc));
+%         pp      = cell(size(cc));
         parfor r = 1:numel(cc)
             % Extract the subgraph that contains each connected component
             GSUB = subgraph(G,cc{r});
@@ -124,12 +165,15 @@ switch lower(p.Results.type)
             % Find the node with the minimum sum of squares
             [~,ixx] = min(d);
             ix(r)  = GSUB.Nodes.pts(ixx);
+            cl(r)  = GSUB.Nodes.group(find(GSUB.Nodes.ispoint,1,'first'));
+            
         end
-        
         I    = accumarray(c,1) > 1;
         I    = I(c);
         P.PP(I) = [];
+        gr = locb(P.PP);
         P.PP = [P.PP;ix(:)];
+        [~,locb] = ismember(locb,[gr;cl]);
         
 end
 

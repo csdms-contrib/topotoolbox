@@ -39,6 +39,12 @@ function FD = crop(FD,mask)
 
 validatealignment(FD,mask)
 
+if ~isa(mask,'GRIDobj')
+    temp = GRIDobj(FD,'logical');
+    temp.Z = mask;
+    mask = temp;
+end
+
 I = all([mask.Z(FD.ix) mask.Z(FD.ixc)],2);
 FD.ix = FD.ix(I);
 FD.ixc = FD.ixc(I);
