@@ -37,12 +37,13 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 <img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/HyLands.jpg" align=" center" >
 
 Installation: 
- - Hylands is integrated within the TTLEM software, follow directions as listed under ## Getting started (summary below)
- - download and extract topotoolbox from: https://github.com/BCampforts/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named : topotoolbox-HyLands by default)
+ - Download and extract topotoolbox from: https://github.com/BCampforts/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named: topotoolbox-HyLands by default)
  - addpath(genpath(['C:\path\to\wherever\you\extracted\this\topotoolbox-HyLands']));
+ - to verify installation: enter: doc HYLANDS (info on the model) or doc HYLANDS_set (info on the parameter values) in the command window.
  
-Documentation
-For documentation, and after adding the topotoolbox folder to the path, enter: doc HYLANDS (info on the model) or doc HYLANDS_set (info on the parameter values) in the command window. 
+Documentation: 
+ - For documentation, and after adding the topotoolbox folder to the path, enter: doc HYLANDS (info on the model) or doc HYLANDS_set (info on the parameter values) in the command window. 
+        
 
 HyLands comes with 1 tutorial (the example provided on the documentation page: doc HYLANDS), and 7 sripts, described in full length in the GMD discussion paper: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. Discussion paper in Geoscientific Model Development, https://geoscientific-model-development.net
 
