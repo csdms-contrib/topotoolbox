@@ -10,8 +10,8 @@ TTLEM and HyLands are a part of the newest release of TopoToolbox and can be dow
 
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
-
-        addpath C:\path\to\wherever\you\installed\this\topotoolbox-v2.4-HyLands-v1.0
+        
+        addpath(genpath(['C:\path\to\wherever\you\installed\this\topotoolbox-v2.4-HyLands-v1.0']));
 
 ## Who should use TTLEM?
 TTLEM is developed to be easy accessible and adaptable and requires knowledge of the Matlab syntax. Users should be able to readily run TTLEM with both synthetic land evolution models and natural simulations, starting from an existing digital elevation model. With TTLEM, we target the same users than those who are using TopoToolpox and want to explore landscape functioning beyond present day topographic indices.
@@ -36,8 +36,15 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 
 <img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/HyLands.jpg" align=" center" >
 
-HyLands and the corresponding parameter values are fully document. For documentation, enter: doc HYLANDS or doc HYLANDS_set in the command window. 
-HyLands comes with 1 tutorial (the example given in the HyLands function), and 7 sripts, described in full length in the GMD discussion paper: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. Discussion paper in Geoscientific Model Development, https://geoscientific-model-development.net
+For installation: 
+ - Hylands is integrated within the TTLEM software, follow directions as listed under ## Getting started (sunnary below)
+ - download and extract topotoolbox from: https://github.com/BCampforts/topotoolbox (the HyLands branch, which is the default branch so nothing has to be adjusted,                                                                          downloaded fodler will be named : topotoolbox-HyLands by default)
+ - addpath(genpath(['C:\path\to\wherever\you\extracted\this\topotoolbox-HyLands']));
+ 
+Documentation
+For documentation, and after adding the topotoolbox folder to the path, enter: doc HYLANDS or doc HYLANDS_set in the command window. 
+
+HyLands comes with 1 tutorial (the example provided on the documentation page), and 7 sripts, described in full length in the GMD discussion paper: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. Discussion paper in Geoscientific Model Development, https://geoscientific-model-development.net
 
 All the scripts can be downloaded from https://github.com/BCampforts/pub_hylands_campforts_etal_GMD and executed in Matlab. 
 - HyLands_NoLS_DL.m;    https://doi.org/10.5446/45969
