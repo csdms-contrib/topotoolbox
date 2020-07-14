@@ -20,7 +20,7 @@ function [bed, sed,Qs_Hill_OutD] = ...
 %
 % * Carretier, S., Martinod, P., Reich, M., & Godderis, Y. (2016).
 % Modelling sediment clasts transport during landscape evolution. Earth
-% Surface Dynamics, 4(1), 237–251. https://doi.org/10.5194/esurf-4-237-2016
+% Surface Dynamics, 4(1), 237â€“251. https://doi.org/10.5194/esurf-4-237-2016
 %
 % =========================================================================
 %
@@ -40,7 +40,7 @@ max_D=zeros(size(bed));
 max_dH=inf(size(bed));
 max_dH(~mod_Domain)=0;
 
-% Remaining Qs: for example when modelled domain is un non squarred polygon
+% Remaining Qs: for example when modelled domain is a non squarred polygon
 %Qs_remaining
 % totMassB=sum(sed(:))*dx2+sum(Qs_out(:))
 for index = 1:numel(i) 
