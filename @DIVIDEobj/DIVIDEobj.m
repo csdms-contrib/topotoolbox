@@ -34,6 +34,8 @@ classdef DIVIDEobj
 %     outlets      toggle (default=true) to indicate whether outlets, i.e.,
 %                  the downstream ends of streams, shall be used to derive 
 %                  divides
+%     verbose      toggle for displaying function execution progress in the
+%                  command window
 %
 % Output arguments
 %
@@ -50,7 +52,7 @@ classdef DIVIDEobj
 % See also: getdivide, FLOWobj/drainagebasins, FLOWobj/streamorder
 %
 % Author: Dirk Scherler (scherler[at]gfz-potsdam.de)
-% Date: April 2020
+% Date: August 2020
 
     
     properties 
@@ -265,6 +267,7 @@ classdef DIVIDEobj
             NST = FX;
             [x,y] = getcoordinates(FX);
             [XD,YD] = meshgrid(x,y);
+            
             % Indices of flow edge midpoints 
             [x1,y1] = ind2coord(FD,FD.ix);
             [x2,y2] = ind2coord(FD,FD.ixc);
@@ -273,8 +276,8 @@ classdef DIVIDEobj
             mx = (x1+x2)./2;
             my = (y1+y2)./2;
             [mix,res] = coord2ind(DIN,mx,my);
-            FX.Z(mix(res<1 & abs(dx+dy)<cs)) = 1; % NW-SE / SE-NW
-            FX.Z(mix(res<1 & abs(dx+dy)>cs)) = 2; % NE-SW / SW-NE
+            FX.Z(mix(res<0.5*hcs & abs(dx+dy)<cs)) = 1; % NW-SE / SE-NW
+            FX.Z(mix(res<0.5*hcs & abs(dx+dy)>cs)) = 2; % NE-SW / SW-NE
             
             % Unique nodes and number of edges
             T0 = [DIN.IX(1:end-1),DIN.IX(2:end)];
@@ -335,7 +338,9 @@ classdef DIVIDEobj
             nn = length(udst);
             for i = 1:length(udst) 
                 this_dst = udst(i);
-                fprintf(1,'%1.0d / %1.0d\n',i,nn)
+%                 if verbose
+%                     fprintf(1,'%1.0d / %1.0d\n',i,nn)
+%                 end
                 [r,c] = find(allst==this_dst);
                 if length(r)==2 % 2 segment termini 
                     ix1 = M(r(1)).IX(1:end-1);
