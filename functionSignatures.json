@@ -105,5 +105,17 @@
 		{"name":"mn", "kind":"namevalue"},
 		{"name":"a0", "kind":"namevalue"}
      ]
+  },
+  "PPS":
+  {
+     "inputs":
+     [
+        {"name":"S", "kind":"required", "type":["STREAMobj"]},
+		{"name":"PP", "kind":"namevalue", "type":["numeric","logical"]},
+		{"name":"runif", "kind":"namevalue", "type":["numeric","scalar"]},
+		{"name":"rpois", "kind":"namevalue", "type":["numeric","scalar"]},
+		{"name":"intersect", "kind":"namevalue"},
+		{"name":"z", "kind":"namevalue", "type":["GRIDobj","numeric"]}
+     ]
   }
 }

@@ -1,4 +1,4 @@
-function [P,locb] = aggregate(P,c,varargin)
+function [P,locb,n] = aggregate(P,c,varargin)
 
 %AGGREGATE Aggregate points in PPS to new point pattern
 %
@@ -170,10 +170,10 @@ switch lower(type)
         end
         I    = accumarray(c,1) > 1;
         I    = I(c);
+        % gr = locb(P.PP);
         P.PP(I) = [];
-        gr = locb(P.PP);
         P.PP = [P.PP;ix(:)];
-        [~,locb] = ismember(locb,[gr;cl]);
+        locb = c;
         
 end
 

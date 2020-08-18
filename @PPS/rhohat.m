@@ -42,6 +42,10 @@ function s = rhohat(P,varargin)
 %     'indcolor'     {'b'}. Indicator color.
 %     'FaceColor'    Color of the confidence bounds.
 %     'FaceAlpha'    Transparency of the confidence bounds.
+%     'confpatch'    {true} or false. If true, confidence intervals will be
+%                    plotted as shaded area using the function patch. If
+%                    false, the confidence intervals will be plotted as
+%                    lines with the color indicated by 'FaceColor'.
 %
 % Output arguments
 %
@@ -84,6 +88,7 @@ addParameter(p,'alpha',0.05);
 addParameter(p,'ksdensity',true);
 addParameter(p,'FaceColor',clr);
 addParameter(p,'FaceAlpha',0.5);
+addParameter(p,'confpatch',true);
 addParameter(p,'Color','k')
 addParameter(p,'LineStyle','-');
 addParameter(p,'LineWidth',1.5);
@@ -107,8 +112,10 @@ c = getcovariate(P,p.Results.covariate);
 
 in = intensity(P);
 rho  = in*N./Nb;
+if p.Results.confintervals
 rhou = in*Nu./Nb;
 rhol = in*Nl./Nb;
+end
 
 if p.Results.plot
     
@@ -131,8 +138,13 @@ if p.Results.plot
     
     % plot confidence intervals
     if p.Results.confintervals
+        if p.Results.confpatch
         patch([x; flipud(x)],[rhou;flipud(rhol)],p.Results.FaceColor,...
             'EdgeColor','none','FaceAlpha',p.Results.FaceAlpha);
+        else
+            plot([x(:);nan;x(:)],[rhou(:);nan;rhol(:)],'-', ...
+                'Color',p.Results.FaceColor);
+        end
     end
     
     % plot rho line

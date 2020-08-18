@@ -188,8 +188,10 @@ if nargout >= 1
     varargout{1} = N(:);
     varargout{2} = x;
     varargout{3} = Np(:);
+    if p.Results.confintervals || p.Results.accintervals
     varargout{4} = NQ(:,1);
     varargout{5} = NQ(:,2);
+    end
     if useks
         varargout{6} = bw;
     end
