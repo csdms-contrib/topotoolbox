@@ -37,7 +37,7 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 <img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/HyLands.jpg" align=" center" >
 
 Installation: 
- - Download and extract topotoolbox from: https://github.com/BCampforts/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named: topotoolbox-HyLands by default)
+ - Download and extract topotoolbox from: https://github.com/wschwanghart/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named: topotoolbox-HyLands by default)
  - Before working with HyLands the directories and functions must be on the search path of Matlab. Enter following code into the command line: addpath(genpath(['C:\path\to\wherever\you\extracted\this\topotoolbox-HyLands']));
  - to verify installation: enter: doc HYLANDS (info on the model) or doc HYLANDS_set (info on the parameter values) in the command window.
  
