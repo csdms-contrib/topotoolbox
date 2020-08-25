@@ -6,7 +6,7 @@
 TTLEM is a grid based object oriented Landscape Evolution Model based on the TopoToolbox library. The aim of TTLEM is to provide an accurate numerical tool to simulate landscape evolution in eroding regions. TTLEM is multi-process based and hence allows a modular use of the code depending on the requirements of the end user. The LEM has a good overall computational performance and obtains a high numerical accuracy in solving the partial differential equations involved when simulating landscape evolution.
 
 ## Getting started
-TTLEM and HyLands are a part of the newest release of TopoToolbox and can be downloaded from the GitHub repository (https://github.com/BCampforts/topotoolbox). Extract the package to a folder on your personal computer and add the TopoToolbox folder with its subfolders to the search path in the Matlab environment.
+TTLEM and HyLands are a part of the newest release of TopoToolbox and can be downloaded from the GitHub repository (https://github.com/wschwanghart/topotoolbox). Extract the package to a folder on your personal computer and add the TopoToolbox folder with its subfolders to the search path in the Matlab environment.
 
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
