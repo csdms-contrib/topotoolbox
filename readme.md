@@ -59,18 +59,20 @@ using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [
 landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
 Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 
-- HyLands: Campforts B., Shobe M.C., et al. : HyLands 1.0: a Hybrid Landscape 
+- HyLands: Campforts B., Shobe M.C., et al. (2020): HyLands 1.0: a Hybrid Landscape 
 evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. 
-Discussion paper in Geoscientific Model Development.  
+Geosci. Model Dev., 13, 3863–3886. DOI: [10.5194/gmd-13-3863-2020](http://dx.doi.org/10.5194/gmd-13-3863-2020)
 
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. 
+  Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
 
 ### Knickpointfinder
 
-- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
-(The description here is very terse, yet)
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., 
+  Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes 
+  and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) (The description here is very terse, yet)
 
 ### Divide functions
 
@@ -122,6 +124,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
 - new function: STREAMobj/STREAMobj2kml
+- modification: STREAMobj/smooth
+- new function: STREAMobj/mnoptimvar
 - topoapp was removed from this version 
 - updates to utilities: setextent and getextent 
 - new function: padextent
