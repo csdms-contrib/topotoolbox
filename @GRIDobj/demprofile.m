@@ -7,6 +7,8 @@ function [dn,z,x,y] = demprofile(DEM,n,x,y)
 %     [d,z] = demprofile(DEM)
 %     [d,z] = demprofile(DEM,n)
 %     [d,z,x,y] = demprofile(DEM,n,x,y)
+%     p     = demprofile(DEM,...)
+%     p     = demprofile(DEM,p)
 %
 % Description
 %
@@ -18,28 +20,40 @@ function [dn,z,x,y] = demprofile(DEM,n,x,y)
 %     DEM    digital elevation model (class: GRIDobj)
 %     n      number of points along profile
 %     x,y    coordinate vectors of profile vertices
+%     p      structure array (struct) returned by demprofile
 %
 % Output arguments
 %
 %     d      distance along profile
 %     z      elevation values interpolated (linear) onto profile
 %     x,y    coordinate vectors of profile 
+%
+%     p      If only one output argument is used than demprofile returns
+%            a scalar structure array with fieldnames that refer to above 
+%            listed output arguments.
 % 
 % See also: GRIDobj/interp, GRIDobj/measure
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 2. September, 2020
 
 
 % interactive
-if nargin <= 2;
+if nargin <= 2
+    
+    if nargin == 2 && isstruct(n)
+        x = n.x;
+        y = n.y;
+        dn = getdistance(x,y);
+    else
+    
     h = imagesc(DEM);
     ax = get(h,'Parent');
 
     [x, y] = getline(ax);
     do = getdistance(x,y);
     
-    if nargin == 1;
+    if nargin == 1
         n = ceil(do(end)/DEM.cellsize)*2;
     end
     
@@ -49,6 +63,7 @@ if nargin <= 2;
     
     x  = xy(:,1);
     y  = xy(:,2);
+    end
     
 else
     if n ~= numel(x);
@@ -68,6 +83,16 @@ else
 end
 
 z = double(interp(DEM,x,y));
+
+if nargout == 1
+    
+    out.d = dn;
+    out.z = z;
+    out.x = x;
+    out.y = y;
+    
+    dn = out;
+end
 
 end
     

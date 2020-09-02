@@ -126,6 +126,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/STREAMobj2kml
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
+- modification: GRIDobj/demprofile
 - topoapp was removed from this version 
 - updates to utilities: setextent and getextent 
 - new function: padextent
