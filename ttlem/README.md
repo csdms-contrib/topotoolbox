@@ -6,7 +6,7 @@
 TTLEM is a grid based object oriented Landscape Evolution Model based on the TopoToolbox library. The aim of TTLEM is to provide an accurate numerical tool to simulate landscape evolution in eroding regions. TTLEM is multi-process based and hence allows a modular use of the code depending on the requirements of the end user. The LEM has a good overall computational performance and obtains a high numerical accuracy in solving the partial differential equations involved when simulating landscape evolution.
 
 ## Getting started
-TTLEM and HyLands are a part of the newest release of TopoToolbox and can be downloaded from the GitHub repository (https://github.com/BCampforts/topotoolbox). Extract the package to a folder on your personal computer and add the TopoToolbox folder with its subfolders to the search path in the Matlab environment.
+TTLEM and HyLands are a part of the newest release of TopoToolbox and can be downloaded from the GitHub repository (https://github.com/wschwanghart/topotoolbox). Extract the package to a folder on your personal computer and add the TopoToolbox folder with its subfolders to the search path in the Matlab environment.
 
 Before working with TopoToolbox the functions need to be on the search 
 path of Matlab. Enter following code into the command line:
@@ -37,7 +37,7 @@ TTLEM comes with 3 tutorials. All of them can be executed in Matlab. E.g., for t
 <img src= "https://github.com/BCampforts/topotoolbox/blob/HyLands/ttlem/HyLands.jpg" align=" center" >
 
 Installation: 
- - Download and extract topotoolbox from: https://github.com/BCampforts/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named: topotoolbox-HyLands by default)
+ - Download and extract topotoolbox from: https://github.com/wschwanghart/topotoolbox (the HyLands branch, which is the default branch on the linked repository so nothing has to be adjusted, downloaded fodler will be named: topotoolbox-HyLands by default)
  - Before working with HyLands the directories and functions must be on the search path of Matlab. Enter following code into the command line: addpath(genpath(['C:\path\to\wherever\you\extracted\this\topotoolbox-HyLands']));
  - to verify installation: enter: doc HYLANDS (info on the model) or doc HYLANDS_set (info on the parameter values) in the command window.
  
