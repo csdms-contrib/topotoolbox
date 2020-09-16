@@ -30,7 +30,7 @@ function DEM = readopentopo(varargin)
 %                      then the following parameter names 'north',
 %                      'south', ... are ignored.
 %     'addmargin'      Expand the extent derived from 'extent',GRIDobj by a
-%                      scalar value in °. Default is 0.01. The option is
+%                      scalar value in Â°. Default is 0.01. The option is
 %                      only applicable if extent is provided by a GRIDobj.
 %     'north'          northern boundary in geographic coordinates (WGS84)
 %     'south'          southern boundary
@@ -85,7 +85,8 @@ addParameter(p,'verbose',true);
 parse(p,varargin{:});
 
 demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E'},'readopentopo');
-url = 'http://portal.opentopography.org/otr/getdem';
+%url = 'http://portal.opentopography.org/otr/getdem';
+url = 'https://portal.opentopography.org/API/globaldem?';
 
 % create output file
 f = fullfile(p.Results.filename);
