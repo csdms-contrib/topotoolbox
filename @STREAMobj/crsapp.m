@@ -54,7 +54,7 @@ if isa(DEM,'GRIDobj')
 elseif isnal(S,DEM)
     z = DEM;
 else
-    error('Imcompatible format of second input argument')
+    error('Imcompatible format of second input argument.')
 end
 
 params = struct();
@@ -215,7 +215,7 @@ function smoothnetwork(hObject,callbackdata)
     
     assignin('base','params',params);
     
-    zs = crs(S,z,params);
+    zs = crs(S,z,params,'split',isempty(gcp('nocreate')));
     if exist('hlsmooth','var')
         delete(hlsmooth)
     end
