@@ -18,28 +18,67 @@ function varargout = plotdz(P,varargin)
 %
 %     Parameter name/value pairs
 %
-%     all parameters that work for STREAMobj/plotdz
+%     For the river profile, all parameters that work for STREAMobj/plotdz 
+%     can be used except 'color'. Use 'LineColor' instead to define the
+%     color of the line.
 %
-%     all parameters that work for scatter
+%     For the points, all parameters that work for scatter or bubblechart 
+%     if you have MATLAB 2020b or higher. Note that using bubblechart does
+%     not allow you to set the parameter 'marker'.
 %
-%     'z'     default is the node-attribute of elevation values stored in
-%             the PPS object. Takes any other node-attribute list.
+%     For versions older than 2020b, the function uses scatter to plot
+%     points. If you supply SizeData, then you can additionally control the
+%     range of sizes used for plotting by following arguments.
 %
+%     'MinSize'    see 'SizeData' (default = 5)
+%     'MaxSize'    see 'SizeData' (default = 75)
 %
-% See also: PPS, PPS/npoints 
+%     Additional arguments are
+%
+%     'z'         default is the node-attribute of elevation values stored 
+%                 in the PPS object. Takes any other node-attribute list.
+%     'SizeData'  data (GRIDobj, node-attribute list, or attributes (marks) 
+%                 for each point.
+%     'ColorData' data (GRIDobj, node-attribute list, or attributes (marks) 
+%                 for each point. 
+%
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM);
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S,1);
+%     P = PPS(S,'runif',30,'z',DEM);
+%     plotdz(P,'SizeData',P.S.distance,'ColorData',DEM)
+%
+% See also: PPS, PPS/npoints, bubblechart, bubblelegend, bubblesize 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. February, 2019
+% Date: 28. September, 2020
 
+% Check version because 2020b onwards will use bubblechart
+olderthan2020b = verLessThan('matlab','9.9');
+
+%% Input parameter parsing
 p = inputParser;
 p.KeepUnmatched = true;
+
+% Custom river elevations and distance
 addParameter(p,'z','z');
-addParameter(p,'Marker','o');
-addParameter(p,'MarkerEdgeColor','k');
-addParameter(p,'MarkerFaceColor','w');
-addParameter(p,'SizeData',20);
-addParameter(p,'MarkerFaceAlpha',0.5);
 addParameter(p,'distance',[],@(x) isnal(P.S,x));
+addParameter(p,'LineColor',[.7 .7 .7])
+
+% Point properties
+if olderthan2020b
+addParameter(p,'Marker','o');
+end
+addParameter(p,'MarkerEdgeColor','k');
+addParameter(p,'MarkerFaceAlpha',0.5);
+addParameter(p,'MinSize',5);
+addParameter(p,'MaxSize',75);
+
+addParameter(p,'SizeData',20);    
+addParameter(p,'ColorData','w');
 
 % Parse
 parse(p,varargin{:});
@@ -49,17 +88,50 @@ UnMatched.distance = p.Results.distance;
 
 tf = ishold;
 
+% Get line color
+lc = p.Results.LineColor;
+
+% Get elevations
 zz  = getcovariate(P,p.Results.z);
 
-hl = plotdz(P.S,zz,UnMatched);
-hold on
 if isempty(p.Results.distance)
     d  = P.S.distance;
 else
     d  = p.Results.distance;
 end
+
+%% Handle additional arguments
 Results = p.Results;
-Results = rmfield(Results,{'distance' 'z'});
+sz      = p.Results.SizeData;
+
+% -- SizeData
+if isnal(P.S,sz) || isa(sz,'GRIDobj')
+    sz = getmarks(P,sz);
+elseif numel(sz) == npoints(P)
+    % great, go on
+end
+
+% If scatter is used, we will adjust the size range of the data between the
+% arguments MinSize and MaxSize
+if olderthan2020b && ~isscalar(sz)
+    % normalize sz between 0 and 1
+    sz = sz - min(sz);
+    sz = sz./max(sz);
+    sz = sz*(Results.MaxSize - Results.MinSize) + Results.MinSize;
+else
+    maxsz = Results.MaxSize;
+    minsz = Results.MinSize;
+end
+
+% -- ColorData
+cols    = Results.ColorData;
+if isnal(P.S,cols) || isa(cols,'GRIDobj')
+    cols = getmarks(P,cols);
+end
+
+% -- Remove additional arguments from the Results structure
+Results = rmfield(Results,{'distance' 'z' 'SizeData' 'ColorData' ...
+                           'MaxSize' 'MinSize' 'LineColor'});
 
 % Does the field 'dunit' exist
 if isfield(UnMatched,'dunit')
@@ -70,7 +142,18 @@ if isfield(UnMatched,'dunit')
 end
 pnpv    = expandstruct(Results);
 
-hs = scatter(d(P.PP),zz(P.PP),pnpv{:});
+%% Plotting
+% Plot line
+hl = plotdz(P.S,zz,UnMatched,'Color',lc);
+hold on
+
+if olderthan2020b || isscalar(sz) 
+    hs = scatter(d(P.PP),zz(P.PP),sz,cols,'filled',pnpv{:});
+else
+    hs = bubblechart(d(P.PP),zz(P.PP),sz,cols,pnpv{:});
+    bubblesize([minsz maxsz])
+end
+
 if ~tf
     hold off
 end

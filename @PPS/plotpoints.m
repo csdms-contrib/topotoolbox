@@ -27,15 +27,14 @@ function h = plotpoints(P,varargin)
 %     'SizeData'   Default=20. If scalar, then markers will be plotted
 %                  using this size (see scatter). If vector, then marker 
 %                  size will vary according to the values in this vector. 
-%                  Marker size will be automatically scale to vary within
-%                  the bounds set by 'MinSize' and 'MaxSize'.
+%                  Marker size will be automatically scaled to vary within
+%                  the bounds set by 'MinSize' and 'MaxSize' if used in
+%                  versions of MATLAB older than 2020b.
 %     'MinSize'    see 'SizeData' (default = 5)
 %     'MaxSize'    see 'SizeData' (default = 75)
-%     'MarkerFaceAlpha'  Transparency (default = 0.5). (see scatter)
-%     'covariate'  Valid covariate (e.g. GRIDobj, node-attribute list) that
-%                  will be used for coloring the points
-%     'marks'      Vector with marks that will be used for coloring the
-%                  points. 'covariate' and 'marks' cannot be set jointly.
+%     'MarkerFaceAlpha'  Transparency (default = 0.5). 0 is completely 
+%                  transparent and 1 is fully opaque. (see scatter)
+%     'ColorData'
 %
 % Example
 %
@@ -45,70 +44,68 @@ function h = plotpoints(P,varargin)
 % See also: PPS/plot, PPS/plotdz, STREAMobj/plot, STREAMobj/plotc
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. February, 2019
+% Date: 11. September, 2020
 
 
 p = inputParser;
 p.KeepUnmatched = true;
+if verLessThan('matlab','9.9')
 addParameter(p,'Marker','o');
+end
 addParameter(p,'MarkerEdgeColor','k');
-addParameter(p,'MarkerFaceColor','w');
 addParameter(p,'MarkerEdgeAlpha',0.5);
 addParameter(p,'MarkerFaceAlpha',0.5);
 
 addParameter(p,'LineWidth',1)
 addParameter(p,'SizeData',20);
+addParameter(p,'ColorData','w');
 addParameter(p,'MinSize',5);
 addParameter(p,'MaxSize',75);
-addParameter(p,'covariate',[]);
-addParameter(p,'marks',[]);
 
 % Parse
 parse(p,varargin{:});
 
 Results = p.Results;
-if ~isempty(Results.covariate) && ~isempty(Results.marks)
-    error('Cannot set coloring to both covariate and marks')
+
+cols = Results.ColorData;
+% Get colordata
+if isnal(P.S,cols) || isa(cols,'GRIDobj')
+    cols = getmarks(P,cols);
 end
 
-if ~isempty(Results.covariate)
-    c = getmarks(P,Results.covariate);
-    Results = rmfield(Results,'MarkerFaceColor');
-    Results.CData = +c;
-    
-elseif ~isempty(Results.marks)
-    c = Results.marks;
-    Results = rmfield(Results,'MarkerFaceColor');
-    Results.CData = +c;
-end
 
-if isscalar(Results.SizeData)
+if isscalar(Results.SizeData) && ~isa(Results.SizeData,'GRIDobj')
     % all good. All points have the same size
 else
     if numel(Results.SizeData) == npoints(P)
     else
         Results.SizeData = getmarks(P,Results.SizeData);
     end
+end
+
+if verLessThan('matlab','9.9')
     % scale between 1 and 20
     Results.SizeData = Results.SizeData - min(Results.SizeData);
     Results.SizeData = Results.SizeData./max(Results.SizeData);
     Results.SizeData = Results.SizeData*(Results.MaxSize - Results.MinSize) + Results.MinSize;
+else
+    sz = Results.SizeData;
+    Results = rmfield(Results,'SizeData');
 end
         
-    
-Results = rmfield(Results,{'covariate','marks','MaxSize','MinSize'});
+Results = rmfield(Results,{'MaxSize','MinSize','ColorData'});
 
 xy = P.ppxy;
 
 pnpv = expandstruct(Results);
-% pn = fieldnames(Results);
-% pv = struct2cell(Results);
-% 
-% pnpv = [pn pv];
-% pnpv = pnpv';
-% pnpv = pnpv(:)';
 
-ht = scatter(xy(:,1),xy(:,2),'filled',pnpv{:});
+if verLessThan('matlab','9.9') || isscalar(sz)
+    % Use scatter
+    ht = scatter(xy(:,1),xy(:,2),[],cols,'filled',pnpv{:});
+else
+    ht = bubblechart(xy(:,1),xy(:,2),sz,cols,pnpv{:});
+end
+    
 
 if nargout == 1
     h = ht;
