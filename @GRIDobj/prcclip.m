@@ -60,16 +60,20 @@ end
 
 qclip = sort(qclip);
 
-[n,edges] = histcounts(A.Z(~isnan(A.Z(:))),'Normalization','cdf');
+I = ~isnan(A.Z);
+
+[n,edges] = histcounts(A.Z(I(:)),'Normalization','cdf');
 lval = edges(find(n>=qclip(1),1,'first'));
 uval = edges(find(n<(qclip(2)),1,'last'));
 if lval == uval
     warning('TopoToolbox:imageschs','percent clip returns flat matrix');
+
 else
     if nargout == 2
-        A.Z = max(A.Z,lval);
-        A.Z = min(A.Z,uval);
+        A.Z(I) = max(A.Z(I),lval);
+        A.Z(I) = min(A.Z(I),uval);
     end
+    
 end
 
 lims = [lval,uval];
@@ -79,13 +83,13 @@ if symmetric
     lims = [-lims lims];
 end
 
-if nargout == 2
-    if flatmatrix
-        A(:,:) = lval;
-    else
-        A = max(A,lims(1));
-        A = min(A,lims(2));
-    end
-end
+% if nargout == 2
+%     if flatmatrix
+%         A(:,:) = lval;
+%     else
+%         A = max(A,lims(1));
+%         A = min(A,lims(2));
+%     end
+% end
     
     
