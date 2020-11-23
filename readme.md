@@ -119,11 +119,13 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new class: PPS [Preprint of manuscript in review DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r) 
 - modification: update to ttscm to include cyclic colormaps; 
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: GRIDobj/diffusion
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
 - new function: STREAMobj/STREAMobj2kml
+- new function: STREAMobj/getlocation
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
 - modification: GRIDobj/demprofile
