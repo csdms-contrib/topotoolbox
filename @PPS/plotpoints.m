@@ -38,13 +38,21 @@ function h = plotpoints(P,varargin)
 %
 % Example
 %
-%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = removeshortstreams(S,100);
+%     S = clean(S);
+%     P = PPS(S,'rpois',0.001,'z',DEM);
+%     plot(S,'k')
+%     hold on
+%     plotpoints(P,'colordata',DEM,'sizedata',distance(S,'max'))
 %
 %
 % See also: PPS/plot, PPS/plotdz, STREAMobj/plot, STREAMobj/plotc
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. September, 2020
+% Date: 26. November, 2020
 
 
 p = inputParser;
@@ -104,6 +112,7 @@ if verLessThan('matlab','9.9') || isscalar(sz)
     ht = scatter(xy(:,1),xy(:,2),[],cols,'filled',pnpv{:});
 else
     ht = bubblechart(xy(:,1),xy(:,2),sz,cols,pnpv{:});
+    bubblesize([1 10])
 end
     
 

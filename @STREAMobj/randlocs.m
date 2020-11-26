@@ -37,10 +37,10 @@ function varargout = randlocs(S,n,wr)
 %     hold on
 %     plot(x,y,'s','MarkerFaceColor',[.6 .6 .6])
 %
-% See also: STREAMobj
+% See also: STREAMobj, PPS
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. April, 2016
+% Date: 26. November, 2020
 
 
 narginchk(2,3);

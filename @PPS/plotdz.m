@@ -20,7 +20,8 @@ function varargout = plotdz(P,varargin)
 %
 %     For the river profile, all parameters that work for STREAMobj/plotdz 
 %     can be used except 'color'. Use 'LineColor' instead to define the
-%     color of the line.
+%     color of the line. If the line should not be visible, use
+%     'LineColor','none'.
 %
 %     For the points, all parameters that work for scatter or bubblechart 
 %     if you have MATLAB 2020b or higher. Note that using bubblechart does
@@ -58,6 +59,13 @@ function varargout = plotdz(P,varargin)
 
 % Check version because 2020b onwards will use bubblechart
 olderthan2020b = verLessThan('matlab','9.9');
+if olderthan2020b
+    minsi = 5;
+    maxsi = 75;
+else
+    minsi = 1;
+    maxsi = 10;
+end
 
 %% Input parameter parsing
 p = inputParser;
@@ -74,8 +82,8 @@ addParameter(p,'Marker','o');
 end
 addParameter(p,'MarkerEdgeColor','k');
 addParameter(p,'MarkerFaceAlpha',0.5);
-addParameter(p,'MinSize',5);
-addParameter(p,'MaxSize',75);
+addParameter(p,'MinSize',minsi);
+addParameter(p,'MaxSize',maxsi);
 
 addParameter(p,'SizeData',20);    
 addParameter(p,'ColorData','w');

@@ -32,6 +32,7 @@ function [OUT,OUT2] = streampoi(S,type,outformat)
 %                 'mappoint': mappoint (see function mapshape)
 %                 'geopoint': geopoint (see function geopoint). Requires a
 %                       valid coordinate reference system.
+%                 'PPS' instance of PPS
 %
 % Output
 %
@@ -52,7 +53,7 @@ function [OUT,OUT2] = streampoi(S,type,outformat)
 % See also: STREAMobj, FLOWobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. December, 2019
+% Date: 26. November, 2020
 
 
 %% check input arguments
@@ -66,7 +67,7 @@ else
         type = {type};
     end
     if nargin > 2
-        outformat = validatestring(outformat,{'xy','ix','logical','mappoint','geopoint'},'streampoi','outformat',3);
+        outformat = validatestring(outformat,{'xy','ix','logical','mappoint','geopoint','PPS'},'streampoi','outformat',3);
     else       
         outformat = 'xy';
     end  
@@ -141,4 +142,8 @@ switch outformat
         ix   = ix(:);
         [lat,lon] = minvtran(S.georef.mstruct,S.x(ix),S.y(ix));
         OUT  = geopoint(lat,lon);
+        
+    case 'PPS'
+        
+        OUT   = PPS(S,'pp',S.IXgrid(V));
 end
