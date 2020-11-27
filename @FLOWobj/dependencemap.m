@@ -1,6 +1,5 @@
 function OUT = dependencemap(FD,varargin)
 
-
 %DEPENDENCEMAP upslope area for specific locations in a DEM
 %
 % Syntax
@@ -55,7 +54,7 @@ if nargin == 2;
     isGRIDobj = isa(SEED,'GRIDobj');   
     if (islogical(SEED) || isGRIDobj)
         validatealignment(FD,SEED);
-        if isGRIDobj;
+        if isGRIDobj
             SEED = SEED.Z;
         end
     else
@@ -63,7 +62,7 @@ if nargin == 2;
         ix   = varargin{1};
         SEED = false(FD.size);
         ix   = round(ix);
-        if any(ix <= 0 | ix > prod(FD.size));
+        if any(ix <= 0 | ix > prod(FD.size))
             error('TopoToolbox:WrongInput',...
             ['Linear indices must not be less or equal to zero \n' ...
              'or larger than ' double2str(prod(FD.size)) '.']);
@@ -71,7 +70,7 @@ if nargin == 2;
         
         SEED(ix) = true;
     end
-elseif nargin == 3;
+elseif nargin == 3
     % SEED pixels are supplied as coordinate pairs
     ix   = coord2ind(FD,varargin{1},varargin{2});
     SEED = false(FD.size);
@@ -82,11 +81,11 @@ end
 % this is a very crude and slow implementation of a graph traversal
 % algorithm since all nodes are visited
 
-if ~(exist(['dependencemap_mex.' mexext],'file') == 3);
+if ~(exist(['dependencemap_mex.' mexext],'file') == 3)
     % m implementation
     ixtemp  = FD.ix;
     ixctemp = FD.ixc;
-    for r = numel(ixtemp):-1:1;
+    for r = numel(ixtemp):-1:1
         SEED(ixtemp(r)) = SEED(ixtemp(r)) || SEED(ixctemp(r));
     end
     

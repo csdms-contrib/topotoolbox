@@ -50,12 +50,12 @@ if nargin == 0 && nargout == 0
     hold off
     
 elseif nargin > 0
-    
 
-switch DEM.georef.SpatialRef.CoordinateSystemType
-    case 'geographic'
-        EGM96 = resample(EGM96,DEM);
-    otherwise
-        EGM96 = reproject2utm(EGM96,DEM);
-end
+        switch DEM.georef.SpatialRef.CoordinateSystemType
+            case 'geographic'
+                EGM96 = resample(EGM96,DEM);
+            otherwise
+                EGM96 = reproject2utm(EGM96,DEM);
+        end
+
 end
