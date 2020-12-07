@@ -24,7 +24,8 @@
 .inlineElement .textElement {}
 .embeddedOutputsTextElement.rightPaneElement,.embeddedOutputsVariableStringElement.rightPaneElement {min-height: 16px;}
 .rightPaneElement .textElement {padding-top: 2px; padding-left: 9px;}
-.S5 { margin: 10px 10px 9px 4px; padding: 0px; line-height: 21px; min-height: 0px; white-space: pre-wrap; color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 14px; font-weight: 400; text-align: left;  }</style></head><body><div class = rtcContent><h1  class = 'S0'><span>TopoToolbox functions</span></h1><div  class = 'S1'><span>TopoToolbox contains numerous functions that are associated with four main classes:</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>GRIDobj</span><span> stores a gridded digital elevation model together with its georeferencing. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>FLOWobj</span><span> contains local flow directions derived from the GRIDobj. FLOWobj are thus similar to flow direction grids as used in GIS. However, TopoToolbox stores flow directions in a topologically sorted list of linear indices which departs from the gridded representation. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>STREAMobj</span><span> contains the geometric representation of the stream network. STREAMobj are derived from FLOWobj and also contain topologically sorted lists of indices that enable efficient computations and modifications of stream networks.</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>SWATHobj</span><span> combines a set of tools for swath mapping.</span></div><div  class = 'S1'><span>Following functions are available for each class</span></div><h2  class = 'S2'><span>GRIDobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">GRIDobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="970B79A9" data-testid="output_0" data-width="1128" data-height="1069" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">GRIDOBJ           : Create instance of a GRIDobj
+.S5 { margin: 10px 10px 9px 4px; padding: 0px; line-height: 21px; min-height: 0px; white-space: pre-wrap; color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 14px; font-weight: 400; text-align: left;  }
+.S6 { border-left: 1px solid rgb(233, 233, 233); border-right: 1px solid rgb(233, 233, 233); border-top: 1px solid rgb(233, 233, 233); border-bottom: 1px solid rgb(233, 233, 233); border-radius: 4px; padding: 6px 45px 4px 13px; line-height: 17.234px; min-height: 18px; white-space: nowrap; color: rgb(0, 0, 0); font-family: Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 14px;  }</style></head><body><div class = rtcContent><h1  class = 'S0'><span>TopoToolbox functions</span></h1><div  class = 'S1'><span>TopoToolbox contains numerous functions that are associated with four main classes:</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>GRIDobj</span><span> stores a gridded digital elevation model together with its georeferencing. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>FLOWobj</span><span> contains local flow directions derived from the GRIDobj. FLOWobj are thus similar to flow direction grids as used in GIS. However, TopoToolbox stores flow directions in a topologically sorted list of linear indices which departs from the gridded representation. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>STREAMobj</span><span> contains the geometric representation of the stream network. STREAMobj are derived from FLOWobj and also contain topologically sorted lists of indices that enable efficient computations and modifications of stream networks.</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>SWATHobj</span><span> combines a set of tools for swath mapping.</span></div><div  class = 'S1'><span>Following functions are available for each class</span></div><h2  class = 'S2'><span>GRIDobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">GRIDobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="601F2E7F" data-testid="output_0" data-width="1128" data-height="1069" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">GRIDOBJ           : Create instance of a GRIDobj
 GRIDOBJ2ASCII     : write/export GRIDobj to ESRI ArcGIS ASCII file
 GRIDOBJ2GEOTIFF   : Exports an instance of GRIDobj to a geotiff file
 GRIDOBJ2IM        : GRIDOBJ2IM Create image from GRIDobj
@@ -97,7 +98,7 @@ SURF              : surface plot for GRIDobj
 TANAKACONTOUR     : Relief depiction using Tanaka contours
 TOPOSHIELDING     : topographic shielding from cosmic rays
 VALIDATEALIGNMENT : validates whether instances of GRIDobj are spatially aligned
-ZSCORE            : standardized z-scores for GRIDobj</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>FLOWobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">FLOWobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement" uid="FCF28ACF" data-testid="output_1" data-width="1128" data-height="464" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 475px;"><div class="textElement">FLOWOBJ             : create flow direction object
+ZSCORE            : standardized z-scores for GRIDobj</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>FLOWobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">FLOWobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement" uid="AFD640AE" data-testid="output_1" data-width="1128" data-height="464" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 475px;"><div class="textElement">FLOWOBJ             : create flow direction object
 FLOWOBJ2GRIDOBJ     : create ESRI ArcGIS flow direction grid from FLOWobj
 FLOWOBJ2M           : convert instance of FLOWobj to flow direction matrix 
 FLOWOBJ2CELL        : return cell array of FLOWobjs for individual drainage basins
@@ -128,7 +129,7 @@ STREAMPOI           : stream points of interest
 UPDATETOPOSORT      : update topological sorting
 UPSLOPESTATS        : upslope statistics of a variable based on the flow direction matrix
 VALIDATEALIGNMENT   : validates whether instances of FLOWobj and GRIDobj are spatially aligned
-VERTDISTANCE2STREAM : vertical distance to streams</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>STREAMobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">STREAMobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="6E33BBB1" data-testid="output_2" data-width="1128" data-height="1126" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">STREAMOBJ           : Create stream object (STREAMobj)
+VERTDISTANCE2STREAM : vertical distance to streams</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>STREAMobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">STREAMobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="E1D1C4E3" data-testid="output_2" data-width="1128" data-height="1126" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">STREAMOBJ           : Create stream object (STREAMobj)
 STREAMOBJ2GRIDOBJ   : convert an instance of STREAMobj to an instance of GRIDobj
 STREAMOBJ2SWATHOBJ  : Create swath profile (SWATHobj) from stream network
 STREAMOBJ2XY        : convert instance of STREAMobj to NaN-separated X and Y coordinates
@@ -205,17 +206,7 @@ UNION               : merge different instances of STREAMobj into a new instance
 VALIDATEALIGNMENT   : is an instance of STREAMobj is spatially aligned with another object of TopoToolbox
 WIDENSTREAM         : level elevations adjacent to the stream network
 WMPLOT              : plot stream network in the webmap browser
-ZEROBASELEVEL       : set base level to zero</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>SWATHobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">SWATHobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement" uid="3D757034" data-testid="output_3" data-width="1128" data-height="162" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">SWATHOBJ         : Create swath profile object (SWATHobj)
-SWATHOBJ2GRIDOBJ : create a GRIDobj with swath-specific information
-SWATHOBJ2GDS     : create a geographic data structure from a SWATHobj
-CONVERT2LATLON   : converts spatial fields in SWATHobj to lat,lon
-MAPSWATH         : obtains Z values along a SWATHobj from an arbitrary GRIDobj
-PLOT             : plot instance of SWATHobj
-PLOTDZ           : creates distance-elevation plot of SWATHobj
-PLOTDZM          : create color-coded distance-elevation plot from SWATHobj and GRIDobj
-PROFILES         : obtain profiles from a SWATHobj
-SWATH2LATLON     : convert spatial fields in SWATHobj to geographic coordinates
-TIDY             : remove overlapping points from SWATHobj</div></div></div></div></div><div  class = 'S5'><span></span></div><div  class = 'S1'></div></div>
+ZEROBASELEVEL       : set base level to zero</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>DIVIDEobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper"><div  class = 'S6'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">DIVIDEobj</span></span></div></div></div><h2  class = 'S2'><span>PPSobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper"><div  class = 'S6'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">PPS</span></span></div></div></div><div  class = 'S1'></div></div>
 <br>
 <!-- 
 ##### SOURCE BEGIN #####
@@ -254,12 +245,13 @@ showmethods FLOWobj
 showmethods STREAMobj
 %% 
 % 
-%% SWATHobj functions
+%% DIVIDEobj functions
 
-showmethods SWATHobj
+showmethods DIVIDEobj
+%% PPSobj functions
+
+showmethods PPS
 %% 
-% 
-% 
 %
 ##### SOURCE END #####
 --></body></html>
