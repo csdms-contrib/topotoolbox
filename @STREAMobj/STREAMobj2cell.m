@@ -5,9 +5,13 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 % Syntax
 %
 %     CS = STREAMobj2cell(S)
-%     CS = STREAMobj2cell(S,ref)
+%     CS = STREAMobj2cell(S,'outlets')
+%     CS = STREAMobj2cell(S,'tributaries')
+%     CS = STREAMobj2cell(S,'channelheads')
+%     CS = STREAMobj2cell(S,'segments')
 %     CS = STREAMobj2cell(S,'outlets',n)
 %     CS = STREAMobj2cell(S,'segments',seglength)
+%     CS = STREAMobj2cell(S,'labels',labels)
 %     [CS,locS] = ...
 %     [CS,locS,order] = STREAMobj2cell(S,'tributaries');
 %
@@ -34,6 +38,10 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     individual reaches. By default, the maximum reach length is 20 the
 %     cellsize. A third arguments controls the segment length. Note that
 %     the network is always split at river junctions.
+%
+%     STREAMobj2cell(S,'labels',labels) takes a node-attribute list with
+%     labels as third input argument. Nodes with common labels will be
+%     placed into the same element in CS.
 %     
 % Input arguments
 %
@@ -78,8 +86,15 @@ elseif nargin == 2
     n   = inf;
     seglength = 20.*S.cellsize;
 elseif nargin == 3
-    ref = validatestring(ref,{'outlets','segments'},'STREAMobj2cell','ref',2);
-    validateattributes(n,{'numeric'},{'>',1},'STREAMobj2cell','n',3);
+    ref = validatestring(ref,{'outlets','segments','labels'},'STREAMobj2cell','ref',2);
+    switch ref
+        case {'outlets','segments'}
+            validateattributes(n,{'numeric'},{'>',1},'STREAMobj2cell','n',3);
+        case 'labels'
+            if ~isnal(S,n)
+                error('Array must be a node attribute list')
+            end
+    end
     getall = false;
     seglength = n;
 end
@@ -214,9 +229,14 @@ switch lower(ref)
         
         return
         
-    case 'segments'
+    case {'segments','labels'}
         
-        lab = labelreach(S,'seglength',seglength);
+        switch ref
+            case 'segments'
+                lab = labelreach(S,'seglength',seglength);
+            case 'labels'
+                [~,~,lab] = unique(seglength);
+        end
         nc  = max(lab);
         CS  = cell(1,nc);
         if nargout == 1
