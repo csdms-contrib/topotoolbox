@@ -78,7 +78,7 @@ addParameter(p,'n',50);
 addParameter(p,'nsim',39);
 addParameter(p,'method','ang');
 addParameter(p,'plot',true);
-addParameter(p,'int',@(x) isnal(P.S,x));
+addParameter(p,'int',[],@(x) isnal(P.S,x));
 parse(p,varargin{:});
 
 if ~isempty(p.Results.maxdist)
@@ -113,13 +113,23 @@ ixgrid = P.S.IXgrid(P.PP);
 if nsim > 0
 Klocsim = cell(npoints(P),1);
 else
-    C = [];
+    C    = [];
     IXSP = [];
 end
 Kloc = nan(npoints(P),numel(dvec)-1);
 
 % Calculate local K functions
-parfor r = 1:npoints(P)
+
+if isempty(p.Results.int)
+    intp = [];
+    int  = [];
+else
+    intp = getmarks(P,p.Results.int);
+    int  = p.Results.int;
+end
+    
+
+for r = 1:npoints(P)
     d = netdist(P.S,ixgrid(r));
     m = [];
     % calculate m
@@ -136,26 +146,50 @@ parfor r = 1:npoints(P)
     
     switch method
         case 'ang'
-            n = histcounts(d(PP),dvec,'Normalization','cumcount');
-            Kloc(r,:) = total_length/(np-1) * n./m;
+            if isempty(intp)
+                n = histcounts(d(PP),dvec,'Normalization','cumcount');
+                Kloc(r,:) = total_length/(np-1) * n./m;
+            else
+                [~,~,bin] = histcounts(d(PP),dvec,'Normalization','count');
+                n = accumarray(bin,intp(PP).*m(PP),[],@(x) sum(1./(intp(r)*x)));
+                n = cumsum(n);
+                Kloc(r,:) = n;
+            end
+                
         case 'okabe'
             n = histcounts(d(PP),dvec,'Normalization','cumcount');
             Kloc(r,:) = n;
     end
 
-    if nsim > 0 
-    % local K function under CRS assumption
-    sim = nan(numel(C),p.Results.n);
-    for rsim = 1:numel(IXSP)
-        sim(rsim,:) = histcounts(d(IXSP{rsim}),dvec(1:end),'Normalization','cumcount');
-    end
-    
-    switch method
-        case 'ang'
-            Klocsim{r} = total_length/(np-1) * sim./m;
-        case 'okabe'
-            Klocsim{r} = sim;
-    end
+    if nsim > 0
+        % local K function under CRS assumption
+        sim = nan(numel(C),p.Results.n);
+        if isempty(intp) || strcmp(method, 'okabe')
+            for rsim = 1:numel(IXSP)
+                sim(rsim,:) = histcounts(d(IXSP{rsim}),dvec(1:end),'Normalization','cumcount');
+            end
+        else
+            for rsim = 1:numel(IXSP)
+                [~,~,bin] = histcounts(d(PP),dvec,'Normalization','count');
+                intsim = int(IXSP{rsim});
+                n = accumarray(bin,intsim(PP).*m(PP),[],@(x) sum(1./(intp(r)*x)));
+                n = cumsum(n);
+                sim(rsim,:) = n;
+            end
+        end
+                
+        
+        switch method
+            case 'ang'
+                if isempty(intp)
+                    Klocsim{r} = total_length/(np-1) * sim./m;
+                else
+                    Klocsim{r} = sim;
+                end
+                    
+            case 'okabe'
+                Klocsim{r} = sim;
+        end
     end
 end
 
@@ -164,7 +198,11 @@ inan = isinf(Kloc) | isnan(Kloc);
 Kloc(inan) = nan;
 switch method
     case 'ang'
-        K = mean(Kloc,'omitnan');
+        if isempty(p.Results.int)
+            K = mean(Kloc,'omitnan');
+        else
+            K = 1/sum(1./intp) * sum(Kloc,'omitnan');
+        end
     case 'okabe'
         K = sum(Kloc,'omitnan');
         K = total_length/(np*(np-1)).*K;
@@ -180,7 +218,11 @@ for r = 1:p.Results.nsim
     Kloc(inan) = nan;
     switch method
         case 'ang'
-            Ksim(r,:) = mean(Kloc,'omitnan');
+            if isempty(p.Results.int)
+                Ksim(r,:) = mean(Kloc,'omitnan');
+            else
+                Ksim(r,:) = 1/sum(1./intp) * sum(Kloc,'omitnan');
+            end
         case 'okabe'
             Ksim(r,:) = sum(Kloc,'omitnan');
             Ksim(r,:) = total_length/(np*(np-1)).*Ksim(r,:);
@@ -217,7 +259,7 @@ switch method
     case 'okabe'
         ylabel('K(r)')
 end
-
+end
 if nargout >= 1
     OUT.d = dvec;
     OUT.K = K;
@@ -225,6 +267,8 @@ if nargout >= 1
     switch method
         case 'ang'
             OUT.Ktheo = dvec;
+        case 'okabe'
+            OUT.Kmeansim = mean(Ksim,2);
     end
     
     if nsim > 0
