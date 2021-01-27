@@ -37,11 +37,13 @@ function DEM = readopentopo(varargin)
 %     'west'           western boundary
 %     'east'           eastern boundary
 %     'demtype'        The global raster dataset 
-%                      {'SRTMGL3'}: SRTM GL3 (90m) (default) 
-%                      'SRTMGL1':   SRTM GL1 (30m)  
-%                      'SRTMGL1_E': SRTM GL1 (Ellipsoidal)  
-%                      'AW3D30':    ALOS World 3D 30m  
-%                      'AW3D30_E':  ALOS World 3D (Ellipsoidal)
+%                      {'SRTMGL3'}:  SRTM GL3 (90m) (default) 
+%                      'SRTMGL1':    SRTM GL1 (30m)  
+%                      'SRTMGL1_E':  SRTM GL1 (Ellipsoidal)  
+%                      'AW3D30':     ALOS World 3D 30m  
+%                      'AW3D30_E':   ALOS World 3D (Ellipsoidal)
+%                      'SRTM15Plus': Global Bathymetry SRTM15+ V2.1 (only 
+%                                    mediterranean area so far)
 %     'verbose'        {true} or false. If true, then some information on
 %                      the process is shown in the command window
 %     'deletefile'     {true} or false. True, if file should be deleted
@@ -67,7 +69,7 @@ function DEM = readopentopo(varargin)
 % Reference: http://www.opentopography.org/developers
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 10. October, 2018
+% Date: 27. January, 2021
 
 
 p = inputParser;
@@ -84,7 +86,8 @@ addParameter(p,'deletefile',true);
 addParameter(p,'verbose',true);
 parse(p,varargin{:});
 
-demtype = validatestring(p.Results.demtype,{'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E'},'readopentopo');
+demtype = validatestring(p.Results.demtype,...
+    {'SRTMGL3','SRTMGL1','SRTMGL1_E','AW3D30','AW3D30_E','SRTM15Plus'},'readopentopo');
 %url = 'http://portal.opentopography.org/otr/getdem';
 url = 'https://portal.opentopography.org/API/globaldem?';
 
