@@ -1,10 +1,11 @@
-function FD = crop(FD,mask)
+function [FD,W] = crop(FD,mask)
 
 %CROP crop an instance of FLOWobj
 %
 % Syntax
 %
 %     FDc = crop(FD,MASK)
+%     [FDc,W] = crop(FD,MASK);
 %
 % Description
 %
@@ -21,6 +22,8 @@ function FD = crop(FD,mask)
 % Output arguments
 %
 %     FDc   cropped FLOWobj
+%     W     GRIDobj for a weighted flow accumulation that preserves the 
+%           incoming fluxes.
 %
 % Example
 %
@@ -35,7 +38,7 @@ function FD = crop(FD,mask)
 % See also: GRIDobj/crop, GRIDobj/pad
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. March, 2018
+% Date: 2. February, 2021
 
 validatealignment(FD,mask)
 
@@ -44,6 +47,21 @@ if ~isa(mask,'GRIDobj')
     temp.Z = mask;
     mask = temp;
 end
+
+if nargout == 2
+    A = flowacc(FD);
+    W = GRIDobj(FD,'single') + 1;
+    % Get those edges directing inwards into the mask
+    I     = (~mask.Z(FD.ix)) & (mask.Z(FD.ixc));
+    for r = 1:numel(FD.ix)
+        if I(r)
+            W.Z(FD.ixc(r)) = W.Z(FD.ixc(r))+A.Z(FD.ix(r));
+        end
+    end
+   
+    W = crop(W,mask);
+end
+
 
 I = all([mask.Z(FD.ix) mask.Z(FD.ixc)],2);
 FD.ix = FD.ix(I);
