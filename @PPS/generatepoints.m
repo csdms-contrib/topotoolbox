@@ -1,33 +1,36 @@
-function P = regularpoints(P,varargin)
-%REGULARPOINTS Generate regularly spaced points on stream network
+function P = generatepoints(P,varargin)
+%GENERATEPOINTS Generate non-random points on stream network
 %
 % Syntax
 %
-%     P2 = regularpoints(P)
-%     P2 = regularpoints(P,'n',n)
+%     P2 = generatepoints(P)
+%     P2 = generatepoints(P,'n',n)
 %
 % Description
 %
-%     regularpoints computes a set of points distributed on the
+%     generatepoints computes a set of points distributed on the
 %     streamnetwork stored in P.
 %
-%     P2 = regularpoints(P) generates points that are equally spaced along
+%     P2 = generatepoints(P) generates points that are equally spaced along
 %     20 distance values from the outlet.
 %
-%     P2 = regularpoints(P,'n',n) generates points that are equally spaced
+%     P2 = generatepoints(P,'n',n) generates points that are equally spaced
 %     along n distance values from the outlet. Note that P2 will contain
 %     more than n points if the underlying stream network is a branched
 %     network and/or contains several drainage basins.
 %
-%     P2 = regularpoints(P,'n',n,'distance',d) generates points that are
+%     P2 = generatepoints(P,'n',n,'distance',d) generates points that are
 %     equally spaced in a user-defined distance d. d must be a node
 %     attribute list and strictly monotonically increasing in upstream
 %     direction.
 %
-%     P2 = regularpoints(P,'type',type) generates points that are either
+%     P2 = generatepoints(P,'n',n,'distance',d,'rmoutletpoint',true)
+%
+%     P2 = generatepoints(P,'type',type) generates points that are either
 %     'channelheads', 'outlets', 'confluences', 'bconfluences'. See
 %     STREAMobj/streampoi for details. In addition, type can be 'centroid' 
 %     which calculates the network centroid.
+%
 %
 % Input arguments
 %
@@ -59,7 +62,7 @@ function P = regularpoints(P,varargin)
 %     FD  = FLOWobj(DEM);
 %     S   = STREAMobj(FD,'minarea',500);
 %     P   = PPS(S,'rpois',0.0001);
-%     P2  = regularpoints(P,'n',40);
+%     P2  = generatepoints(P,'n',40);
 %     plot(P2)   
 %
 % Example 2
@@ -71,7 +74,7 @@ function P = regularpoints(P,varargin)
 %     S   = klargestconncomps(S);
 %     P   = PPS(S,'rpois',0.0001,'z',DEM);
 %     c   = chitransform(S,A);
-%     P   = regularpoints(P,'n',10,'distance',c);
+%     P   = generatepoints(P,'n',10,'distance',c);
 %     subplot(1,2,1)
 %     plotdz(P)
 %     subplot(1,2,2)
@@ -91,6 +94,7 @@ p = inputParser;
 addParameter(p,'distance',P.S.distance,@(x) isnal(P.S,x));
 addParameter(p,'n',20,@(x) validateattributes(x,{'numeric'},{'>',1}));
 addParameter(p,'add',false);
+addParameter(p,'rmoutletpoint',true);
 addParameter(p,'type','');
 parse(p,varargin{:});
 
@@ -127,6 +131,14 @@ if isempty(p.Results.type)
         P.PP = pp;
     end
     
+    if p.Results.rmoutletpoint
+        P2 = P;
+        P2.PP = [];
+        P2 = generatepoints(P2,'type','outlet');
+        P.PP(ismember(P.PP,P2.PP)) = [];
+    end
+    
+    
 else
     
     if ~iscell(p.Results.type)
@@ -143,6 +155,10 @@ else
             else
                 P = P2;
             end
+            otherwise
+                nal = streampoi(P.S,p.Results.type,'logical');
+                P.PP = find(nal);
+                
         end
     else
         I = streampoi(P.S,p.Results.type,'logical');

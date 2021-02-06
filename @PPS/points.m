@@ -19,9 +19,16 @@ function varargout = points(P,form)
 %
 % Input arguments
 %
-%     P     instance of PPS
+%     P            instance of PPS
+%     outputtype   'IXgrid' linear index into GRIDobj
+%                  'xy' coordinate vectors
+%                  'latlon' coordinate vectors (geographic coordinates)
+%                  'nal' logical node attribute list
 %     
+% Output
 %
+%     depending on outputtype
+% 
 % 
 % See also: PPS, PPS/npoints
 %
