@@ -6,6 +6,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %
 %     a = maplateral(S,A,dist,aggfun)
 %     [a,mask] = ...     
+%     a = maplateral(...,pn,pv,...)
 %
 % Description
 %
@@ -18,7 +19,11 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %
 %     S       STREAMobj
 %     A       GRIDobj
-%     dist    scalar indicating maximum distance from stream network.
+%     dist    scalar indicating maximum distance from stream network or
+%             two element vector with minimum and maximum distance or
+%             node-attribute list with maximum distance values for each
+%             node in the river network or
+%             two columns of node-attribute lists indicating
 %     aggfun  anonymous aggregation function (e.g. @mean). aggfun can be a
 %             cell array of anonymous functions (e.g. {@min @max}). In this
 %             case, the output a will have as many columns as there are
@@ -82,12 +87,25 @@ B(S.IXgrid) = true;
 [D,L] = bwdist(B,'e');
 dist  = ceil(dist/S.cellsize);
 
+% Create mask
 if isscalar(dist)
-    dist = [0 dist];
+    I  = D<=dist;
+elseif numel(dist) == 2
+    dist = sort(dist);
+    I  = D<=dist(2) & D>=dist(1);
+elseif isnal(S,dist(:,1))
+    if size(dist,2) == 1
+        W = STREAMobj2GRIDobj(S,dist);
+        I = D <= W.Z(L);
+    else
+        dist = sort(dist,2,'ascend');
+        W1 = STREAMobj2GRIDobj(S,dist(:,1));
+        W2 = STREAMobj2GRIDobj(S,dist(:,2));
+        I  = D <= W2.Z(L) & D >= W1.Z(L);
+    end
+else
+    error('dist must be a scalar, a two-element vector, or a node-attribute list');
 end
-
-% mask
-I  = D<=dist(2) & D>=dist(1);
 
 % flat tops?
 if p.Results.flat
