@@ -12,6 +12,7 @@ function DEM = readexample(example,varargin)
 %     Currently available examples are
 %
 %     'kunashiri'
+%     'perfectworld'
 %     'taalvolcano'
 %     'taiwan'
 %     'tibet'
@@ -57,6 +58,9 @@ switch example
         istif = true;
     case 'kunashiri'
         url = 'https://github.com/wschwanghart/DEMs/raw/master/kunashiri.tif';
+        istif = true;
+    case 'perfectworld'
+        url = 'https://github.com/wschwanghart/DEMs/raw/master/perfectworld.tif';
         istif = true;
     otherwise 
         error('There is no such example file.')
