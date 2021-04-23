@@ -83,7 +83,10 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %                   will not be a gain in speed as there is a significant
 %                   computational overhead to split the network. Running in 
 %                   may be more efficient if network is very large with 
-%                   numerous connected components.                    
+%                   numerous connected components.   
+%      'latlon'     {false} or true. If true, the function will attempt to
+%                   transform coordinates to geographic coordinates. This
+%                   works only if S contains a valid projection. 
 %     
 % Output arguments
 %
@@ -107,7 +110,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 % See also: shapewrite
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. April, 2013
+% Date: 22. April, 2021
 
 
 if nargin == 1;
@@ -192,6 +195,7 @@ else
     addParamValue(p,'seglength',S.cellsize*10,@(x) isscalar(x) && x>=S.cellsize*3);
     addParamValue(p,'attributes',{},@(x) iscell(x)); 
     addParamValue(p,'parallel',false)
+    addParamValue(p,'latlon',false)
     parse(p,S,varargin{:});
     
     % check the attributes
@@ -373,6 +377,12 @@ else
     
 end
     
+%
+if p.Results.latlon
+    for r = 1:numel(GS)
+        [GS(r).Y,GS(r).X] = minvtran(S.georef.mstruct,GS(r).X,GS(r).Y);
+    end
+end
 
 if nargout>1
     x = [GS.X]';
