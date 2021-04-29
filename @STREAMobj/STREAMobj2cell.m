@@ -12,6 +12,7 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     CS = STREAMobj2cell(S,'outlets',n)
 %     CS = STREAMobj2cell(S,'segments',seglength)
 %     CS = STREAMobj2cell(S,'labels',labels)
+%     CS = STREAMobj2cell(S,'split',ix)
 %     [CS,locS] = ...
 %     [CS,locS,order] = STREAMobj2cell(S,'tributaries');
 %
@@ -42,6 +43,9 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     STREAMobj2cell(S,'labels',labels) takes a node-attribute list with
 %     labels as third input argument. Nodes with common labels will be
 %     placed into the same element in CS.
+%
+%     STREAMobj2cell(S,'split',ix) splits the stream network at cells with
+%     the linear index ix.
 %     
 % Input arguments
 %
@@ -52,6 +56,9 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     n          if ref is 'outlets', n determines the number of n largest 
 %                trees to be placed in elements of CS.
 %     seglength  maximum segment length if ref is 'segments'
+%     ix         linear index at which the stream network is split. The
+%                cells with the linear index ix must be part of the stream
+%                network
 %
 % Output arguments
 %
@@ -74,7 +81,7 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 % See also: FLOWobj2cell, STREAMobj/split
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 31. December, 2020
+% Date: 29. April, 2021
 
 if nargin == 1
     ref = 'outlets';
@@ -86,7 +93,7 @@ elseif nargin == 2
     n   = inf;
     seglength = 20.*S.cellsize;
 elseif nargin == 3
-    ref = validatestring(ref,{'outlets','segments','labels'},'STREAMobj2cell','ref',2);
+    ref = validatestring(ref,{'outlets','segments','labels','split'},'STREAMobj2cell','ref',2);
     switch ref
         case {'outlets','segments'}
             validateattributes(n,{'numeric'},{'>',1},'STREAMobj2cell','n',3);
@@ -250,6 +257,44 @@ switch lower(ref)
             end
         end
         
+    case 'split'
+        
+        if isa(n,'PPS')
+            n = n.S.IXgrid(n.PP);
+        end
+            
+        
+        ix = n;
+        ix = unique(ix);
+        [I,locb]  = ismember(S.IXgrid,ix);
+        
+        % Remove outlet pixels if they are set to true
+        outlets = streampoi(S,'outlet','logical');
+        I(outlets) = false;
+        
+        I2 = false(size(I));
+        I2(S.ix) = I(S.ixc);
+        
+        I  = I2;
+
+        I(outlets) = true;
+        I(streampoi(S,'chan','logical')) = false;
+        
+        label = zeros(size(S.x));
+        label(I) = 1:nnz(I);
+        
+        for r = numel(S.ix):-1:1
+            if label(S.ix(r)) == 0
+                label(S.ix(r)) = label(S.ixc(r));
+            end
+        end
+        
+        if nargout == 1
+            CS = STREAMobj2cell(S,'label',label);
+        else
+            [CS,locS] = STREAMobj2cell(S,'label',label);
+        end
+        return  
 end
 
 % check for validity of Ss
