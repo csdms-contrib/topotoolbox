@@ -39,6 +39,8 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %     flat              {false} or true. If true, than the ends of the
 %                       buffer at channel heads or outlets are flat,
 %                       otherwise they are round.
+%     fillval           fill value if stream pixel has no nearest neighbors
+%                       By default, this is nan.
 %
 % Output arguments
 %
@@ -73,6 +75,7 @@ p.FunctionName = 'STREAMobj/maplateral';
 addParamValue(p,'excludestream',true,@(x) isscalar(x));
 addParamValue(p,'inpaintnans',true,@(x) isscalar(x));
 addParamValue(p,'flat',false,@(x) isscalar(x));
+addParamValue(p,'fillval',nan);
 parse(p,varargin{:});
 
 % create mask, if required
@@ -132,10 +135,10 @@ L  = L(:);
 if iscell(aggfun)
     a = nan(numel(S.IXgrid),numel(aggfun));
     for r = 1:numel(aggfun)
-        a(:,r)  = accumarray(locb,double(A),size(S.IXgrid),aggfun{r},nan);
+        a(:,r)  = accumarray(locb,double(A),size(S.IXgrid),aggfun{r},p.Results.fillval);
     end
 else
-    a  = accumarray(locb,double(A),size(S.IXgrid),aggfun,nan);
+    a  = accumarray(locb,double(A),size(S.IXgrid),aggfun,p.Results.fillval);
 end
 
 % inpaint nans
