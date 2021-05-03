@@ -377,11 +377,13 @@ else
     
 end
     
-%
+% Convert to lat lon if requested
+if exist('p', 'var')
 if p.Results.latlon
     for r = 1:numel(GS)
         [GS(r).Y,GS(r).X] = minvtran(S.georef.mstruct,GS(r).X,GS(r).Y);
     end
+end
 end
 
 if nargout>1
