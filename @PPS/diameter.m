@@ -69,5 +69,11 @@ P.PP = P.PP(:);
 IX    = P.S.IXgrid(P.PP);
 
 if plotit
-    plot(P);
+    plot(P.S,'k');
+    % get shortest path
+    path = shortestpath(as(P,'graph'),P.PP(1),P.PP(2));
+    hold on
+    plot(P.S.x(path),P.S.y(path),'r');
+    plotpoints(P);
+    hold off
 end
