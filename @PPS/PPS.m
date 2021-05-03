@@ -105,6 +105,11 @@ classdef PPS
 %     P = PPS(S,'PP',kp.IXgrid,'z',DEM);
 %     plot(P)
 % 
+% Reference: Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A 
+% systematic approach and software for the analysis of point patterns on 
+% river networks. Earth Surface Processes and Landforms, accepted. 
+% [DOI: 10.1002/esp.5127]
+%
 % See also: GRIDobj, FLOWobj, STREAMobj, STREAMobj/snap2stream, SWATHobj
 %           DIVIDEobj
 %

@@ -85,7 +85,7 @@ Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.do
 ### Point patterns on stream networks
 
 - Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A systematic approach and software for the analysis 
-of point patterns on river networks. EarthArXiv preprint. [DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r)
+of point patterns on river networks. Earth Surface Processes and Landforms, accepted. [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
 
 ## Getting started
 
@@ -113,13 +113,14 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 
 - HyLands 1.0 added: see paper: Campforts, B. et al. (2020): HyLands 1.0: a Hybrid Landscape evolution 
   model to simulate the impact of landslides and landslide-derived sediment on landscape evolution  
-  Geoscientific Model Development Discussions. [DOI:10.5194/gmd-2020-74](https://doi.org/10.5194/gmd-2020-74)
+  Geoscientific Model Development. [DOI:10.5194/gmd-13-3863-2020](https://doi.org/10.5194/gmd-13-3863-2020)
 - new class: DIVIDEobj [Paper 1 DOI: 10.5194/esurf-8-245-2020](https://doi.org/10.5194/esurf-8-245-2020)
   [Paper 2 DOI: 10.5194/esurf-8-261-2020](https://doi.org/10.5194/esurf-8-261-2020)
-- new class: PPS [Preprint of manuscript in review DOI: 10.31223/osf.io/7qv2r](https://doi.org/10.31223/osf.io/7qv2r) 
+- new class: PPS [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
 - modification: update to ttscm to include cyclic colormaps; 
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: GRIDobj/diffusion
+- new function: GRIDobj/histogram
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
@@ -128,6 +129,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/getlocation
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
+- modification: STREAMobj/STREAMobj2cell
 - modification: GRIDobj/demprofile
 - topoapp was removed from this version 
 - updates to utilities: setextent and getextent 
