@@ -66,8 +66,8 @@ end
 if isa(A,'GRIDobj')
     validatealignment(S,A);
     a = double(getnal(S,A));
-elseif isnal(S,DEM)
-    a = double(DEM);
+elseif isnal(S,A)
+    a = double(A);
 else
     error('Imcompatible format of second input argument')
 end
@@ -77,7 +77,9 @@ z = imposemin(S,z);
 % calculate gradient
 g = gradient(S,z);
 % upslope area
-a = a.*S.cellsize.^2;
+if ~isgeographic(S)
+    a = a.*S.cellsize.^2;
+end
 
 k = g./(a.^(-theta));
 
