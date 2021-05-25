@@ -121,6 +121,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
+- new function: STREAMobj/binarize
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
