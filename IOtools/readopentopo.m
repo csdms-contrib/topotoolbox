@@ -109,7 +109,7 @@ url = 'https://portal.opentopography.org/API/globaldem?';
 f = fullfile(p.Results.filename);
 
 % check api
-if ischar(validatestring(demtype,{'NASADEM','COP30','COP90'}))
+if any(strcmp(demtype,{'NASADEM','COP30','COP90'}))
     if isempty(p.Results.apikey)
         % check whether file opentopography.apikey is available
         if exist('opentopography.apikey','file')
