@@ -133,6 +133,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: STREAMobj/STREAMobj2cell
 - modification: GRIDobj/demprofile
 - topoapp was removed from this version 
+- updates to readopentopo
 - updates to utilities: setextent and getextent 
 - new function: padextent
 
