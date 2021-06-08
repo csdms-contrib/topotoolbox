@@ -77,9 +77,9 @@ z = imposemin(S,z);
 % calculate gradient
 g = gradient(S,z);
 % upslope area
-if ~isgeographic(S)
-    a = a.*S.cellsize.^2;
-end
+% if ~isgeographic(S)
+%     a = a.*S.cellsize.^2;
+% end
 
 k = g./(a.^(-theta));
 
