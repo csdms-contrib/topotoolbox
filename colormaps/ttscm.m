@@ -57,10 +57,12 @@ function cmap = ttscm(name,n,percrange)
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     cmaps = ttscm;
+%     tiledlayout('flow','TileSpacing','none');
 %     for r = 1:numel(cmaps); 
-%        subplot(6,4,r); 
+%        nexttile 
 %        imageschs(DEM,[],'colormap', ttscm(cmaps{r}),...
-%                         'colorbar',false,'ticklabels','none');
+%                         'colorbar',false,'ticklabels','none',...
+%                         'useperm',true);
 %        title(cmaps{r});
 %     end
 %
@@ -100,7 +102,7 @@ if nargin == 0 && nargout == 0
             'InitialMagnification','fit')
 	return
 elseif nargin == 0 && nargout == 1
-    cmap = allowedcmaps;
+    cmap = sort(allowedcmaps);
     return
 end
 

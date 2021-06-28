@@ -117,7 +117,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new class: DIVIDEobj [Paper 1 DOI: 10.5194/esurf-8-245-2020](https://doi.org/10.5194/esurf-8-245-2020)
   [Paper 2 DOI: 10.5194/esurf-8-261-2020](https://doi.org/10.5194/esurf-8-261-2020)
 - new class: PPS [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
-- modification: update to ttscm to include cyclic colormaps; 
+- modification: update to ttscm to Scientific Colormaps 7.0
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
