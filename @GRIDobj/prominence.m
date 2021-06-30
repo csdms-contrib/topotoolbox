@@ -34,10 +34,22 @@ function [x,y,p] = prominence(DEM,tol)
 %            highest peak for which prominence (given above definition)
 %            cannot be calulated.
 %
+% Example
+%
+%     DEM = readexample('taiwan');
+%     [x,y,p] = prominence(DEM,200);
+%     imageschs(DEM,[],'colormap',[1 1 1],'colorbar',false);
+%     hold on
+%     h = bubblechart(x,y,p);
+%     bubblelim([200 2000])
+%     bubblesize([2 20])
+%     h.MarkerEdgeColor = 'k';
+%     bubblelegend('location','southeast')
+%
 % See also: GRIDobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 28. June, 2021
+% Date: 29. June, 2021
 
 if any(isnan(DEM))
     DEM.Z(isnan(DEM.Z)) = 0;
