@@ -410,12 +410,16 @@ elseif ~isempty(p.Results.interactive)
          'rectselect','ellipseselect','outletselect'});
     switch meth
         case 'outletselect'
-            title('map outlet and double-click to finalize')
+            title('map outlet and press key to finalize')
             hold on
             htemp = plot(ax,[],[]);
             hp = impoint('PositionConstraintFcn',@getnearest);
             addNewPositionCallback(hp,@drawbasin);
+            setPosition(hp,getPosition(hp));
+            set(gcf,'WindowKeyPressFcn',@(k,l) uiresume);
             pos = wait(hp);
+%             pos = getPosition(hp);
+%             
             hold off
             delete(hp);
             I = S.x==pos(1) & S.y==pos(2);
