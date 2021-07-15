@@ -9,19 +9,19 @@ function [in,inci,pd] = intensity(P,alpha)
 %
 % Description
 %
-%     intensity measures the expected number of points per unit length.
+%     intensity measures the expected number of points per unit length. 
 % 
 % Input arguments
 %
 %     P      point pattern on stream network (class PPS)
 %     alpha  significance level (default = 0.05)
-%     pd     instance of prob.GammaDistribution. Contains the probability
-%            distribution of the intensity (see Furbish 2021)
 %
 % Output arguments
 %
 %     in     intensity (scalar)
 %     inci   confidence bounds of intensity (two element vector)
+%     pd     instance of prob.GammaDistribution. Contains the probability
+%            distribution of the intensity (see Furbish 2021)
 %
 % Example
 %
@@ -70,7 +70,7 @@ if nargout > 1
     % int = mean(pd);
     inci  = icdf(pd,[alpha/2 1-alpha/2]);
 
-
+%     % Alternative way to derive confidence intervals of the intensity
 %     % Fit loglinear model with intercept only
 %     mm = fitloglinear(P,getnal(P.S)+1,'intercept',false);
 %     [p,pci]   = predict(mm,1,'alpha',alpha);

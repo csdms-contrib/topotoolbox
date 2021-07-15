@@ -27,6 +27,21 @@ function [P,nalix,markix] = modify(P,varargin)
 %      markix   linear index into marks associated with the point pattern
 %               in P
 %
+% Example
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = removeshortstreams(S,100);
+%     S = clean(S);
+%     P = PPS(S,'rpois',0.001,'z',DEM);
+%
+%     subplot(1,2,1)
+%     plot(P)
+%     
+%     P2 = modify(P,'streamorder','>2');
+%     subplot(1,2,2)
+%     plot(P2)
 %
 % See also: STREAMobj/modify
 %
