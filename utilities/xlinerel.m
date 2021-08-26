@@ -34,7 +34,7 @@ function ht = xlinerel(values,rel,varargin)
 %     hold on
 %     xlinerel([0:pi/2:5*pi],[.95 1],'r','LineWidth',2);
 %
-% See also: xline, yline
+% See also: xline, yline, ylinerel
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 26. August, 2021
