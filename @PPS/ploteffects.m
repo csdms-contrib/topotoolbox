@@ -5,7 +5,7 @@ function ploteffects(P,mdl,varargin)
 % Syntax
 %
 %     ploteffects(P,mdl)
-%     ploteffects(P,mdl,cova)
+%     ploteffects(P,mdl,covariate)
 %
 % Description
 %
@@ -14,8 +14,11 @@ function ploteffects(P,mdl,varargin)
 %
 % Input arguments
 %
-%     P       PPS object
-%     mdl     object of 'GeneralizedLinearModel'
+%     P          PPS object
+%     mdl        object of 'GeneralizedLinearModel'
+%     covariate  number of covariate to be plotted. For example, if there 
+%                two predictor variables in the model mdl, then covariate
+%                can be 1 or 2, or [1 2].
 %
 %     Parameter name value
 %
@@ -25,6 +28,8 @@ function ploteffects(P,mdl,varargin)
 %              covariate).
 %     'plotintensity' {true} or false. Plots a horizontal line with the
 %              intensity of the point pattern
+%     'indicators' {false} or true. If true, lines indicating point
+%              locations at the bottom of the plot
 %
 % 
 % See also: PPS, PPS/fitloglinear, PPS/roc 
@@ -42,6 +47,7 @@ addParameter(p,'plot',true);
 addParameter(p,'n',100);
 addParameter(p,'fixedvars',mean(mdl.Variables{:,1:end-1}));
 addParameter(p,'plotintensity',true);
+addParameter(p,'indicators',false);
 addParameter(p,'varnames','');
 % Parse
 parse(p,P,mdl,varargin{:});
@@ -86,6 +92,11 @@ for r = 1:nvars
         if p.Results.plotintensity
             ii = intensity(P);
             plot(xlim,[ii ii],':','color',[.5 .5 .5]);
+        end
+        
+        if p.Results.indicators
+            xl = mdl.Variables{:,covariate(r)}(P.PP);
+            xlinerel(xl,0.03);
         end
         
         hold off

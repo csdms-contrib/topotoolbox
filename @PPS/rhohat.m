@@ -39,6 +39,8 @@ function s = rhohat(P,varargin)
 %     'name'         variable name. Default is 'x'.
 %     'indicators'   {true} or false. If true, point indicators will be
 %                    plotted on the x-axis.
+%     'indlocation'  {'bottom'} or 'top'. Indicator position at the bottom
+%                    or at the top. 
 %     'indcolor'     {'b'}. Indicator color.
 %     'FaceColor'    Color of the confidence bounds.
 %     'FaceAlpha'    Transparency of the confidence bounds.
@@ -91,7 +93,9 @@ addParameter(p,'LineWidth',1.5);
 addParameter(p,'weights',ones(npoints(P),1),@(x) numel(x) == npoints(P) & all(x > 0));
 addParameter(p,'name','x');
 addParameter(p,'indicators',true);
+addParameter(p,'indlocation','bottom',@(x) ischar(validatestring(x,{'bottom','top'})));
 addParameter(p,'indcolor','b');
+addParameter(p,'indlength',0.03);
 addParameter(p,'bandwidth',[]);
 
 % Parse
@@ -144,12 +148,15 @@ if p.Results.plot
     
     % plot indicators
     if p.Results.indicators
-        xlim(ax,[min(x) max(x)])
-        yl = ylim;
-        % plot lines for points
-        yl = yl/50;
-        xl = c(P.PP);
-        plot([xl'; xl'],repmat(yl(:),1,npoints(P)),'-','Color',p.Results.indcolor)
+        indloc = validatestring(p.Results.indlocation,{'bottom','top'});
+        switch indloc
+            case 'bottom'
+                rel = p.Results.indlength;
+            case 'top'
+                rel = [1-p.Results.indlength 1];
+        end
+        xlinerel(c(P.PP),rel,'-','Color',p.Results.indcolor)
+        
     end
     hold off
     ylabel(['\rho(' p.Results.name ')'])
