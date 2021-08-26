@@ -13,6 +13,7 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     CS = STREAMobj2cell(S,'segments',seglength)
 %     CS = STREAMobj2cell(S,'labels',labels)
 %     CS = STREAMobj2cell(S,'split',ix)
+%     CS = STREAMobj2cell(S,'split',P)
 %     [CS,locS] = ...
 %     [CS,locS,order] = STREAMobj2cell(S,'tributaries');
 %
@@ -45,7 +46,11 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     placed into the same element in CS.
 %
 %     STREAMobj2cell(S,'split',ix) splits the stream network at cells with
-%     the linear index ix.
+%     the linear index ix. 
+%
+%     STREAMobj2cell(S,'split',P) takes an instance of PPS and splits the
+%     stream network S at points stored in P. Ideally, the underlying
+%     stream network in P should be S.
 %     
 % Input arguments
 %
@@ -68,7 +73,7 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %           with numel(CS) elements where each element refers to an order 
 %           of the tributaries. 
 %
-% Example
+% Example 1: Place stream networks of individual basins into a cell array
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD  = FLOWobj(DEM,'preprocess','carve');
@@ -77,11 +82,22 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     [CS,locS] = STREAMobj2cell(S);
 %     plotdz(CS{21},z(locS{21}))
 %
+% Example 2: Create random river segments and place them in a cell array
 %
-% See also: FLOWobj2cell, STREAMobj/split
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM);
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S,1);
+%     P = PPS(S,'rpois',0.0001,'z',DEM);
+%     plot(P)
+%     CS = STREAMobj2cell(S,'split',P);
+%     figure;
+%     hold on; cellfun(@plot,CS)
+%
+% See also: FLOWobj2cell, STREAMobj/split, PPS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. April, 2021
+% Date: 7. May, 2021
 
 if nargin == 1
     ref = 'outlets';
