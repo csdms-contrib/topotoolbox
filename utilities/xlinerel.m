@@ -74,7 +74,8 @@ y  = [y;nan(1,n)];
 h  = plot(x(:),y(:),varargin{:});
 ylim(ax,yl);
 
-addlistener(ax,'YLim','PostSet',@(src,evnt)updatedata);
+hlist = addlistener(ax,'YLim','PostSet',@(src,evnt)updatedata);
+h.DeleteFcn = @(src,evt)upondelete(src,evt,hlist);
 
 if nargout == 1
     ht = h;
@@ -88,5 +89,8 @@ function updatedata
     h.YData(2:3:end) = yhigh;
 
 end
+    function upondelete(scr,evt,hlist)
+        delete(hlist)
+    end
 end
 
