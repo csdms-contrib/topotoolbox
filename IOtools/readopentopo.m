@@ -54,7 +54,8 @@ function DEM = readopentopo(varargin)
 %                      myOpenTopo in the OpenTopography portal. You can
 %                      also create a text file in the folder IOtools named
 %                      opentopography.apikey which must contain the API
-%                      Key.
+%                      Key. If there is a file, there is no need to provide
+%                      this parameter name/value pair.
 %     'verbose'        {true} or false. If true, then some information on
 %                      the process is shown in the command window
 %     'deletefile'     {true} or false. True, if file should be deleted
