@@ -133,6 +133,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/mnoptimvar
 - modification: STREAMobj/STREAMobj2cell
 - modification: GRIDobj/demprofile
+- new function: ScaleBar
+- new function: xlinerel and ylinerel 
 - topoapp was removed from this version 
 - updates to readopentopo
 - updates to utilities: setextent and getextent 
