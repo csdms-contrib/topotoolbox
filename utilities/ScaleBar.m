@@ -16,7 +16,7 @@ classdef ScaleBar < handle
 % Input arguments
 %
 %     'ax'           axes handle {gca}
-%     'color'        color of text and scalebar {'w'}
+%     'color'        color of text and scalebar {'k'}
 %     'xyunit'       unit of coordinates {'m'} or 'km' or 'none'
 %     'displayunit'  unit shown by scale bar label {'auto'}, 'm', 'km' or
 %                    'none'. If set to 'auto', then the label switch
@@ -37,6 +37,7 @@ classdef ScaleBar < handle
 %     imageschs(DEM)
 %     SB = ScaleBar;
 %     SB.location = 'northeast';
+%     SB.color = 'w';
 %
 % References: The function uses plotboxpos by Kelly Kearney. The function
 % is available here: https://github.com/kakearney/plotboxpos-pkg
@@ -50,7 +51,7 @@ classdef ScaleBar < handle
     end
     
     properties(GetAccess = 'public', SetAccess = 'public')
-        color       = 'w'
+        color       = 'k'
         displayunit = 'auto'
         xyunit      = 'm'
         rellength   = 0.2;
@@ -67,7 +68,7 @@ classdef ScaleBar < handle
             addParameter(p,'parent',gca);
             addParameter(p,'xyunit','m');
             addParameter(p,'displayunit','auto');
-            addParameter(p,'color','w');
+            addParameter(p,'color','k');
             addParameter(p,'rellength',0.2);
             addParameter(p,'location','southeast',@(x) ischar(validatestring(location,{'northwest','southwest','northeast','southeast'})));
             parse(p,varargin{:});
