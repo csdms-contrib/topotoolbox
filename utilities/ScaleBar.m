@@ -38,6 +38,7 @@ classdef ScaleBar < handle
 %     SB = ScaleBar;
 %     SB.location = 'northeast';
 %     SB.color = 'w';
+%     smaller(SB,2)
 %
 % References: The function uses plotboxpos by Kelly Kearney. The function
 % is available here: https://github.com/kakearney/plotboxpos-pkg
@@ -56,6 +57,8 @@ classdef ScaleBar < handle
         xyunit      = 'm'
         rellength   = 0.2;
         location    = 'southeast'
+        backgroundcolor = 'none'
+        fontsize    = 10;
         ax          
     end
     
@@ -70,6 +73,8 @@ classdef ScaleBar < handle
             addParameter(p,'displayunit','auto');
             addParameter(p,'color','k');
             addParameter(p,'rellength',0.2);
+            addParameter(p,'backgroundcolor','none');
+            addParameter(p,'fontsize',10);
             addParameter(p,'location','southeast',@(x) ischar(validatestring(location,{'northwest','southwest','northeast','southeast'})));
             parse(p,varargin{:});
             
@@ -81,13 +86,17 @@ classdef ScaleBar < handle
             y1 = 0;
             y2 = 0;
             
-            SB.scale     = annotation('line',[x1 x2], [y1 y2],'Color',params.color,'LineWidth',2);
-            SB.scaletext = annotation('textbox','EdgeColor','none','BackgroundColor','none',...
+            SB.scaletext = annotation('textbox','EdgeColor','none',...
+                'BackgroundColor',params.backgroundcolor,...
                 'Position',[y1 y2 1 0.05],...
                 'String','1',...
                 'HorizontalAlignment','center',...
                 'VerticalAlignment','bottom',...
+                'FitBoxToText','on',...
+                'Fontsize',params.fontsize,...
+                'Margin',3,...
                 'Color',params.color);
+            SB.scale     = annotation('line',[x1 x2], [y1 y2],'Color',params.color,'LineWidth',2);
             
             
             SB.ax     = params.parent;
@@ -105,7 +114,10 @@ classdef ScaleBar < handle
         end
         
         function set.color(SB,c)
-            colorize(SB,c)
+            colorize(SB,'color',c)
+        end
+        function set.backgroundcolor(SB,c)
+            colorize(SB,'backgroundcolor',c)
         end
         function set.location(SB,location)
             location = validatestring(location,{'northwest','southwest','northeast','southeast'});
@@ -127,12 +139,46 @@ classdef ScaleBar < handle
             SB.displayunit = unit;
             placescalebar(SB)
         end
-             
-        function colorize(SB,c)
-            SB.scale.Color = c;
-            SB.scaletext.Color = c;
+        function set.fontsize(SB,fs)
+            textchange(SB,'FontSize',fs);
         end
         
+        function bigger(SB,val)
+            if nargin == 1
+                textchange(SB,'Bigger',1)
+            else
+                textchange(SB,'Bigger',val)
+            end
+        end
+        function smaller(SB,val)
+            if nargin == 1
+                textchange(SB,'Smaller',1)
+            else
+                textchange(SB,'Smaller',val)
+            end
+        end
+        
+        function textchange(SB,type,val)
+            switch type
+                case 'FontSize'
+                    SB.scaletext.FontSize = val;
+                case 'Bigger'
+                    SB.scaletext.FontSize = SB.scaletext.FontSize + val;
+                case 'Smaller'
+                    SB.scaletext.FontSize = SB.scaletext.FontSize - val;
+            end
+            placescalebar(SB)
+        end
+             
+        function colorize(SB,type,c)
+            switch type
+                case 'color'
+                    SB.scale.Color = c;
+                    SB.scaletext.Color = c;
+                case 'backgroundcolor'
+                    SB.scaletext.BackgroundColor = c;
+            end
+        end
         
         
         function placescalebar(SB)
@@ -200,14 +246,14 @@ classdef ScaleBar < handle
                     y  = [y1 y2];
                 case 'northeast'
                     x1 = pos(1) + pos(3)*0.95;
-                    y1 = pos(2) + pos(4)*0.90;
+                    y1 = pos(2) + pos(4)*0.85;
                     x2 = x1-sblength;
                     y2 = y1;
                     x  = [x2 x1];
                     y  = [y1 y2];
                 case 'northwest'
                     x1 = pos(1) + pos(3)*0.05;
-                    y1 = pos(2) + pos(4)*0.90;
+                    y1 = pos(2) + pos(4)*0.85;
                     x2 = x1+sblength;
                     y2 = y1;
                     x  = [x1 x2];
@@ -224,10 +270,19 @@ classdef ScaleBar < handle
             
             SB.scale.X = [x1 x2];
             SB.scale.Y = [y1 y2];
-            SB.scaletext.Position = [min(x) y(1) sblength 0.05];
+            SB.scaletext.FitBoxToText = 'on';
+            textheight = SB.scaletext.Position(4);
+            SB.scaletext.Position = [min(x) y(1) sblength textheight];
+            pr = SB.scaletext.Units;
+            SB.scaletext.Units = 'Points';
+            SB.scaletext.Position(4) = SB.scaletext.FontSize + SB.scaletext.Margin*2;
+            SB.scaletext.Units = pr;
             SB.scaletext.String = sblengthtext;
             
+         
+            
             SB.ax.Units = units_former;
+            
             
         end
         
