@@ -13,6 +13,18 @@ classdef ScaleBar < handle
 %     currently beta and only supports axis with projected coordinate
 %     systems (no geographic coordinates).
 %
+%     Once the ScaleBar SB is created, you can make changes by directly
+%     setting the properties, e.g.
+%
+%     SB = ScaleBar;
+%     SB.location = 'northwest';
+%
+%     In addition, there are functions to increase or decrease the font
+%     size.
+%
+%     smaller(SB)
+%     bigger(SB)
+%     
 % Input arguments
 %
 %     'ax'           axes handle {gca}
@@ -26,6 +38,8 @@ classdef ScaleBar < handle
 %                    bar. It should range between 0.1 and 0.5.
 %     'location'     placement of scalebar inside the axes {'southeast'},
 %                    'southwest','northeast', or 'northwest'.
+%     'backgroundcolor'   background color of the text box {'none'}.
+%     'fontsize'     Fontsize {10}
 %
 % Output arguments
 %
@@ -44,7 +58,7 @@ classdef ScaleBar < handle
 % is available here: https://github.com/kakearney/plotboxpos-pkg
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 30. August, 2021
+% Date: 1. September, 2021
 
     properties(SetAccess = 'private')
         scale
@@ -144,6 +158,7 @@ classdef ScaleBar < handle
         end
         
         function bigger(SB,val)
+            % Increase font size of scale bar text
             if nargin == 1
                 textchange(SB,'Bigger',1)
             else
@@ -151,6 +166,7 @@ classdef ScaleBar < handle
             end
         end
         function smaller(SB,val)
+            % Decrease font size of scale bar text
             if nargin == 1
                 textchange(SB,'Smaller',1)
             else
