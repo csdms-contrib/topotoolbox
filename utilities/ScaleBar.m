@@ -11,7 +11,8 @@ classdef ScaleBar < handle
 %
 %     ScaleBar plots a dynamic scale bar in the 2D-axis. The function is
 %     currently beta and only supports axis with projected coordinate
-%     systems (no geographic coordinates).
+%     systems (no geographic coordinates). ScaleBar refers to the x-axis of
+%     a plot and may be used for plots with different axis aspect ratios.
 %
 %     Once the ScaleBar SB is created, you can make changes by directly
 %     setting the properties, e.g.
@@ -58,11 +59,13 @@ classdef ScaleBar < handle
 % is available here: https://github.com/kakearney/plotboxpos-pkg
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 1. September, 2021
+% Date: 8. September, 2021
 
     properties(SetAccess = 'private')
         scale
         scaletext
+        ax
+        el
     end
     
     properties(GetAccess = 'public', SetAccess = 'public')
@@ -72,8 +75,7 @@ classdef ScaleBar < handle
         rellength   = 0.2;
         location    = 'southeast'
         backgroundcolor = 'none'
-        fontsize    = 10;
-        ax          
+        fontsize    = 10;        
     end
     
     methods
@@ -111,19 +113,15 @@ classdef ScaleBar < handle
                 'Margin',3,...
                 'Color',params.color);
             SB.scale     = annotation('line',[x1 x2], [y1 y2],'Color',params.color,'LineWidth',2);
-            
-            
             SB.ax     = params.parent;
             SB.xyunit = params.xyunit;
             SB.displayunit = params.displayunit;
             SB.location  = params.location;
             SB.rellength = params.rellength;
             
-            %             placescalebar(SB);
-            
             %% Create listeners
             hfig = SB.ax.Parent;
-            el1 = addlistener(SB.ax,{'XLim','YLim', 'Position', 'OuterPosition'},'PostSet',@(src,evnt)placescalebar(SB));
+            SB.el = addlistener(SB.ax,{'XLim','YLim', 'Position', 'OuterPosition'},'PostSet',@(src,evnt)placescalebar(SB));
             hfig.SizeChangedFcn = @(src,evnt) placescalebar(SB);    
         end
         
@@ -155,6 +153,19 @@ classdef ScaleBar < handle
         end
         function set.fontsize(SB,fs)
             textchange(SB,'FontSize',fs);
+        end
+        
+        function delete(SB)
+            % Delete ScaleBar
+            
+            delete(SB.el)
+            delete(SB.scale)
+            delete(SB.scaletext)
+            try
+            hfig = SB.ax.Parent; 
+            hfig.SizeChangedFcn = [];
+            end
+            
         end
         
         function bigger(SB,val)
@@ -295,18 +306,13 @@ classdef ScaleBar < handle
             SB.scaletext.Units = pr;
             SB.scaletext.String = sblengthtext;
             
-         
-            
             SB.ax.Units = units_former;
-            
-            
+                       
         end
         
         
     end
-    
-    
-    
+
 end
 
 function pos = plotboxpos(h)
