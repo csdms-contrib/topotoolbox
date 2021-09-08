@@ -24,7 +24,11 @@ function shapewrite(P,filename,varargin)
 %                shapefile of the stream network
 %     'postfix'  {'_stream'} postfix for the stream network
 %     'marks'    attribute data for each point. This can be either a cell
-%                array of size 2xn where n is the number of attributes.
+%                array of size 2xn where n is the number of attributes. The
+%                elements in the cell array must contain the name of the
+%                attribute and the data. Data can be GRIDobj or node
+%                attribute lists. Alternatively, one can supply a table
+%                with marks.
 %
 %
 % See also: STREAMobj/STREAMobj2mapstruct 
@@ -55,8 +59,11 @@ if ~isempty(p.Results.marks)
             [sh.(p.Results.marks{r})] = mark{:};
         end
     elseif istable(p.Results.marks)
-        t = struct2table(p.Results.marks);
-        sh = [sh;t];
+        sh = struct2table(sh);
+        sh = [sh p.Results.marks];
+        sh = table2struct(sh);
+%         t = struct2table(p.Results.marks);
+%         sh = [sh;t];
     end
 end
 

@@ -116,7 +116,7 @@ if p.Results.plot
     
     if p.Results.perfcurve && p.Results.NBoot > 0
         patch([X(:,2);flipud(X(:,3))],[Y(:,2); flipud(Y(:,3))],[.8 .8 .8],...
-            'EdgeColor','none');
+            'EdgeColor','none','FaceAlpha',0.5);
         hold on
     end
     
