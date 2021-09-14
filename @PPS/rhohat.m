@@ -57,6 +57,19 @@ function s = rhohat(P,varargin)
 %                   points
 %     .bandwidth    bandwidth
 %  
+% Example: Calculate nonparametric dependence of knickpoint locations on
+%          chi
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S,1);
+%     [~,kp] = knickpointfinder(S,DEM,'tol',30,'split',false);
+%     A = flowacc(FD);
+%     c = chitransform(S,A);
+%     P = PPS(S,'PP',kp.IXgrid,'z',DEM);
+%     r = rhohat(P,'cov',c,'name','\chi');
+%
 % Reference 
 %
 %     Baddeley A, Chang Y-M, Song Y, Turner R. 2012. Nonparametric
@@ -67,7 +80,7 @@ function s = rhohat(P,varargin)
 % See also: PPS 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. March, 2020
+% Date: 14. September, 2021
 
 % Check input arguments
 p = inputParser;

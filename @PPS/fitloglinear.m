@@ -1,4 +1,4 @@
-function [mdl,int] = fitloglinear(P,c,varargin)
+function [mdl,int,rts] = fitloglinear(P,c,varargin)
 
 %FITLOGLINEAR fit loglinear model to point pattern
 %
@@ -6,6 +6,7 @@ function [mdl,int] = fitloglinear(P,c,varargin)
 %
 %     [mdl,int] = fitloglinear(P,c)
 %     [mdl,int] = fitloglinear(P,c,pn,pv,...)
+%     [mdl,int,mx] = ...
 %
 % Description
 %
@@ -30,13 +31,15 @@ function [mdl,int] = fitloglinear(P,c,varargin)
 %
 %     mdl    model (GeneralizedLinearModel)
 %     int    node-attribute list with modelled intensities
+%     mx     for higher-order polynomials of a single-variable model, 
+%            mx returns the location of maxima in the intensity function.
 %     
 % Example   
 % 
 % See also: PPS, PPS/random
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 11. February, 2020
+% Date: 14. September, 2021
 
 % See also: fitglm, stepwiseglm
 
@@ -45,6 +48,7 @@ p.KeepUnmatched = true;
 addParameter(p,'stepwise',false,@(x) isscalar(x));
 addParameter(p,'modelspec','linear');
 addParameter(p,'distribution','binomial');
+addParameter(p,'weights',getnal(P.S)+1);
 parse(p,varargin{:});
 
 % Get covariates
@@ -57,6 +61,20 @@ y(P.PP) = 1;
 glmopts = p.Unmatched;
 glmopts = expandstruct(glmopts);
 
+% Handle weights
+fllopts = p.Results;
+validateattributes(fllopts.weights,{'single','double'},{'>',0,'nonnan','finite'});
+if ~isnal(P.S,fllopts.weights)
+    % weights should have as many entries as there are points
+    if numel(fllopts.weights) ~= npoints(P)
+        error('TopoToolbox:fitloglinear','Wrong number of elements in the weights vector')
+    end
+    w = getnal(P.S)+mean(fllopts.weights);
+    w(P.PP) = fllopts.weights;
+    fllopts.weights = w;
+end
+
+
 % Covariates can be supplied as table. This needs some handling.
 if istable(X)
     tbl = [X table(y,'variablenames',{'response'})];
@@ -68,14 +86,14 @@ end
 
 if ~p.Results.stepwise
     
-    mdl = fitglm(inp{:},p.Results.modelspec,...
-        'Distribution',p.Results.distribution,glmopts{:});
+    mdl = fitglm(inp{:},fllopts.modelspec,...
+        'Distribution',fllopts.distribution,'weights',fllopts.weights,glmopts{:});
     
 else
 
     % Use stepwise GLM
-    mdl = stepwiseglm(inp{:},p.Results.modelspec,...
-        'Distribution',p.Results.distribution,glmopts{:});
+    mdl = stepwiseglm(inp{:},fllopts.modelspec,...
+        'Distribution',fllopts.distribution,'weights',fllopts.weights,glmopts{:});
     
 end
 
@@ -84,6 +102,30 @@ p   = predict(mdl,X);
 d   = distance(P.S,'node_to_node');
 d   = mean(d);
 int = p./d; %.cellsize;
+
+if nargout == 3
+    if mdl.NumPredictors ~= 1
+        rts = [];
+        return
+    end
+    
+    coeffs = mdl.Coefficients.Estimate(1:end);
+    coeffs = flipud(coeffs);
+    % first derivative
+    p1     = polyder(coeffs);
+    % p1     = coeffs.*(numel(coeffs):-1:1)';
+    % minima and maxima
+    rts    = roots(p1);
+    if isempty(rts)
+        % there are no minima or maxima
+    else
+        % second derivative
+        p2     = polyder(p1);
+        % p2     = p1(1:end-1).*((numel(coeffs)-1):-1:1)';
+        y      = polyval(p2,rts);
+        rts    = rts(y<0);
+    end
+end
 
 end
 

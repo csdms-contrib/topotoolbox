@@ -23,7 +23,7 @@ function ploteffects(P,mdl,varargin)
 %     Parameter name value
 %
 %     'plot'   {true} or false
-%     'n'      number of values linear spaced for a covariate {100}
+%     'n'      number of values linear spaced for a covariate {200}
 %     'fixedvars'   fixed values (by default, this is the mean of each
 %              covariate).
 %     'plotintensity' {true} or false. Plots a horizontal line with the
@@ -44,7 +44,7 @@ addRequired(p,'P');
 addRequired(p,'mdl',@(x) isa(x,'GeneralizedLinearModel'));
 addOptional(p,'covariate',1,@(x) numel(x) >= 1 && numel(x) <= (size(mdl.Variables,2)-1));
 addParameter(p,'plot',true);
-addParameter(p,'n',100);
+addParameter(p,'n',200);
 addParameter(p,'fixedvars',mean(mdl.Variables{:,1:end-1}));
 addParameter(p,'plotintensity',true);
 addParameter(p,'indicators',false);
