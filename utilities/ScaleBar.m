@@ -91,7 +91,7 @@ classdef ScaleBar < handle
             addParameter(p,'rellength',0.2);
             addParameter(p,'backgroundcolor','none');
             addParameter(p,'fontsize',10);
-            addParameter(p,'location','southeast',@(x) ischar(validatestring(location,{'northwest','southwest','northeast','southeast'})));
+            addParameter(p,'location','southeast',@(x) ischar(validatestring(x,{'northwest','southwest','northeast','southeast'})));
             parse(p,varargin{:});
             
             params = p.Results;
