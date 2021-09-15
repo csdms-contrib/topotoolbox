@@ -22,7 +22,8 @@ function [mdl,int,rts] = fitloglinear(P,c,varargin)
 %     
 %     'stepwise'   {false} or true. If true, fitloglinear uses stepwiseglm
 %                  to fit the model.
-%     'modelspec'  see fitglm
+%     'modelspec'  see fitglm. For example, for fitting a forth-order
+%                  polynomial: 'poly4'
 %     
 %     In addition, fitloglinear accepts parameter name/value pairs of
 %     fitglm or stepwiseglm.
@@ -32,16 +33,33 @@ function [mdl,int,rts] = fitloglinear(P,c,varargin)
 %     mdl    model (GeneralizedLinearModel)
 %     int    node-attribute list with modelled intensities
 %     mx     for higher-order polynomials of a single-variable model, 
-%            mx returns the location of maxima in the intensity function.
+%            mx returns the location of maxima in the intensity function. 
 %     
-% Example   
+% Example: Create an inhomogeneous Poisson process with the intensity being 
+%          a function of elevation. Simulate a random point pattern and fit
+%          the model.
 % 
-% See also: PPS, PPS/random
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD  = FLOWobj(DEM,'preprocess','c');
+%     S = STREAMobj(FD,'minarea',1000);
+%     S = klargestconncomps(S,1);
+%     P = PPS(S,'PP',[],'z',DEM);
+%     P = simulate(P,'intensity',getnal(S,DEM)/1e6);
+%     subplot(1,2,1)
+%     plot(P)
+%     subplot(1,2,2)
+%     plotdz(P)
+%     [mdl,int] = fitloglinear(P,DEM,'model','poly1');
+%     figure
+%     subplot(1,2,1)
+%     plotc(P,int)
+%     subplot(1,2,2)
+%     ploteffects(P,mdl,1)
+%
+% See also: PPS, PPS/random, fitglm, stepwiseglm
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 14. September, 2021
-
-% See also: fitglm, stepwiseglm
+% Date: 15. September, 2021 
 
 p = inputParser;
 p.KeepUnmatched = true;
