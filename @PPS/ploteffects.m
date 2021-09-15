@@ -30,6 +30,11 @@ function ploteffects(P,mdl,varargin)
 %              intensity of the point pattern
 %     'indicators' {false} or true. If true, lines indicating point
 %              locations at the bottom of the plot
+%     'color'  color of line plots
+%     'intcolor'    color of horizontal line with intensity of point
+%              pattern (see option plotintensity)
+%
+% Example: see fitloglinear
 %
 % 
 % See also: PPS, PPS/fitloglinear, PPS/roc 
@@ -49,6 +54,8 @@ addParameter(p,'fixedvars',mean(mdl.Variables{:,1:end-1}));
 addParameter(p,'plotintensity',true);
 addParameter(p,'indicators',false);
 addParameter(p,'varnames','');
+addParameter(p,'color','k');
+addParameter(p,'intcolor',[.4 .4 .4]);
 % Parse
 parse(p,P,mdl,varargin{:});
 
@@ -85,13 +92,13 @@ for r = 1:nvars
     
     if p.Results.plot
 
-        plot(predictor,ci,'k--');
+        plot(predictor,ci,'--','color',p.Results.color);
         hold on
-        plot(predictor,int,'k');
+        plot(predictor,int,'-','color',p.Results.color);
         
         if p.Results.plotintensity
             ii = intensity(P);
-            plot(xlim,[ii ii],':','color',[.5 .5 .5]);
+            plot(xlim,[ii ii],':','color',p.Results.intcolor);
         end
         
         if p.Results.indicators
