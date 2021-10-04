@@ -35,6 +35,11 @@ function c = chitransform(S,A,varargin)
 %              calculate areas in unit^2. This is required if the output of 
 %              flowacc is used as input. If the units in A are already 
 %              m^2, then set correctcellsize to false.
+%     'tribsonly' [] (default) or STREAMobj
+%              If a STREAMobj St (must be a subset of S) is supplied, then the
+%              function calculates the tributaries in S to St and
+%              calculates chi only for these tributaries.
+%              
 %
 % Output argument
 %
@@ -76,6 +81,7 @@ addParamValue(p,'a0',1e6,@(x) isscalar(x) && isnumeric(x));
 addParamValue(p,'plot',false);
 addParamValue(p,'correctcellsize',true,@(x) isscalar(x));
 addParamValue(p,'K',[],@(x) isempty(x) || isnal(S,x) || isa(x,'GRIDobj'));
+addParamValue(p,'tribsonly',[])
 
 parse(p,S,A,varargin{:});
 
@@ -113,10 +119,23 @@ else
     a = (1./(K)).*(1./a).^p.Results.mn;
 end
 
+if ~isempty(p.Results.tribsonly)
+    Scopy = S;
+    S = modify(S,'tributaryto2',p.Results.tribsonly);
+    a = nal2nal(S,Scopy,a);
+end
+
 % cumulative trapezoidal integration
 c = cumtrapz(S,a);
 
+if ~isempty(p.Results.tribsonly)
+    c = nal2nal(Scopy,S,c,0);
+    S = Scopy;
+end
+
+% plot if required
 if p.Results.plot
     plotc(S,c)
 end
+
 
