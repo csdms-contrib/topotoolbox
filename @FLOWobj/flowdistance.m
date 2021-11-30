@@ -32,7 +32,10 @@ function OUT = flowdistance(FD,varargin)
 %     IX          linear index of seeds
 %     x,y         x- and y-coordinate vectors
 %     direction   'upstream' (default) or 'downstream' (maximum flow path
-%                 length)
+%                 length). By default, 'downstream' is 'maxdownstream'
+%                 which means that the maximum downstream distance is
+%                 calculated in downstream direction. 'mindownstream'
+%                 calculates the minimum downstream distance.
 %
 % Output arguments
 %
@@ -48,11 +51,12 @@ function OUT = flowdistance(FD,varargin)
 % See also: FLOWobj, FLOWobj/flowacc, GRIDobj
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 4. March, 2016
+% Date: 30. November, 2021
 
 
 % 4/3/2016: the function now makes copies of FD.ix and FD.ixc (see 
 % FLOWobj/flowacc
+% 11/30/2021: update of help and making the mindownstream option visible.
 
 %% check input arguments
 
@@ -105,7 +109,16 @@ end
 %% Do calculation
 ixtemp  = FD.ix;
 ixctemp = FD.ixc;
-DIST = getdistance(ixtemp,ixctemp,FD.size,FD.cellsize,'single');
+
+% Is FD geographic? 
+% if ~isgeographic(FD)
+    DIST = getdistance(ixtemp,ixctemp,FD.size,FD.cellsize,'single');
+% else
+%     [LON,LAT] = getcoordinates(GRIDobj(FD,'logical'),'matrix');
+%     DIST = sph_distance(LAT(ixtemp),LON(ixtemp),LAT(ixctemp),LON(ixctemp),FD.georef.gcs);
+%     clear LON LAT
+% end
+
 cl   = class(DIST);
 switch direction
     case 'upstream'
@@ -157,10 +170,10 @@ end
 
 
 %% Prepare Output
-OUT = copy2GRIDobj(FD);
+OUT = GRIDobj(FD);
 % write output to GRIDobj
 OUT.Z = D;
 OUT.zunit = '';
-OUT.name  = [direction 'flow distance'];
+OUT.name  = [direction ' flow distance'];
 
 
