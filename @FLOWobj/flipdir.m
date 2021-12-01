@@ -1,4 +1,4 @@
-function FD = flipdir(FD)
+function FD = flipdir(FD,varargin)
 
 %FLIPDIR Flip direction of flow
 %
@@ -35,8 +35,9 @@ function FD = flipdir(FD)
 % See also: FLOWobj, FLOWobj/multi2single
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. September, 2019
+% Date: 24. December, 2021
 
+A = flowacc(FD);
 
 FD.type = 'multi';
 ix = FD.ix;
@@ -49,7 +50,9 @@ FD.ixc = FD.ixc(end:-1:1);
 if isempty(FD.fraction)
     FD.fraction = ones(size(FD.ix));
 else
-FD.fraction = FD.fraction(end:-1:1);
+    
+    FD.fraction = A.Z(FD.ixc);
+%     FD.fraction = FD.fraction(end:-1:1);
 end
 FD = multi_normalize(FD);
 
