@@ -59,7 +59,7 @@ function [D,AS,ST] = dbasymmetry(FD,S,varargin)
 % See also: STREAMobj, FLOWobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 28. March, 2021
+% Date: 6. December, 2021
 
 p = inputParser;         
 p.FunctionName = 'dbasymmetry';
@@ -70,13 +70,17 @@ parse(p,varargin{:});
 [DB,ixoutlet] = drainagebasins(FD,S);
 
 if p.Results.extractlongest
-    DIST = flowdistance(FD,streampoi(S,'outlet','ix'));
-    IX  = 1:prod(FD.size);
-    I   = DB.Z > 0;
+    S   = extend2divide(S,FD);
+    S   = trunk(S);
+
+    % old version that failed to extract the longest stream reliably
+    % DIST = flowdistance(FD,streampoi(S,'outlet','ix'));
+    % IX  = 1:prod(FD.size);
+    % I   = DB.Z > 0;
     
-    IX  = accumarray(DB.Z(I(:)),IX(I(:)),[],...
-        @(ix) ix(find(DIST.Z(ix) == max(DIST.Z(ix)),1,'first')));
-    S   = STREAMobj(FD,'chan',IX);
+    % IX  = accumarray(DB.Z(I(:)),IX(I(:)),[],...
+    %    @(ix) ix(find(DIST.Z(ix) == max(DIST.Z(ix)),1,'first')));
+    % S   = STREAMobj(FD,'chan',IX);
 end
 
 if ~FD.fastindexing
