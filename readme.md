@@ -119,6 +119,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new class: PPS [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
 - modification: update to ttscm to Scientific Colormaps 7.0
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: FLOWobj/plotdbfringe
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
 - new function: STREAMobj/extend2divide

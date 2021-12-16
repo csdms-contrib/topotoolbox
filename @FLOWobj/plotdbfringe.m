@@ -55,6 +55,7 @@ function him = plotdbfringe(FD,varargin)
     
 % parse inputs
 p = inputParser;
+p.FunctionName = 'plotdbfringe';
 addRequired(p,'FD')
 addOptional(p,'S',[])
 addParameter(p,'colormap',parula)
@@ -98,7 +99,7 @@ end
 colors = uint8(colors);
 
 iszero  = isnan(D.Z) | D.Z == 0;
-RGB    = repmat(uint8(255),prod(FD.size),3);
+RGB     = repmat(uint8(255),prod(FD.size),3);
 RGB(~iszero,:)    = colors(D.Z(~iszero(:)),:);
 RGB    = reshape(RGB,[FD.size 3]);
 
