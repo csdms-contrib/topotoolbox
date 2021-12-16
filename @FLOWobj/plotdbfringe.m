@@ -25,23 +25,35 @@ function him = plotdbfringe(FD,varargin)
 %     'width'      width of the fringe in pixels (default = 10)
 %     'maxalpha'   maximum value of alpha (default = 0.9)
 %
-% Example
+% Output arguments
+%
+%     h         handle to image. To extract alpha values, use A = h.
+%
+% Example: several drainage basins
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD  = FLOWobj(DEM);
 %     S   = STREAMobj(FD,'minarea',1000);
 %     S   = klargestconncomps(S,2);
-%     imageschs(DEM,[],'colormap',[1 1 1])
+%     imageschs(DEM,[],'colormap',[1 1 1],'colorbar',false)
 %     hold on
 %     h = plotdbfringe(FD,S,'colormap',parula,'width',30);
+%     hold off
 %
+% Example: one drainage basin with a specific color
+%
+%     S   = klargestconncomps(S);
+%     imageschs(DEM,[],'colormap',[1 1 1],'colorbar',false)
+%     hold on
+%     h = plotdbfringe(FD,S,'colormap',[0 .2 .7],'width',30);
+%     hold off
 %
 % See also: FLOWobj/drainagebasins, GRIDobj/imageschs
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 16. December, 2021
     
-
+% parse inputs
 p = inputParser;
 addRequired(p,'FD')
 addOptional(p,'S',[])
@@ -54,29 +66,40 @@ parse(p,FD,varargin{:})
 
 FD = p.Results.FD;
 
+% calculate drainage basins 
 if isempty(p.Results.S)
     D = drainagebasins(FD);
 else
     D = drainagebasins(FD,p.Results.S);
 end
 
+% shuffle labels, if required
 if p.Results.shuffle
     D = shufflelabel(D);
 end
 
+% create colors and RGB image
 clr    = p.Results.colormap;
 clr    = clr*255;
 maxD   = double(max(D));
-colors = interp1(linspace(1,maxD,size(clr,1))',clr,1:maxD);
+
+if maxD > 1
+    if size(clr,1) < 2
+        error('The colormap must have at least two rows.')
+    end
+    colors = interp1(linspace(1,maxD,size(clr,1))',clr,1:maxD);
+else
+    colors = clr(1,:);
+end
 
 colors = uint8(colors);
 
 iszero  = isnan(D.Z) | D.Z == 0;
 RGB    = repmat(uint8(255),prod(FD.size),3);
 RGB(~iszero,:)    = colors(D.Z(~iszero(:)),:);
-
 RGB    = reshape(RGB,[FD.size 3]);
 
+% Calculate transparency based on distance from catchment boundaries
 BDS    = imerode(D.Z,ones(3)) ~= D.Z | imdilate(D.Z,ones(3)) ~= D.Z; 
 DIST   = bwdist(BDS,'quasi-euclidean');
 
@@ -84,6 +107,7 @@ ALPHA    = 1 - min(DIST*1/p.Results.width,1);
 ALPHA(iszero) = 0;
 ALPHA    = ALPHA*p.Results.maxalpha;
 
+% Plot the RGB image
 [x,y] = getcoordinates(D);
 h = image(x,y,RGB);
 h.AlphaData = ALPHA;
