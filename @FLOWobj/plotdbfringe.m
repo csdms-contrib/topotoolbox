@@ -83,12 +83,15 @@ clr    = p.Results.colormap;
 clr    = clr*255;
 maxD   = double(max(D));
 
-if maxD > 1
-    if size(clr,1) < 2
-        error('The colormap must have at least two rows.')
-    end
+if maxD > 1 && size(clr,1) > 1
+    % interpolate colors if there is more than one color and several
+    % drainagebasins
     colors = interp1(linspace(1,maxD,size(clr,1))',clr,1:maxD);
+elseif maxD > 1 && size(clr,1) == 1
+    % several drainage basins and only one color
+    colors = repmat(clr,maxD,1);
 else
+    % several colors, but only one drainage basin
     colors = clr(1,:);
 end
 
