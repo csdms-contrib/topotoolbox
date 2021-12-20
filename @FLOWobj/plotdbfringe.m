@@ -24,6 +24,12 @@ function him = plotdbfringe(FD,varargin)
 %     'shuffle'    randomly shuffle drainage basin IDs ({false} or true)
 %     'width'      width of the fringe in pixels (default = 10)
 %     'maxalpha'   maximum value of alpha (default = 0.9)
+%     'type'       'linear' - linear increase of transparency in inward
+%                  direction
+%                  'uniform' - uniform transparency (defined by maxalpha)
+%                  within a fringe defined by 'width'
+%                  other options are 'cosine', 'sine', or 'exp'
+%     'complementalpha' invert transparency ({false} or true)
 %
 % Output arguments
 %
@@ -51,7 +57,7 @@ function him = plotdbfringe(FD,varargin)
 % See also: FLOWobj/drainagebasins, GRIDobj/imageschs
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 16. December, 2021
+% Date: 20. December, 2021
     
 % parse inputs
 p = inputParser;
@@ -62,6 +68,8 @@ addParameter(p,'colormap',parula)
 addParameter(p,'shuffle',false)
 addParameter(p,'width',10)
 addParameter(p,'maxalpha',0.9,@(x) x> 0 && x <= 1);
+addParameter(p,'type','linearinward')
+addParameter(p,'complementalpha',false)
 parse(p,FD,varargin{:})
 
 
@@ -107,9 +115,27 @@ RGB    = reshape(RGB,[FD.size 3]);
 BDS    = imerode(D.Z,ones(3)) ~= D.Z | imdilate(D.Z,ones(3)) ~= D.Z; 
 DIST   = bwdist(BDS,'quasi-euclidean');
 
-ALPHA    = 1 - min(DIST*1/p.Results.width,1); 
-ALPHA(iszero) = 0;
-ALPHA    = ALPHA*p.Results.maxalpha;
+fringetype = validatestring(p.Results.type,{'linearinward','uniform','sine','cosine','exp'});
+switch lower(fringetype)
+    case 'linearinward'
+        ALPHA    = 1 - min(DIST*1/p.Results.width,1);
+        ALPHA(iszero) = 0;
+    case 'uniform'
+        ALPHA = DIST <= p.Results.width;
+    case 'sine'
+        ALPHA = sin(DIST/p.Results.width * pi);
+        ALPHA(DIST > p.Results.width) = 0;      
+    case 'cosine'
+        ALPHA = (cos(DIST/(p.Results.width) * pi) + 1)*0.5;
+        ALPHA(DIST > p.Results.width) = 0;
+    case 'exp'
+        ALPHA = exp(-DIST/p.Results.width);
+end
+
+if p.Results.complementalpha
+    ALPHA = 1-ALPHA;
+end
+ALPHA = ALPHA*p.Results.maxalpha;
 
 % Plot the RGB image
 [x,y] = getcoordinates(D);
