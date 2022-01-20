@@ -11,8 +11,8 @@ function mc = mchi(S,DEM,chi)
 %     mchi calculates the gradient of elevation in a DEM where the
 %     horizontal coordinate is chi as obtained from the function
 %     chitransform. mchi provides a metric that can be used to compare
-%     channel gradients with different drainage areas and is very similar
-%     to ksn.
+%     channel gradients with different drainage areas and is the same as
+%     ksn.
 %
 % Input arguments
 %

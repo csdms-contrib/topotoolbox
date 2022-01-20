@@ -1,4 +1,4 @@
-function [P,locb,n] = aggregate(P,c,varargin)
+function [P,locb] = aggregate(P,c,varargin)
 
 %AGGREGATE Aggregate points in PPS to new point pattern
 %

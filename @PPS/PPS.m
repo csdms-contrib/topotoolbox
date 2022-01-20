@@ -8,6 +8,7 @@ classdef PPS
 %     P = PPS(S,'PP',xy,...)
 %     P = PPS(S,'PP',MS,...)
 %     P = PPS(S,'PP',nal,...)
+%     P = PPS(S,'PP',geotable,...)
 %     P = PPS(S,'runif',n,...)
 %     P = PPS(S,'rpois',lambda,...)
 %     P = PPS(S,'intersect',PS,...)
@@ -107,14 +108,14 @@ classdef PPS
 % 
 % Reference: Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A 
 % systematic approach and software for the analysis of point patterns on 
-% river networks. Earth Surface Processes and Landforms, accepted. 
+% river networks. Earth Surface Processes and Landforms, 46 (9), 1847-1862. 
 % [DOI: 10.1002/esp.5127]
 %
 % See also: GRIDobj, FLOWobj, STREAMobj, STREAMobj/snap2stream, SWATHobj
 %           DIVIDEobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 22. January, 2020
+% Date: 21. December, 2021
     
 properties
 %S instance of STREAMobj
@@ -200,6 +201,17 @@ methods
             P.z = getnal(S,results.z);
         else
             P.z = results.z;
+        end
+
+        %% Enable reading of geotable
+        if ~verLessThan('map','5.2')
+            if isgeotable(results.PP)
+                points = results.PP.Shape;
+                x = [points.X];
+                y = [points.Y];
+
+                results.PP = [x(:) y(:)];
+            end
         end
         
         %% Read or create points

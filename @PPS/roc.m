@@ -78,10 +78,12 @@ parse(p,varargin{:});
 pp = points(P,'nal');
 
 if p.Results.perfcurve
+    TVals = quantile(c,linspace(0,1,p.Results.nTvals));
+    % TVals = linspace(min(c),max(c),p.Results.nTvals);
     [X,Y,~,AUC] = perfcurve(pp,c,true,...
         'NBoot',p.Results.NBoot,...
         'BootType',p.Results.BootType,...
-        'TVals',linspace(min(c),max(c),p.Results.nTvals));
+        'TVals',TVals);
 else
     
     cp = sortrows([c pp],[1 2]);

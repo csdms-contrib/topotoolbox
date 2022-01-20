@@ -15,6 +15,10 @@ function DEM = readopentopo(varargin)
 %     projected to a projected coordinate system (use reproject2utm) before
 %     analysis in TopoToolbox.
 %
+%     NOTE: Starting on January 1st, 2022, an API authorization key will be 
+%     required for this API. Users can request an API key via myOpenTopo in 
+%     the OpenTopography portal (https://opentopography.org/developers).
+%
 % Input arguments
 %
 %     Parameter name values
@@ -36,17 +40,17 @@ function DEM = readopentopo(varargin)
 %     'south'          southern boundary
 %     'west'           western boundary
 %     'east'           eastern boundary
-%     'demtype'        The global raster dataset 
-%                      {'SRTMGL3'}:  SRTM GL3 (90m) (default) 
+%     'demtype'        The global raster dataset *
+%                      {'SRTMGL3'}:  SRTM GL3 (90m) (default)
 %                      'SRTMGL1':    SRTM GL1 (30m)  
 %                      'SRTMGL1_E':  SRTM GL1 (Ellipsoidal)  
 %                      'AW3D30':     ALOS World 3D 30m  
 %                      'AW3D30_E':   ALOS World 3D (Ellipsoidal)
 %                      'SRTM15Plus': Global Bathymetry SRTM15+ V2.1 (only 
 %                                    mediterranean area so far)
-%                      'NASADEM':    NASADEM Global DEM *
-%                      'COP30':      Copernicus Global DSM 30m *
-%                      'COP90':      Copernicus Global DSM 90m *
+%                      'NASADEM':    NASADEM Global DEM 
+%                      'COP30':      Copernicus Global DSM 30m 
+%                      'COP90':      Copernicus Global DSM 90m 
 %                        
 %                      * requires API Key (see option 'apikey').
 %
@@ -110,24 +114,22 @@ url = 'https://portal.opentopography.org/API/globaldem?';
 f = fullfile(p.Results.filename);
 
 % check api
-if any(strcmp(demtype,{'NASADEM','COP30','COP90'}))
-    if isempty(p.Results.apikey)
-        % check whether file opentopography.apikey is available
-        if exist('opentopography.apikey','file')
-            fid = fopen('opentopography.apikey');
-            apikey = textscan(fid,'%c');
-            apikey = apikey{1}';
-            % Remove trailing blanks, if there are any
-            apikey = deblank(apikey);
-        else
-            error('The DEM types NASADEM, COP30 and COP90 require an API Key')
-        end
+
+if isempty(p.Results.apikey)
+    % check whether file opentopography.apikey is available
+    if exist('opentopography.apikey','file')
+        fid = fopen('opentopography.apikey');
+        apikey = textscan(fid,'%c');
+        apikey = apikey{1}';
+        % Remove trailing blanks, if there are any
+        apikey = deblank(apikey);
     else
-        apikey = p.Results.apikey;
+        error('The DEM types NASADEM, COP30 and COP90 require an API Key')
     end
 else
-    apikey = [];
+    apikey = p.Results.apikey;
 end
+
 
 % save to drive
 options = weboptions('Timeout',100000);

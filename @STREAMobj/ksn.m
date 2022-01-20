@@ -83,7 +83,7 @@ else
 end
 
 % minima imposition to avoid negative gradients
-z = imposemin(S,z);
+z = imposemin(S,z,0.00001);
 % calculate gradient
 g = gradient(S,z);
 % upslope area
@@ -94,7 +94,10 @@ g = gradient(S,z);
 k = g./(a.^(-p.Results.theta));
 
 if p.Results.smooth ~= 0
-    k = smooth(S,k,'K',p.Results.smooth);
+    k(k==0) = 0.0001;
+    ks = smooth(S,log(k),'K',p.Results.smooth);
+%     sig = var(ks-log(k));
+    k  = exp(ks)*exp(var(-ks/2));
 end
 
 

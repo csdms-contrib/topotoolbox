@@ -23,7 +23,7 @@ function [mdl,int,rts] = fitloglinear(P,c,varargin)
 %     'stepwise'   {false} or true. If true, fitloglinear uses stepwiseglm
 %                  to fit the model.
 %     'modelspec'  see fitglm. For example, for fitting a forth-order
-%                  polynomial: 'poly4'
+%                  polynomial of one covariate: 'poly4'
 %     
 %     In addition, fitloglinear accepts parameter name/value pairs of
 %     fitglm or stepwiseglm.
