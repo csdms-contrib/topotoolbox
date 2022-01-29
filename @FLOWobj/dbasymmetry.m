@@ -10,10 +10,9 @@ function [D,AS,ST] = dbasymmetry(FD,S,varargin)
 % Description
 %
 %     dbasymmetry calculates the drainage basin asymmetry. The function
-%     derives the longest flow path within each drainage basin the outlet
-%     of which is defined by the stream network S. It then calculates the 
-%     part of each drainage basin that is hydrologically left to the  
-%     longest flowpath. 
+%     derives the longest flow path within each drainage basin based on the
+%     stream network S. The function then calculates the part of each
+%     drainage basin that is hydrologically right to the longest flowpath.
 %
 % Input arguments
 %

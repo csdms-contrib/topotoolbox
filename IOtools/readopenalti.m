@@ -4,7 +4,7 @@ function data = readopenalti(varargin)
 %
 % Syntax
 %
-%     DEM = readopenalti(pn,pv,...)
+%     data = readopenalti(pn,pv,...)
 %
 % Description
 %
@@ -51,8 +51,7 @@ function data = readopenalti(varargin)
 % 
 % Output arguments
 %
-%     DEM            Digital elevation model in geographic coordinates
-%                    (GRIDobj)
+%     data     table with altimetry data
 %
 % Example
 %
