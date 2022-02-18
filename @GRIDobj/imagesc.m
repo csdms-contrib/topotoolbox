@@ -12,13 +12,19 @@ function h = imagesc(DEM,varargin)
 %
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 8. January, 2013
+% Date: 18. February, 2022
+
+%% Update on 18. Feb 2022
+% nans in the data are set to transparent
 
 [x,y] = refmat2XY(DEM.refmat,DEM.size);
 ht = imagesc(x,y,DEM.Z,varargin{:});
 
+
 axis xy
 axis image
+
+ht.AlphaData = ~isnan(DEM.Z);
 
 if nargout == 1;
     h = ht;
