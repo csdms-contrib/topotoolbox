@@ -133,7 +133,8 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
 - modification: STREAMobj/STREAMobj2cell
-- modification: STREAMobj/istrunk
+- new function: STREAMobj/istrunk
+- modification: STREAMobj/trunk - added second output argument
 - modification: GRIDobj/demprofile
 - new function: ScaleBar
 - new function: xlinerel and ylinerel 

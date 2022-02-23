@@ -1,4 +1,4 @@
-function S = trunk(S,varargin)
+function [S,locb] = trunk(S,varargin)
 
 %TRUNK extract trunk stream (longest stream) 
 %
@@ -7,6 +7,7 @@ function S = trunk(S,varargin)
 %     S2 = trunk(S)
 %     S2 = trunk(S,A)
 %     S2 = trunk(S,a)
+%     [S2,loc] = trunk(...)
 %
 % Description
 %
@@ -22,14 +23,15 @@ function S = trunk(S,varargin)
 % Input 
 %
 %     S    stream network (STREAMobj)
+%     A    GRIDobj with flow accumulation values (as returned by the
+%          function flowacc). 
+%     a    node-attribute list (nal) (e.g. getnal(S,flowacc(FD))).
 % 
 % Output
 %
 %     S2   stream network (STREAMobj) with only trunk streams in each
 %          connecoted component
-%     A    GRIDobj with flow accumulation values (as returned by the
-%          function flowacc). 
-%     a    node-attribute list (nal) (e.g. getnal(S,flowacc(FD))).
+%     loc  linear index into node-attribute list of S
 %
 % Example
 %
@@ -46,7 +48,8 @@ function S = trunk(S,varargin)
 % See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps
 %  
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 8. September, 2019
+% Date: 23. February, 2022
+
 
 
 narginchk(1,2);
@@ -61,7 +64,10 @@ if nargin == 2
     end
 end
         
-        
+if nargout > 1
+    % make copy
+    Scopy = S;
+end
 
 % downstream distance
 nrc = numel(S.x);
@@ -97,3 +103,8 @@ S.ixc = IX(S.ixc);
 S.x   = S.x(L);
 S.y   = S.y(L);
 S.IXgrid   = S.IXgrid(L);
+
+if nargout > 1
+    % Get indices to be able to index in node-attribute lists of Scopy
+    [~,locb] = ismember(S.IXgrid,Scopy.IXgrid);
+end
