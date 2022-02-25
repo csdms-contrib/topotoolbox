@@ -4,7 +4,7 @@ function DEM = diffusion(DEM,varargin)
 %
 % Syntax
 %
-%     DEMd = diffusion(DEM,D,dt)
+%     DEMd = diffusion(DEM)
 %
 % Description
 %
@@ -104,7 +104,7 @@ Z1 = DEM.Z(:);
 if isa(p.Results.uplift,'GRIDobj')
     u = p.Results.uplift.Z;
 else 
-    u = p.Results.uplift;
+    u = double(p.Results.uplift);
     u = repmat(u,DEM.size);
 end
 
@@ -119,7 +119,7 @@ for r = 1:numsteps
         case '\'
             Z1 = D\(Z1+u);
         case 'pcg'
-            [Z1,~] = pcg(D,Z1+u,p.Results.pcgtol,[],[],[],Z1);
+            [Z1,~] = pcg(D,double(Z1+u),p.Results.pcgtol,[],[],[],Z1);
         otherwise
             error('unknown solver')
     end

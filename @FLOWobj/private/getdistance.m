@@ -10,7 +10,6 @@ function d = getdistance(ix,ixc,siz,cellsize,cl)
 %
 %     calculate the distance between each node which is either
 %     sqrt(2)*cellsize or cellsize.
-%
 % 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)

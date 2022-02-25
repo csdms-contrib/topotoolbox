@@ -34,7 +34,8 @@ function h = plotpoints(P,varargin)
 %     'MaxSize'    see 'SizeData' (default = 75)
 %     'MarkerFaceAlpha'  Transparency (default = 0.5). 0 is completely 
 %                  transparent and 1 is fully opaque. (see scatter)
-%     'ColorData'
+%     'ColorData'  Default='w'. Alternatively, a vector with values for 
+%                  each point. 
 %
 % Example
 %

@@ -43,7 +43,7 @@ function zi = interp(DEM,xi,yi,method)
 
 narginchk(3,4)
 
-if nargin == 3;
+if nargin == 3
     method = 'linear';
 else
     method = validatestring(method,...

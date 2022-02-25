@@ -1,6 +1,6 @@
 function DZ = vertdistance2stream(FD,S,DEM)
 
-%VERTDISTANCE2STREAM vertical distance to streams
+%VERTDISTANCE2STREAM vertical distance to streams 
 %
 % Syntax
 %
@@ -10,7 +10,7 @@ function DZ = vertdistance2stream(FD,S,DEM)
 %
 %     vertdistance2stream calculates the height of each cell in a digital
 %     elevation model DEM above the nearest stream cell in S along the flow
-%     paths in FD.
+%     paths in FD (height above nearest drainage (HAND)).
 %
 % Input arguments
 %
@@ -60,4 +60,4 @@ for r = numel(ix):-1:1
     Z(ix(r)) = max(Z(ix(r)),Z(ixc(r)));
 end
 DZ = DEM-Z;
-DZ.name = 'Heigt above drainage network';
+DZ.name = 'Heigt above nearest drainage';

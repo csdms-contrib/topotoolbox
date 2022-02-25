@@ -122,7 +122,13 @@ end
 % error checking    
 % clean boundary
 I = isnan(dem);
-I = imclearborder(I,conn);
+% imclearborder
+% I = imclearborder(I,conn);
+marker = I;
+marker(2:end-1,2:end-1) = false;
+I = ~imreconstruct(marker,I) & I; 
+clear marker
+
 
 if ~isinf(k)
     I = xor(bwareaopen(I,k+1,conn),I);
