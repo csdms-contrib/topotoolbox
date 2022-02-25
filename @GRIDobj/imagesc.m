@@ -13,7 +13,18 @@ function h = imagesc(DEM,varargin)
 %     however, the function sets nans in the DEM to transparent. For
 %     further information see the documentation of imagesc. 
 %
-% 
+% Input arguments
+%
+%     DEM     GRIDobj
+%    
+%     Parameter name/value pairs
+%
+%     'nanstransparent'  {true} or false: If true, nans in DEM are
+%                        displayed fully transparent
+%
+% Output arguments
+%
+%     h       handle to image object
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 18. February, 2022
