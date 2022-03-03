@@ -120,6 +120,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: update to ttscm to Scientific Colormaps 7.0
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: FLOWobj/plotdbfringe
+- new function: FLOWobj/tfactor
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
 - new function: STREAMobj/extend2divide

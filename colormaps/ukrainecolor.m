@@ -19,3 +19,4 @@ flag = [255   213     0;
 clr  = interp1([0 255]',double(flag)/255,linspace(0,255,n));
 
 
+
