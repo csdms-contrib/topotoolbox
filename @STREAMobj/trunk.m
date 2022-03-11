@@ -45,7 +45,8 @@ function [S,locb] = trunk(S,varargin)
 %     legend('Stream network','Trunk rivers')
 %
 %
-% See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps
+% See also: chiplot, FLOWobj/flowpathextract, STREAMobj/klargestconncomps,
+%           STREAMobj/istrunk, STREAMobj/modify
 %  
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 23. February, 2022

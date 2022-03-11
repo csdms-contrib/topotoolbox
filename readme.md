@@ -97,6 +97,10 @@ path of Matlab. Enter following code into the command line:
 To remove .git-folders from the path, run
 
         rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
+		
+To make these paths permanent, use the command
+
+		savepath
 
 Type `doc` in the command line to open the main documentation page. You'll 
 find the TopoToolbox documentation in the section Supplemental Software.  
@@ -143,6 +147,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - updates to readopentopo
 - updates to utilities: setextent and getextent 
 - new function: padextent
+- new function: ukrainecolor
 
 
 ### 2.3

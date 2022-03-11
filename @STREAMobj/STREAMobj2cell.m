@@ -26,7 +26,11 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 %     connected components. This means that individual STREAMobjs are
 %     derived as individual trees of the stream network, i.e. individual
 %     drainage basins. This is the default. In this case, CS has as many
-%     elements as there are outlets in the stream network.
+%     elements as there are outlets in the stream network. 
+%
+%     STREAMobj2cell(S,'outlets',n) takes the n largest connected 
+%     components and stores these in the cell array CS. In this case, CS
+%     has n elements.
 %     
 %     STREAMobj2cell(S,'channelheads') derives individual STREAMobj as
 %     single streams emanating from each channelhead. In this case, CS has
@@ -97,7 +101,7 @@ function [CS,locS,order] = STREAMobj2cell(S,ref,n)
 % See also: FLOWobj2cell, STREAMobj/split, PPS
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 7. May, 2021
+% Date: 11. March, 2022
 
 if nargin == 1
     ref = 'outlets';
