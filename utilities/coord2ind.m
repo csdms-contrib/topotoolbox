@@ -1,6 +1,6 @@
 function [IX,ixcoord,res] = coord2ind(X,Y,x,y)
 
-% convert xy coordinates to linear index
+%COORD2IND Convert xy coordinates to linear index
 %
 % Syntax
 %
@@ -38,11 +38,11 @@ function [IX,ixcoord,res] = coord2ind(X,Y,x,y)
 %
 % See also: SUB2IND, IND2SUB, MESHGRID
 %
-% Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 15. March, 2009
+% Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
+% Date: 14. March, 2022
 
 
-if nargin == 0;
+if nargin == 0
     % get X and Y
     h = findobj(gcf,'type','image');
     M = size(get(h,'CData'), 1);
@@ -52,7 +52,7 @@ if nargin == 0;
     Y = get(h,'YData');
     
     if numel(X) == 2 && numel(Y) == 2
-        if isa(X,'cell') && isa(X,'cell') 
+        if isa(X,'cell') && isa(Y,'cell') 
             X = X{2};
             Y = Y{2};
         else
@@ -64,7 +64,7 @@ if nargin == 0;
 %     [X,Y] = meshgrid(1:N,1:M);
     [x,y] = getpts;
 
-elseif nargin == 2;
+elseif nargin == 2
     [x,y] = getpts;
 end
 
@@ -72,7 +72,7 @@ end
 x = x(:);
 y = y(:);
 
-if isvector(X) && isvector(Y);
+if isvector(X) && isvector(Y)
     siz = [numel(Y) numel(X)];
     dx  = X(2)-X(1);
     dy  = Y(2)-Y(1);
@@ -95,10 +95,13 @@ x(I) = [];
 y(I) = [];
 ixcoord = find(~I);
 
+IX1(I) = [];
+IX2(I) = [];
+
 if ~isempty(x)
     IX = sub2ind(siz,IX2,IX1);
     if nargout == 3
-        if isvector(X) && isvector(Y);
+        if isvector(X) && isvector(Y)
             res = hypot(X(IX1)-x,Y(IX2)-y);
         else            
             res = hypot(X(IX)-x,Y(IX)-y);
