@@ -38,6 +38,10 @@ function d = netdist(S,a,varargin)
 %               components produces some considerable computational
 %               overhead.
 %
+%     'distance' By default, distance is S.distance, the distance from the 
+%               outlet. Yet, any other continuous increasing function can
+%               be used, e.g. chi (see chitransform).
+%
 % Output arguments
 %
 %     d     node-attribute list with distances. Nodes that cannot be
@@ -60,17 +64,21 @@ function d = netdist(S,a,varargin)
 % See also: STREAMobj/distance, 
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. May, 2019
+% Date: 31. March, 2022
 
 % Check input arguments
 p = inputParser;
 p.FunctionName = 'STREAMobj/netdist';
 addParameter(p,'split',false,@(x) isscalar(x));
 addParameter(p,'dir','both');
+addParameter(p,'distance',S.distance);
 parse(p,varargin{:});
 
 % validate direction
 direction = validatestring(p.Results.dir,{'both','up','down'});
+
+% distance
+dist      = p.Results.distance;
 
 % handle input
 if isa(a,'GRIDobj')
@@ -86,17 +94,18 @@ end
 % run in parallel
 if ~p.Results.split
     % computations are done in netdistsub
-    d = netdistsub(S,a,direction);
+    d = netdistsub(S,a,direction,dist);
 else
     [CS,locb] = STREAMobj2cell(S);
     nrbasins = numel(CS);
     if nrbasins == 1
-        d = netdistsub(S,a,direction);
+        d = netdistsub(S,a,direction,dist);
     else
+        DIST = cellfun(@(ix) dist(ix),locb,'UniformOutput',false);
         D = cell(nrbasins,1);
         A = cellfun(@(ix) a(ix),locb,'UniformOutput',false);
         parfor r = 1:nrbasins
-            D{r} = netdistsub(CS{r},A{r},direction);
+            D{r} = netdistsub(CS{r},A{r},direction,DIST{r});
         end
         d = zeros(size(a));
         for r = 1:nrbasins
@@ -107,11 +116,12 @@ else
 end
 end
 
-function d = netdistsub(S,a,direction)
+function d = netdistsub(S,a,direction,dist)
 
 ix  = S.ix;
 ixc = S.ixc;
-dd  = hypot(S.x(ix)-S.x(ixc),S.y(ix)-S.y(ixc));
+dd  = abs(dist(S.ix) - dist(S.ixc));
+% dd  = hypot(S.x(ix)-S.x(ixc),S.y(ix)-S.y(ixc));
 d   = inf(size(a));
 d(logical(a)) = 0;
 

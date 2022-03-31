@@ -29,6 +29,10 @@ function d = netdist(P,varargin)
 %               components produces some considerable computational
 %               overhead.
 %
+%     'distance' By default, distance is S.distance, the distance from the 
+%               outlet. Yet, any other continuous increasing function can
+%               be used, e.g. chi (see chitransform).
+%
 % Output arguments
 %
 %     d     node-attribute list with distances. Nodes that cannot be
@@ -47,7 +51,7 @@ function d = netdist(P,varargin)
 % See also: STREAMobj/netdist, PPS/voronoi
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. May, 2019
+% Date: 31. March, 2022
 
 
 if npoints(P) == 0
