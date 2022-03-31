@@ -125,6 +125,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
   see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
 - new function: FLOWobj/plotdbfringe
 - new function: FLOWobj/tfactor
+- new function: private in FLOWobj graydistparallel
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
 - new function: STREAMobj/extend2divide
@@ -133,11 +134,13 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: STREAMobj/wmplot
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
+- new function: STREAMobj/isempty
 - new function: STREAMobj/STREAMobj2kml
 - new function: STREAMobj/getlocation
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
 - modification: STREAMobj/STREAMobj2cell
+- modification: STREAMobj/netdist and PPS/netdist
 - new function: STREAMobj/istrunk
 - modification: STREAMobj/trunk - added second output argument
 - modification: GRIDobj/demprofile
