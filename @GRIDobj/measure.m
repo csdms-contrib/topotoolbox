@@ -24,17 +24,24 @@ function measure(DEM,varargin)
 %     'showhelp'      show help window ({true} or false)
 %     'position'      nx2 matrix with x and y coordinates
 %     'colormap'      choose colormap. Default is parula
+%     'water'         by default empty. Provide a GRIDobj with water depth
+%                     to show water surface and plot and save profiles of
+%                     topography and water surface.
 % 
 % 
 % See also: IMDISTLINE, IMROI, IMPOLY, GRIDobj/DEMPROFILE
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. October, 2013
+% Date: 12. February, 2022
 
 % 24. November, 2014: added structure field nodes if profile is saved to
 % workspace. This allows to continue working with the measure tool with an
 % existing profile by calling 
 % measure(DEM,'position',p.nodes)
+
+% 12. February, 2022: add water option to display water surfaces in
+% profiles. Increased resolution of profiles
+
 
 % get DEM coordinates
 [X,Y] = getcoordinates(DEM);
@@ -69,10 +76,16 @@ addParamValue(p,'showhelp',true,@(x) isscalar(x));
 addParamValue(p,'position',defpos,@(x) numel(x) >= 4 && size(x,2) == 2 && ...
     (max(x(:,1)) <= xmax && min(x(:,1)) >= xmin && ...
      max(x(:,2)) <= ymax && min(x(:,2)) >= ymin));
+addParamValue(p,'water',[]);
+
 parse(p,varargin{:});
 
 if ~p.Results.reset
-    imageschs(DEM,DEM,'colormap',p.Results.colormap)
+    if isempty(p.Results.water)
+        imageschs(DEM,DEM,'colormap',p.Results.colormap)
+    else
+        imageschs(DEM,p.Results.water,'colormap',flowcolor)
+    end
     zoom reset
 end
     
@@ -246,15 +259,21 @@ end
                 zoomtoroi  
                 
             case 'p'
-                n = ceil((totdist/DEM.cellsize)/1.5);
+                n = ceil((totdist/DEM.cellsize)*5);
                 posn = getPosition(h);
                 [dn,z] = demprofile(DEM,n,posn(:,1),posn(:,2));
+                if ~isempty(p.Results.water)
+                    [~,zw] = demprofile(p.Results.water,n,posn(:,1),posn(:,2));
+                end
                 posfig = get(hf,'OuterPosition');
                 
                 hfprofile = figure('OuterPosition',posfig.*[1 1 .5 .5]);
                 ax = gca;
-                plot(ax,dn,z);
+                plot(ax,dn,z,'k');
                 hold on
+                if ~isempty(p.Results.water)
+                    plot(ax,dn,z+zw,'b');
+                end
                 plot(ax,cumsum([0;segdist(:)]),elev,'sr');
                 hold off
                 xlabel('distance [m]');
@@ -262,9 +281,12 @@ end
                 
             case 's'
                 % save profile structure array to workspace
-                n = ceil((totdist/DEM.cellsize)/1.5);
+                n = ceil((totdist/DEM.cellsize)*5);
                 posn = getPosition(h);
                 [S.distance,S.z,S.x,S.y] = demprofile(DEM,n,posn(:,1),posn(:,2));
+                if ~isempty(p.Results.water)
+                    [~,S.zw] = demprofile(DEM+p.Results.water,n,posn(:,1),posn(:,2));
+                end
                 S.nodes = posn;
                 
                 
