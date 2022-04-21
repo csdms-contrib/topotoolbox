@@ -25,7 +25,10 @@ function k = ksn(S,DEM,A,varargin)
 %     a      node attribute list of flow accumulation values
 %     theta  concavity (default 0.45)
 %     K      smoothing factor K (by default 0 = no smoothing). See function
-%            STREAMobj/smooth for details
+%            STREAMobj/smooth for details. If K > 0, then the function will
+%            smooth the river profile before river gradient and ksn are
+%            calculated. To have more control on profile smoothing, see the
+%            functions STREAMobj/crs (or crsapp) or STREAMobj/smooth.
 %
 % Output arguments
 %
@@ -51,7 +54,7 @@ function k = ksn(S,DEM,A,varargin)
 % See also: STREAMobj/crs, STREAMobj/smooth, FLOWobj/flowacc
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 26. August, 2021
+% Date: 21. April, 2022
 
 
 p = inputParser;
@@ -84,6 +87,12 @@ end
 
 % minima imposition to avoid negative gradients
 z = imposemin(S,z,0.00001);
+
+% Smoothing, if required
+if p.Results.smooth ~= 0
+    z = smooth(S,z,'K',p.Results.smooth);
+end
+
 % calculate gradient
 g = gradient(S,z);
 % upslope area
@@ -93,11 +102,6 @@ a = a.*S.cellsize.^2;
 
 k = g./(a.^(-p.Results.theta));
 
-if p.Results.smooth ~= 0
-    k(k==0) = 0.0001;
-    ks = smooth(S,log(k),'K',p.Results.smooth);
-%     sig = var(ks-log(k));
-    k  = exp(ks)*exp(var(-ks/2));
-end
+
 
 
