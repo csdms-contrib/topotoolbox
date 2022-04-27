@@ -137,6 +137,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/isempty
 - new function: STREAMobj/STREAMobj2kml
 - new function: STREAMobj/getlocation
+- new function: STREAMobj/fastscape
 - modification: STREAMobj/smooth
 - new function: STREAMobj/mnoptimvar
 - modification: STREAMobj/STREAMobj2cell
