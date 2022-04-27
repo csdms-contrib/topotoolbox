@@ -23,8 +23,8 @@ function z = fastscape(S,z,a,varargin)
 %
 %     Parameter name/value pairs
 %
-%     u           nal or GRIDobj with uplift rates [m/y]
-%     k           nal with erosivities [m^(1-2m) y^(-1)]
+%     u           scalar, nal or GRIDobj with uplift rates [m/y]
+%     k           sclaar, nal or GRIDobj with erosivities [m^(1-2m) y^(-1)]
 %     convertpx   fastscape by default assumes that drainage areas in
 %                 a are provided as pixels. Set correctcellsize to false if 
 %                 you don't want that the values in a are converted to 
