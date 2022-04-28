@@ -10,7 +10,9 @@ function z = fastscape(S,z,a,varargin)
 % Description
 %
 %     1D-simulation of the stream power incision model using the implicit
-%     solver of Braun and Willett (2013).
+%     solver commonly known as fastscape. The solver was developed by 
+%     Hergarten (2002), Hergarten and Neugebauer (2001) and Braun and 
+%     Willett (2013).
 %
 % Input arguments
 %
@@ -92,12 +94,18 @@ function z = fastscape(S,z,a,varargin)
 %     parallel method to solve the stream power equation governing fluvial
 %     incision and landscape evolution, Geomorphology, 180–181, 170–179,
 %     doi:10.1016/j.geomorph.2012.10.008, 2013.
+% 
+%     Hergarten, S., Neugebauer, H.J., 2001. Self-organized critical 
+%     drainage networks. Phys.Rev. Lett. 86, 2689–2692
+%
+%     Hergarten, S., 2002. Self organised criticality in Earth Systems. 
+%     Springer, Heidelberg.
 %
 % See also: STREAMobj
 %
 % Authors: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de) and
 %          Benjamin Campforts.
-% Date: 29. March, 2022
+% Date: 28. April, 2022
 
 
 %% Input parsing
