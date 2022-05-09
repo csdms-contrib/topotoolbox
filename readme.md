@@ -132,6 +132,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: STREAMobj/binarize
 - modification: STREAMobj/modify 
 - modification: STREAMobj/wmplot
+- new function: STREAMobj/loessksn
 - new function: STREAMobj/STREAMobj2shape
 - new function: STREAMobj/isequal
 - new function: STREAMobj/isempty
