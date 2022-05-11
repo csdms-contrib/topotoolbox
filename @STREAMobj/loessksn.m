@@ -9,13 +9,14 @@ function k = loessksn(S,DEM,A,varargin)
 %
 % Description
 %
-%     loessksn calculates the chitransformation of the horizontal river 
-%     coordinate. Based on the transformed coordinate, it then calculates 
+%     loessksn calculates the chitransformation of the horizontal river
+%     coordinate. Based on the transformed coordinate, it then calculates
 %     river gradient based on a loess regression (locally estimated
 %     scatterplot smoothing). The loess regression performs a locally
 %     weighted linear regression and returns the regression slope as
-%     estimate of ksn. The weights are based on a tricubic weight function.
-%     Note that only downstream pixels are included in the estimate.
+%     estimate of ksn. The weights are derived from a tricubic weight
+%     function. Note that only downstream pixels are included in the
+%     estimate.
 %     
 % Input parameters
 %
@@ -25,9 +26,10 @@ function k = loessksn(S,DEM,A,varargin)
 % 
 %     Parameter name/value pairs
 % 
-%     a0      Reference area {1 m^2}
-%     mn      river concavity (theta) {0.45}
-%     ws      window size {11}
+%     'a0'          Reference area {1 m^2}
+%     'mn'          river concavity (theta) {0.45}
+%     'ws'          window size {11}
+%     'parallel'    run in parallel {true} or false
 %
 % Output arguments
 %
@@ -41,22 +43,23 @@ function k = loessksn(S,DEM,A,varargin)
 %     S = STREAMobj(FD,A>1000);
 %     S = klargestconncomps(S);
 %     DEM = imposemin(S,DEM);
-%     k = loessksn(S,DEM,A);
+%     k = loessksn(S,DEM,A,'parallel',false);
 %     plotc(S,k)
 %
 % See also: chitransform, ksn, smooth
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 9. May, 2022
+% Date: 11. May, 2022
 
 
 p = inputParser;
 addParameter(p,'mn',0.45);
 addParameter(p,'a0',1);
 addParameter(p,'ws',11,@(x) validateattributes(x,{'single','double'},{'scalar','positive','integer'}))
+addParameter(p,'parallel',true)
 parse(p,varargin{:})
 
-% get node attribute list with upstream area values
+% get node attribute list with elevation values
 if isa(DEM,'GRIDobj')
     validatealignment(S,DEM);
     z = getnal(S,DEM);
@@ -65,20 +68,52 @@ elseif isnal(S,DEM)
 else
     error('Imcompatible format of second input argument')
 end
+
+% get node attribute list with upstream area values
+if isa(A,'GRIDobj')
+    validatealignment(S,A);
+    a = getnal(S,A);
+elseif isnal(S,A)
+    a = A;
+else
+    error('Imcompatible format of second input argument')
+end
+
+% ------ run in parallel -------
+if p.Results.parallel
+    [CS,locb] = STREAMobj2cell(S);
+    Cz = cellfun(@(ix) z(ix),locb,'UniformOutput',false);
+    Ca = cellfun(@(ix) a(ix),locb,'UniformOutput',false);
+
+    Ck = cell(numel(CS),1);
+    params = p.Results;
+    params.parallel = false;
+
+    parfor r = 1:numel(CS)
+        Ck{r} = loessksn(CS{r},Cz{r},Ca{r},params);
+    end
+
+    k = getnal(S);
+    for r = 1:numel(CS)
+        k(locb{r}) = Ck{r};
+    end
+    return
+end
+
+% ------- parallel ends here -----------
     
 n = numel(S.x);
 M = sparse(S.ix,S.ixc,1,n,n);
 M = M+speye(n);
 M = M^p.Results.ws;
 
-d = chitransform(S,A,'a0',p.Results.a0,'mn',p.Results.mn);
+d = chitransform(S,a,'a0',p.Results.a0,'mn',p.Results.mn);
 % d = S.distance;
 
 [i,j]  = find(M);
 NEIGHS = accumarray(i,j,[n 1],@(x){x});
 
 k = cellfun(@(i,j) wregress(i,j),num2cell((1:n)'),NEIGHS);
-
 
 function b = wregress(ix,ixc)
     dij = d(ixc);
