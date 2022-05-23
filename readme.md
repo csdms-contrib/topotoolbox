@@ -128,6 +128,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - new function: private in FLOWobj graydistparallel
 - new function: GRIDobj/diffusion
 - new function: GRIDobj/histogram
+- new function: PPS/extractvaluesaroundpoints
 - new function: STREAMobj/extend2divide
 - new function: STREAMobj/binarize
 - modification: STREAMobj/modify 
