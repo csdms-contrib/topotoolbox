@@ -113,7 +113,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ***
 ## Version History
 
-### pre 2.4
+### 2.4
 
 - HyLands 1.0 added: see paper: Campforts, B. et al. (2020): HyLands 1.0: a Hybrid Landscape evolution 
   model to simulate the impact of landslides and landslide-derived sediment on landscape evolution  
@@ -150,6 +150,7 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 - modification: GRIDobj/demprofile
 - new function: ScaleBar
 - new function: xlinerel and ylinerel 
+- new function: gif by Chad Greene [see here](https://de.mathworks.com/matlabcentral/fileexchange/63239-gif)
 - topoapp was removed from this version 
 - updates to readopentopo
 - updates to utilities: setextent and getextent 
