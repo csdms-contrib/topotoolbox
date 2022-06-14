@@ -42,7 +42,7 @@ function slopeareatool(FD,DEM,varargin)
 % See also: slopearea, chiplot
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 19. June, 2013
+% Date: 14. June, 2022
 
 
 p = inputParser;
@@ -115,8 +115,8 @@ RGB  = imageschs(DEM,DEM);
 % Upslope area (we will use pixel units and switch to map units when plotting)
 A = flowacc(FD);
 % gradient
-DEM = imposemin(FD,DEM,0.0000001);
-G = FLOWobj2gradient(FD,DEM);
+DEM = imposemin(FD,DEM,p.Results.mingradient);
+G = gradient(FD,DEM);
 
 % Set minarea and maxarea to pixel units
 minarea = minarea/(A.cellsize^2);
