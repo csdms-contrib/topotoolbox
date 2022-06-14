@@ -41,6 +41,8 @@ addParameter(p,'linecolor',[]);
 addParameter(p,'pointcolor',[]);
 addParameter(p,'color','k')
 addParameter(p,'linewidth',1);
+addParameter(p,'baseLayer','World Imagery')
+addParameter(p,'add',true)
 % Parse
 parse(p,varargin{:});
 
@@ -52,16 +54,18 @@ if isempty(p.pointcolor)
     p.pointcolor = p.color;
 end
 
-
-
 [lat,lon] = STREAMobj2latlon(P.S);
 minlat = min(lat);
 maxlat = max(lat);
 minlon = min(lon);
 maxlon = max(lon);
 
-wm = webmap;
-wmlimits(wm,[minlat maxlat],[minlon maxlon]);
+if ~p.add
+    wm = webmap(p.baseLayer);
+else
+
+end
+wmlimits([minlat maxlat],[minlon maxlon]);
 
 h = wmline(lat,lon,'OverlayName','Stream network','color',p.linecolor);
 
