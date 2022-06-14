@@ -80,7 +80,9 @@ baselevel = p.Results.baselevel;
 if block
     minz = min(DEM);
     maxz = max(DEM);
+    if isempty(baselevel)
     baselevel = minz-(maxz-minz)*0.2;
+    end
 end    
 sea   = p.Results.sea;
 sealevel = p.Results.sealevel;

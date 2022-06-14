@@ -17,7 +17,7 @@ function zs = smooth(S,DEM,varargin)
 %     STREAMobj/crs.
 %
 %     Smooth can handle nan values and takes weights as additional input
-%     arguments.
+%     arguments. 
 %
 % Input parameters
 %
@@ -43,6 +43,9 @@ function zs = smooth(S,DEM,varargin)
 %                the optimization toolbox)
 %     'weights'  GRIDobj or node-attribute list with weights. Weights must 
 %                be >= 0. By default, all weights are one. 
+%     'breaks'   vector with linear indices into the GRIDobj from which S
+%                was derived, or PPS object. The smoothness constraint is
+%                relaxed at these points.
 %
 % Output parameters
 %
@@ -116,7 +119,7 @@ function zs = smooth(S,DEM,varargin)
 %           STREAMobj/quantcarve, STREAMobj/crslin
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 5. July, 2018
+% Date: 2. September, 2020
 
 
 % check and parse inputs
@@ -131,6 +134,8 @@ addParameter(p,'K',10,@(x) (isscalar(x) && x>0));
 addParameter(p,'nstribs',true,@(x) isscalar(x));
 addParameter(p,'positive',false,@(x) isscalar(x));
 addParameter(p,'weights',[],@(x) isa(x,'GRIDobj') || isnal(S,x) || isempty(x));
+addParameter(p,'breaks',[]);
+addParameter(p,'distance',[]);
 
 parse(p,varargin{:});
 
@@ -156,11 +161,16 @@ elseif isnal(S,weights)
     % great, go on
 end
 
+% handle custom distances
+if isnal(S,p.Results.distance)
+    d = p.Results.distance;
+end
+
 % check for nans
 if strcmp(p.Results.method,'regularization') && any(isnan(z))
     % error('DEM or z may not contain any NaNs if method is regularization.')
     inan = isnan(z);
-    z = inpaintnans(S,z,true);
+    z = inpaintnans(S,z,'extrap',true);
     if isempty(weights)
         weights = double(~inan);   
     else
@@ -176,22 +186,28 @@ if p.Results.split
     Cz = cellfun(@(ix) z(ix),locS,'UniformOutput',false);
     Czs = cell(size(CS));
     
-    if isempty(weights)
-        % Without weights
-        for r = 1:numel(CS)
-            Czs{r} = smooth(CS{r},Cz{r},params);
-        end
-        
-    else
-        % With weights
+    % handle weights
+    if ~isempty(params.weights)
         Cw = cellfun(@(ix) weights(ix),locS,'UniformOutput',false);
-        params = rmfield(params,'weights');
-        parfor r = 1:numel(CS)
-            Czs{r} = smooth(CS{r},Cz{r},params,'weights',Cw{r});
-        end
-        
+    else
+        Cw = cell(size(CS));
     end
+    params = rmfield(params,'weights');
     
+    % handle custom distances
+    if ~isempty(params.distance)
+        Cd = cellfun(@(ix) d(ix),locS,'UniformOutput',false);
+    else
+        Cd = cell(size(CS));
+    end
+    params = rmfield(params,'distance');
+    
+    % finally, do the smoothing
+    parfor r = 1:numel(CS)
+        Czs{r} = smooth(CS{r},Cz{r},params,'weights',Cw{r},'distance',Cd{r});
+    end
+
+    % write smoothed values to node-attribute list
     zs = nan(size(z));
     for r = 1:numel(CS)
         zs(locS{r}) = Czs{r};
@@ -201,7 +217,13 @@ end
 
 %% Smoothing starts here
 % upstream distance
-d  = S.distance;
+if ~isempty(p.Results.distance)
+    d = p.Results.distance;
+else
+    d = S.distance;
+end
+
+% d  = S.distance;
 % nr of nodes
 nr = numel(S.IXgrid);
 
@@ -240,7 +262,25 @@ switch method
             colix(I,:) = [];
             val(I,:) = [];
         end
-
+        
+        if ~isempty(p.Results.breaks)
+            % do breaks come as a PPS object
+            if isa(p.Results.breaks,'PPS')
+                kp = points(p.Results.breaks,'IXgrid');
+            else
+                kp = p.Results.breaks;
+            end
+            
+            % identify breaks that belong to the basin 
+            I  = ismember(S.IXgrid,kp);
+            
+            % remove stiffness at break nodes
+            I  = I(colix(:,2));
+            colix(I,:) = [];
+            val(I,:) = [];
+        end
+            
+         
         % second-derivative matrix
         nrrows = size(colix,1);
         rowix  = repmat((1:nrrows)',1,3);
@@ -270,7 +310,6 @@ switch method
         if ~p.Results.positive
             zs     = C\b;
         else
-            
             options = optimset('Display','off');
             zs = lsqlin(C,b,[],[],[],[],zeros(nr,1),[],[],options);
 

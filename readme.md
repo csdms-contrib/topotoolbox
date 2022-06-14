@@ -2,6 +2,8 @@
 
 <img src="https://github.com/wschwanghart/topotoolbox/blob/master/topotoolbox.jpg" align="center" height="100">
 
+[![View TopoToolbox on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://de.mathworks.com/matlabcentral/fileexchange/50124-topotoolbox)
+
 [TopoToolbox](http://topotoolbox.wordpress.com) provides a set of Matlab functions that support the analysis
 of relief and flow pathways in digital elevation models. The major 
 aim of TopoToolbox is to offer helpful analytical GIS utilities in a 
@@ -10,7 +12,7 @@ of GIS-specific and other quantitative methods.
 
 If you have any questions or remarks, please contact the authors:
 
-[Wolfgang Schwanghart](http://www.geo.uni-potsdam.de/mitarbeiterdetails/show/421/Wolfgang_Schwanghart.html)
+[Wolfgang Schwanghart](https://www.uni-potsdam.de/de/umwelt/institut/alle-mitarbeiterinnen/schwanghart-wolfgang.html)
 w.schwanghart[at]geo.uni-potsdam.de
 
 [Dirk Scherler](https://sites.google.com/site/scherlerdirk/home)
@@ -19,9 +21,11 @@ scherler[at]gfz-potsdam.de
 ## Requirements
 
 TopoToolbox is plat-form independent and requires
-Matlab 2014b or higher and the Image Processing Toolbox. The Mapping
+Matlab 2016b or higher and the Image Processing Toolbox. The Mapping
 Toolbox is not mandatory, but good to have to facilitate easy data
-exchange with GIS software.
+exchange with GIS software. Some functions support parallelisation using the 
+Parallel Toolbox. Few functions require the Optimization or Statistics
+and Machine Learning Toolbox.
 
 ## References
 
@@ -42,29 +46,46 @@ In addition, various models and algorithms used in TopoToolbox have been publish
 
 ### DEM preprocessing and carving
 
-- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G. (2013): Flow network derivation from a high 
+- Schwanghart, W., Groom, G.B., Kuhn, N.J., Heckrath, G., 2013: Flow network derivation from a high 
 resolution DEM in a low relief, agrarian landscape. Earth Surface Processes and Landforms, 38, 
 1576-1586. DOI: [10.1002/esp.3452](http://dx.doi.org/10.1002/esp.3452)
 
 - Schwanghart, W., Scherler, D., 2017. Bumps in river profiles: uncertainty assessment and smoothing 
 using quantile regression techniques. Earth Surface Dynamics, 5, 821-839. DOI: [10.5194/esurf-5-821-2017](https://doi.org/10.5194/esurf-5-821-2017)
 
-### TopoToolbox Landscape Evolution Modelling (TTLEM)
+### TopoToolbox Landscape Evolution Modelling (TTLEM) and HyLands
 
 - Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate simulation of transient 
 landscape evolution by eliminating numerical diffusion: the TTLEM 1.0 model. 
 Earth Surface Dynamics, 5, 47-66. DOI: [10.5194/esurf-5-47-2017](http://dx.doi.org/10.5194/esurf-5-47-2017)
 
+- HyLands: Campforts B., Shobe M.C., et al. (2020): HyLands 1.0: a Hybrid Landscape 
+evolution model to simulate the impact of landslides and landslide-derived sediment on landscape evolution. 
+Geosci. Model Dev., 13, 3863–3886. DOI: [10.5194/gmd-13-3863-2020](http://dx.doi.org/10.5194/gmd-13-3863-2020)
+
 ### Excess topography
 
-- Blöthe, J.H., Korup, O., Schwanghart, W. (2015): Large landslides lie low: Excess topography in the 
+- Blöthe, J.H., Korup, O., Schwanghart, W., 2015: Large landslides lie low: Excess topography in the Himalaya-Karakorum ranges. 
+  Geology, 43, 523-526. [DOI: 10.1130/G36527.1](https://doi.org/10.1130/G36527.1)
 
 ### Knickpointfinder
 
-- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., 
-Merchel, S., Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. 
-Earth Surface Processes and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) 
-(The description here is very terse, yet)
+- Stolle, A., Schwanghart, W., Andermann, C., Bernhardt, A., Fort, M., Jansen, J.D., Wittmann, H., Merchel, S., 
+  Rugel, G., Adhikari, B.R., Korup, O., 2019. Protracted river response to medieval earthquakes. Earth Surface Processes 
+  and Landforms, 44, 331-341. DOI: [10.1002/esp.4517](https://doi.org/10.1002/esp.4517) (The description here is very terse, yet)
+
+### Divide functions
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 1: Identification and ordering in digital elevation models. 
+Earth Surface Dynamics, 8, 245–259. [DOI: 10.5194/esurf-8-245-2020](http://dx.doi.org/10.5194/esurf-8-245-2020)
+
+- Scherler, D., Schwanghart, W., 2020. Drainage divide networks – Part 2: Response to perturbations. 
+Earth Surface Dynamics, 8, 261-274. [DOI: 10.5194/esurf-8-261-2020](http://dx.doi.org/10.5194/esurf-8-261-2020)
+
+### Point patterns on stream networks
+
+- Schwanghart, W., Molkenthin, C., & Scherler, D. (2020). A systematic approach and software for the analysis 
+of point patterns on river networks. Earth Surface Processes and Landforms, accepted. [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
 
 ## Getting started
 
@@ -76,6 +97,10 @@ path of Matlab. Enter following code into the command line:
 To remove .git-folders from the path, run
 
         rmpath(genpath('C:\path\to\wherever\you\installed\this\TopoToolbox-2\.git'));
+		
+To make these paths permanent, use the command
+
+		savepath
 
 Type `doc` in the command line to open the main documentation page. You'll 
 find the TopoToolbox documentation in the section Supplemental Software.  
@@ -88,7 +113,49 @@ resource for code and examples is the [TopoToolbox blog](http://topotoolbox.word
 ***
 ## Version History
 
-### pre 2.4
+### 2.4
+
+- HyLands 1.0 added: see paper: Campforts, B. et al. (2020): HyLands 1.0: a Hybrid Landscape evolution 
+  model to simulate the impact of landslides and landslide-derived sediment on landscape evolution  
+  Geoscientific Model Development. [DOI:10.5194/gmd-13-3863-2020](https://doi.org/10.5194/gmd-13-3863-2020)
+- new class: DIVIDEobj [Paper 1 DOI: 10.5194/esurf-8-245-2020](https://doi.org/10.5194/esurf-8-245-2020)
+  [Paper 2 DOI: 10.5194/esurf-8-261-2020](https://doi.org/10.5194/esurf-8-261-2020)
+- new class: PPS [DOI: 10.1002/esp.5127](http://dx.doi.org/10.1002/esp.5127)
+- modification: update to ttscm to Scientific Colormaps 7.0
+  see [Fabio Crameri's website](http://www.fabiocrameri.ch/colourmaps.php)
+- new function: FLOWobj/plotdbfringe
+- new function: FLOWobj/tfactor
+- new function: private in FLOWobj graydistparallel
+- new function: GRIDobj/diffusion
+- new function: GRIDobj/histogram
+- new function: GRIDobj/rand
+- new function: PPS/extractvaluesaroundpoints
+- new function: STREAMobj/extend2divide
+- new function: STREAMobj/binarize
+- modification: STREAMobj/modify 
+- modification: STREAMobj/wmplot
+- new function: STREAMobj/loessksn
+- new function: STREAMobj/STREAMobj2shape
+- new function: STREAMobj/isequal
+- new function: STREAMobj/isempty
+- new function: STREAMobj/STREAMobj2kml
+- new function: STREAMobj/getlocation
+- new function: STREAMobj/fastscape
+- modification: STREAMobj/smooth
+- new function: STREAMobj/mnoptimvar
+- modification: STREAMobj/STREAMobj2cell
+- modification: STREAMobj/netdist and PPS/netdist
+- new function: STREAMobj/istrunk
+- modification: STREAMobj/trunk - added second output argument
+- modification: GRIDobj/demprofile
+- new function: ScaleBar
+- new function: xlinerel and ylinerel 
+- new function: gif by Chad Greene [see here](https://de.mathworks.com/matlabcentral/fileexchange/63239-gif)
+- topoapp was removed from this version 
+- updates to readopentopo
+- updates to utilities: setextent and getextent 
+- new function: padextent
+- new function: ukrainecolor
 
 
 ### 2.3

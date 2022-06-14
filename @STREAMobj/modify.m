@@ -42,14 +42,14 @@ function [Sout,nalix] = modify(S,varargin)
 %     modifies the stream network that only the portion of the network is
 %     retained that is within downstream distance of the the channelheads.
 %
-%     'upstreamto' logical GRIDobj or linear index in GRIDobj
+%     'upstreamto' logical GRIDobj, nal or linear index in GRIDobj
 %     returns the stream network upstream to true pixels in the logical
 %     raster of GRIDobj. Note that, if the grid contains linear features
 %     (e.g. a fault), the line should be 4 connected. Use
 %     bwmorph(I.Z,'diag') to establish 4-connectivity in a logical raster
 %     I.
 %
-%     'downstreamto' logical GRIDobj or linear index in GRIDobj
+%     'downstreamto' logical GRIDobj, nal or linear index in GRIDobj
 %     returns the stream network downstream to true pixels in the logical
 %     raster of GRIDobj. Note that, if the grid contains linear features
 %     (e.g. a fault), the foreground (true pixels) should be 4 connected.
@@ -167,13 +167,13 @@ addParamValue(p,'tributaryto2',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'righttrib',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'lefttrib',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'shrinkfromtop',[],@(x) isnumeric(x) && isscalar(x) && x>0);
-addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
-addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x));
+addParamValue(p,'upstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x)  || isnal(S,x));
+addParamValue(p,'downstreamto',[],@(x) isa(x,'GRIDobj') || isnumeric(x) || isnal(S,x));
 addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'fromch2IX',[]);
-addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'rmnodes',[]);
 addParamValue(p,'clip',[],@(x) (isnumeric(x) && size(x,2)==2 && size(x,1)>2) || isa(x,'GRIDobj'));
 addParamValue(p,'nal',[],@(x) isnal(S,x));
 
@@ -241,22 +241,22 @@ elseif ~isempty(p.Results.upstreamto)
     II = p.Results.upstreamto;
     
     if isa(II,'GRIDobj')
-        validatealignment(S,II);
-        II.Z = logical(II.Z);
-    else
+        
+        II = getnal(S,II);
+    elseif isnal(S,II)
+        II = logical(II);        
+    else   
         % II contains linear indices into the DEM from which S was derived
-        IX = II;
-        I = ismember(IX,S.IXgrid);
-        if ~all(I)
-            error('TopoToolbox:modify','Some linear indices are not located on the stream network')            
-        end
-        II = GRIDobj(S,'logical');
-        II.Z(IX) = true;
+        [II,locb] = ismember(S.IXgrid,II);
+%         if ~all(locb)
+%             warning('TopoToolbox:modify','Some linear indices are not located on the stream network')            
+%         end
     end
-  
-    I = false(size(S.x));
+    
+%     I = false(size(S.x));
+    I = II;
     for r = numel(S.ix):-1:1
-        I(S.ix(r)) = II.Z(S.IXgrid(S.ixc(r))) || I(S.ixc(r));
+        I(S.ix(r)) = II(S.ixc(r)) || I(S.ixc(r));
     end
     
 elseif ~isempty(p.Results.rmupstreamtoch)
@@ -282,22 +282,22 @@ elseif ~isempty(p.Results.downstreamto)
     II = p.Results.downstreamto;
     
     if isa(II,'GRIDobj')
-        validatealignment(S,II);
-        II.Z = logical(II.Z);
-    else
+        
+        II = getnal(S,II);
+    elseif isnal(S,II)
+        II = logical(II);        
+    else   
         % II contains linear indices into the DEM from which S was derived
-        IX = II;
-        I = ismember(IX,S.IXgrid);
-        if ~all(I)
-            error('TopoToolbox:modify','Some linear indices are not located on the stream network')            
-        end
-        II = GRIDobj(S,'logical');
-        II.Z(IX) = true;
+        [II,locb] = ismember(S.IXgrid,II);
+%         if ~all(locb)
+%             warning('TopoToolbox:modify','Some linear indices are not located on the stream network')            
+%         end
     end
     
-    I = false(size(S.x));
+    
+    I = II;
     for r = 1:numel(S.ix)
-        I(S.ixc(r)) = II.Z(S.IXgrid(S.ix(r))) || I(S.ix(r)) || I(S.ixc(r));
+        I(S.ixc(r)) = II(S.ix(r)) || I(S.ix(r)) || I(S.ixc(r));
     end
 
 elseif ~isempty(p.Results.tributaryto) || ~isempty(p.Results.tributaryto2)
@@ -378,8 +378,13 @@ elseif ~isempty(p.Results.rmconncomps_ch)
     I = ismember(cc,md);
     
 elseif ~isempty(p.Results.rmnodes)
-    I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
-    
+    % check if empty S is supplied
+    if isempty(p.Results.rmnodes.IXgrid)
+        I = getnal(S) == 0;
+    else
+        I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
+    end
+
 elseif ~isempty(p.Results.nal)
     I = p.Results.nal;
 
@@ -397,7 +402,7 @@ elseif ~isempty(p.Results.clip)
 
 elseif ~isempty(p.Results.interactive)
 %% interactive    
-    figure
+%     figure
     plot(S,'k'); axis equal
     ax = gca;
     % expand axes
@@ -410,12 +415,16 @@ elseif ~isempty(p.Results.interactive)
          'rectselect','ellipseselect','outletselect'});
     switch meth
         case 'outletselect'
-            title('map outlet and double-click to finalize')
+            title('map outlet and press key to finalize')
             hold on
             htemp = plot(ax,[],[]);
             hp = impoint('PositionConstraintFcn',@getnearest);
             addNewPositionCallback(hp,@drawbasin);
+            setPosition(hp,getPosition(hp));
+            set(gcf,'WindowKeyPressFcn',@(k,l) uiresume);
             pos = wait(hp);
+%             pos = getPosition(hp);
+%             
             hold off
             delete(hp);
             I = S.x==pos(1) & S.y==pos(2);
@@ -457,14 +466,25 @@ elseif ~isempty(p.Results.interactive)
             switch meth
                 case 'polyselect'
                     title('create a polygon and double-click to finalize')
+                    try
+                    hp = drawpolygon;
+                    pos = hp.Position;
+                    catch
                     hp = impoly;
                     pos = wait(hp);
+                    end
                     pos(end+1,:) = pos(1,:);
                 case 'ellipseselect'
                     title('create a ellipse and double-click to finalize')
+                    try
+                    hp = drawellipse;
+                    pos = hp.Vertices;
+                    catch
                     hp = imellipse;
-                    wait(hp);
+                    pos = wait(hp);
                     pos = getVertices(hp);
+                    end
+                    
                     pos(end+1,:) = pos(1,:);
                 case 'rectselect'
                     title('create a rectangle and double-click to finalize')
@@ -585,7 +605,6 @@ end
     end
         
 end
-            
-            
+                        
         
     

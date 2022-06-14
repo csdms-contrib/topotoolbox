@@ -25,8 +25,13 @@ classdef STREAMobj
 %
 %     minarea      upslope area threshold for channel initiation (default =
 %                  1000)
-%     unit         'pixels' (default), 'mapunits'. If you choose mapunits 
-%                  provide minimum area in mapunits^2 (e.g. 1e6 m^2)
+%     unit         'pixels' (default), 'mapunits', 'm2', or 'km2'. Note
+%                  that if mapunits is chosen, than STREAMobj assumes that
+%                  coordinates are measured in m. 'm2' thus produces the
+%                  same output as 'mapunits', if FD has a projected
+%                  coordinate system. Note that if S was derived from a DEM
+%                  with geographical coordinates, then the default unit is
+%                  'm2' and 'pixels' and 'mapunits' is not allowed.
 %     outlets      linear indices of drainage basin outlets (default = [])
 %     channelheads linear indices of channelheads (this argument can only
 %                  be used when no other parameters are set).
@@ -93,38 +98,67 @@ methods
             addRequired(p,'W', @(x) isa(x,'GRIDobj'));
             parse(p,FD,W);
         else 
+            
+            if true %~isgeographic(S)
+                default_units = 'pixels';
+                default_minarea = 1000;
+            else
+                default_units = 'm';
+                default_minarea = 5e6; %m^2
+            end
+            
+            
             % many input arguments: FD, pn-pv pairs
             p = inputParser;
             p.FunctionName = 'STREAMobj';
             addRequired(p,'FD',@(x) isa(x,'FLOWobj'));
-            addParamValue(p,'minarea',1000,@(x) isscalar(x) && x>=0);
-            addParamValue(p,'unit','pixels',@(x) ischar(validatestring(x, ...
-                            {'pixels', 'mapunits'}))); 
+            addParamValue(p,'minarea',default_minarea,@(x) isscalar(x) && x>=0);
+            addParamValue(p,'unit',default_units,@(x) ischar(validatestring(x, ...
+                            {'pixels', 'mapunits','m2','km2'}))); 
             addParamValue(p,'outlets',[],@(x) isnumeric(x));
             addParamValue(p,'channelheads',[],@(x) isnumeric(x));
             
             parse(p,FD,varargin{:});
+            
+            % Check whether STREAMobj is geographic
+            isgeo = false; %isgeographic(S);
             % required
-            unit    = validatestring(p.Results.unit,{'pixels', 'mapunits'});
+            if ~isgeo
+                unit    = validatestring(p.Results.unit,{'pixels', 'mapunits','km2','m2'});
+            else
+                unit    = validatestring(p.Results.unit,{'km2','m2'});
+            end
             IX      = p.Results.outlets;
             minarea = p.Results.minarea;
             channelheads = p.Results.channelheads;
             
-            
-            switch unit
-                case 'mapunits'
-                    minarea = minarea/(FD.cellsize.^2);
+            % Dealing with units here
+            if ~isgeo
+                switch unit
+                    case 'mapunits'
+                        minarea = minarea/(FD.cellsize.^2);
+                    case 'km2'
+                        minarea = minarea/1e6/(FD.cellsize.^2);
+                end
+            else
+                switch unit
+                    case 'km2'
+                        minarea = minarea/1e6;
+                end
             end
             
+            % Create channel mask
             if ~isempty(channelheads)
                 W = influencemap(FD,channelheads);
-            elseif ~isempty(IX) && isempty(channelheads)
-                W = drainagebasins(FD,IX)>0 & flowacc(FD)>minarea;
             else
-                W = flowacc(FD)>=minarea;
+                W = flowacc(FD) >= minarea;
+            end
+            
+            % Restrict stream net to specified outlets
+            if ~isempty(IX)
+                W = drainagebasins(FD,IX) > 0 & W;
             end
 
-            
             if ~any(W.Z(:))
                 warning('TopoToolbox:STREAMobj',...
                     'There is no stream network that meets your criteria. \n STREAMobj returns an empty instance');
@@ -180,13 +214,18 @@ methods
     
     
     
-    function distance = get.distance(S)
+    function d = get.distance(S)
         % [dynamic property] distance from outlet
         
-        distance = zeros(numel(S.x),1);
+        if false % isgeographic(S)
+            d_node = sph_distance(S.y(S.ix),S.x(S.ix),S.y(S.ixc),S.x(S.ixc),S.georef.gcs);
+        else
+            d_node = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2);
+        end
+        
+        d = zeros(numel(S.x),1);
         for r = numel(S.ix):-1:1
-            distance(S.ix(r)) = distance(S.ixc(r)) + ...
-                sqrt((S.x(S.ixc(r))-S.x(S.ix(r)))^2 + (S.y(S.ixc(r))-S.y(S.ix(r)))^2);
+            d(S.ix(r)) = d(S.ixc(r)) + d_node(r);
         end
     end
         
@@ -235,12 +274,13 @@ methods
         order = order(:);
     end
     
-    function S = subgraph(S,nal)
+    function [S,locb] = subgraph(S,nal)
     %SUBGRAPH extract part of the stream network
     % 
     % Syntax
     %
     %     Snew = subgraph(S,nal)
+    %     [Snew,locb] = subgraph(S,nal)
     %
     % Description
     %
@@ -255,6 +295,7 @@ methods
     % Output arguments
     %
     %     Snew    STREAMobj
+    %     locb    linear index into node attribute lists of S
     %
     % Example
     %
@@ -273,10 +314,10 @@ methods
     %           STREAMobj/rmnode
     % 
     % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-    % Date: 5. June, 2019
+    % Date: 12. December, 2019
     
     p = inputParser;
-    p.FunctionName = 'STREAMobj/rmnode';
+    p.FunctionName = 'STREAMobj/subgraph';
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
     addRequired(p,'nal',@(x) isnal(S,x) || isa(x,'GRIDobj'));
     parse(p,S,nal);
@@ -291,7 +332,14 @@ methods
     
     if all(nal)
         % do nothing
+        if nargout == 2
+            locb = (1:numel(S.IXgrid))';
+        end
         return
+    end
+    
+    if nargout == 2
+        IXgrid_old = S.IXgrid;
     end
     
     I = nal(S.ix) & nal(S.ixc);
@@ -309,6 +357,9 @@ methods
     S.IXgrid   = S.IXgrid(nal);
     
     S     = clean(S);
+    if nargout == 2
+        [~,locb] = ismember(S.IXgrid,IXgrid_old);
+    end
      
     end
     

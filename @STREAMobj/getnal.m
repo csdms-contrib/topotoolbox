@@ -7,6 +7,7 @@ function varargout = getnal(S,varargin)
 %     z = getnal(S,DEM)
 %     [z1,z2,...] = getnal(S,DEM1,DEM2,...)
 %     nalstruct = getnal(S,DEM1,DEM2,...,'struct')
+%     z = getnal(S)
 %
 % Description
 %
@@ -20,6 +21,9 @@ function varargout = getnal(S,varargin)
 %     nals are intricately linked to the network topology. To export nals
 %     to nan-punctuated vectors that can be plotted by custom functions,
 %     use the function STREAMobj2XY.
+%
+%     With only S as input argument, getnal returns a node-attribute list
+%     of zeros (double).    
 %
 % Input
 %

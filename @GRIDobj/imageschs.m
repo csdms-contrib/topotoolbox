@@ -59,6 +59,10 @@ function rgb = imageschs(DEM,A,varargin)
 %     nancolor         three element vector (rgb) with values between 0 and 1  
 %                      that indicates how NaNs and Infs are plotted 
 %                      Default is [1 1 1].
+%     brighten         Scalar between -1 and 1. Shift intensities of all 
+%                      colors in the colormap. If <0, then colormap will be
+%                      darkened, and if >0, it will be brightened.
+%                      Default is 0
 %     usepermanent     controls whether the hillshade is retained in 
 %                      memory as persistent variable. Default is false. If 
 %                      set to true, and if the DEM has the same size as the
@@ -213,6 +217,7 @@ addParamValue(p,'colorbarlabel',[],@(x) ischar(x));
 addParamValue(p,'colorbarylabel',[],@(x) ischar(x));
 addParamValue(p,'tickstokm',false,@(x) isscalar(x));
 addParamValue(p,'method','surfnorm');
+addParamValue(p,'brighten',0,@(x) x>=-1 & x <= 1);
 parse(p,DEM,A,varargin{:});
 
 % required
@@ -351,6 +356,10 @@ cmap = bsxfun(@times,cmap,linspace(0,1,nhs));
 cmap = reshape(cmap,[ncolors 3 nhs]);
 cmap = permute(cmap,[3 1 2]);
 cmap = reshape(cmap,[ncolors*nhs 3]);
+
+if p.Results.brighten
+    cmap = brighten(cmap,p.Results.brighten);
+end
 
 % create image that indexes into the new colormap
 IND  = uint16(H+1) + nhs*uint16(A) + 1;

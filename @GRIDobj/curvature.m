@@ -29,6 +29,8 @@ function C = curvature(DEM,ctype,varargin)
 %                       (see function blockproc)
 %     'useparallel'     true or {false}: use parallel computing toolbox
 %     'blocksize'       blocksize for blockproc (default: 5000)
+%     'meanfilt'        true or {false}: if true, preprocess DEM with 
+%                       [3x3] mean filter. 
 %
 % Output arguments
 %
@@ -74,8 +76,12 @@ p.FunctionName = 'GRIDobj/curvature';
 addParamValue(p,'useblockproc',false,@(x) isscalar(x));
 addParamValue(p,'blocksize',5000,@(x) isscalar(x));
 addParamValue(p,'useparallel',false,@(x) isscalar(x));
+addParamValue(p,'meanfilt',false,@(x) isscalar(x));
 parse(p,varargin{:});
 
+if p.Results.meanfilt
+    DEM = filter(DEM);
+end
 
 % create a copy of the DEM instance
 C = DEM;
@@ -118,13 +124,19 @@ else
     correctedges = true;
     shape = 'valid';
 end
-    
-% First-order partial derivatives:
-[fx,fy] = gradient(dem,cs);
 
 if correctedges
     dem = padarray(dem,[1 1],'symmetric');
 end
+
+% First-order partial derivatives:
+% kernel for dz/dx
+kernel = [-1 0 1; -1 0 1; -1 0 1]./(6*cs);
+fx = conv2(dem,kernel,shape);
+% kernel for dz/dy
+kernel = [1 1 1; 0 0 0; -1 -1 -1]./(6*cs);
+fy = conv2(dem,kernel,shape);
+
 % Second order derivatives according to Evans method (see Olaya 2009)
 %
 % z1 z2 z3
@@ -153,9 +165,9 @@ switch ctype
     case 'profc'
         curv = - (fx.^2 .* fxx + 2*fx.*fy.*fxy + fy.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2).^(3/2));
     case 'tangc'
-        curv = - (fy.^2 .* fxx + 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2).^(1/2));
+        curv = - (fy.^2 .* fxx - 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).*(1 + fx.^2 + fy.^2).^(1/2));
     case 'planc'
-        curv = - (fy.^2 .* fxx + 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).^(3/2));
+        curv = - (fy.^2 .* fxx - 2*fx.*fy.*fxy + fx.^2.*fyy)./((fx.^2 + fy.^2).^(3/2));
     case 'meanc'
         curv = - ((1+fy.^2).*fxx - 2.*fxy.*fx.*fy + (1+fx.^2).*fyy)./ ...
             (2.* (fx.^2+fy.^2+1).^(3/2));

@@ -1,4 +1,4 @@
-function OUT = streampoi(S,type,outformat)
+function [OUT,OUT2] = streampoi(S,type,outformat)
 
 %STREAMPOI stream points of interest
 %
@@ -6,6 +6,7 @@ function OUT = streampoi(S,type,outformat)
 %
 %     V = streampoi(S,type)
 %     V = streampoi(S,type,outformat)
+%     [x,y] = streampoi(S,type,'xy')
 %
 % Description
 %
@@ -21,17 +22,22 @@ function OUT = streampoi(S,type,outformat)
 %                 type can also be a cell array of strings with the
 %                 different types listed above.
 %     outformat   'xy': nx2 coordinate matrix with x and y coordinates of 
-%                       n points (default)
+%                       n points (default). With two output arguments, the
+%                       function will return two vectors with x and y
+%                       coordinates, respectively.
 %                 'ix': nx1 vector with linear indices into an instance of
 %                       GRIDobj with the same dimension as the GRIDobj from
 %                       which S was derived.
 %                 'logical': node attribute list (logical)
 %                 'mappoint': mappoint (see function mapshape)
-%                 'geopoint': geopoint (see function geopoint)
+%                 'geopoint': geopoint (see function geopoint). Requires a
+%                       valid coordinate reference system.
+%                 'PPS' instance of PPS
 %
 % Output
 %
 %     V           output as specified in outformat
+%     x,y         coordinate vectors
 %
 % Example
 %
@@ -47,7 +53,7 @@ function OUT = streampoi(S,type,outformat)
 % See also: STREAMobj, FLOWobj/streampoi
 % 
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. January, 2018
+% Date: 26. November, 2020
 
 
 %% check input arguments
@@ -61,7 +67,7 @@ else
         type = {type};
     end
     if nargin > 2
-        outformat = validatestring(outformat,{'xy','ix','logical','mappoint','geopoint'},'streampoi','outformat',3);
+        outformat = validatestring(outformat,{'xy','ix','logical','mappoint','geopoint','PPS'},'streampoi','outformat',3);
     else       
         outformat = 'xy';
     end  
@@ -100,7 +106,7 @@ for r = 1:numel(type)
             
         case 'outlets'
             
-            V = (sum(M,2)==0) & (sum(M,1)'~=0) | V;
+            V = ((sum(M,2)==0) & (sum(M,1)'~=0)) | V;
     end
 end
 
@@ -110,6 +116,10 @@ switch outformat
         ix   = find(V);
         ix   = ix(:);
         OUT  = [S.x(ix) S.y(ix)];
+        if nargout == 2
+            OUT2 = OUT(:,2);
+            OUT = OUT(:,1);
+        end
         
     case 'ix'
         ix   = find(V);
@@ -132,4 +142,8 @@ switch outformat
         ix   = ix(:);
         [lat,lon] = minvtran(S.georef.mstruct,S.x(ix),S.y(ix));
         OUT  = geopoint(lat,lon);
+        
+    case 'PPS'
+        
+        OUT   = PPS(S,'pp',S.IXgrid(V));
 end

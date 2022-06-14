@@ -1,5 +1,5 @@
 % TopoToolbox
-% Version 2.3  13-Jun-2019
+% Version 2.4  14-June-2022
 %
 % TopoToolbox provides a set of Matlab functions that support the analysis
 % of relief and flow pathways in digital elevation models. The major 
@@ -18,7 +18,7 @@
 % When you use TopoToolbox in your work, please reference one of these 
 % publications:
 % 
-% Schwanghart, W. & Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
+% Schwanghart, W., Scherler, D. (2014): TopoToolbox 2 – MATLAB-based 
 % software for topographic analysis and modeling in Earth surface sciences. 
 % Earth Surface Dynamics, 2, 1-7. [DOI: 10.5194/esurf-2-1-2014]
 % 
@@ -32,13 +32,14 @@
 %     GRIDobj         - object for gridded, geospatial data
 %     FLOWobj         - object for flow direction
 %     STREAMobj       - object for stream (channel) networks
+%     DIVIDEobj       - object for drainage divide networks
 %     SWATHobj        - object for swath profiles
+%     PPS             - object for point patterns on stream networks
 %
 % Graphical user interfaces
 %
 %     flowpathapp     - Map, visualize and export flowpaths that start at manually set channelheads                     
 %     slopeareatool   - Interactively create slope area plots and fit power laws                    
-%     topoapp         - Create instance of a topoapp
 %     mappingapp      - Map points combining river planform and profile view
 %
 % GRIDobj methods
@@ -132,6 +133,7 @@
 %     DRAINAGEBASINS      : drainage basin delineation/catchments
 %     DRAINAGEBASINSTATS  : zonal statistics on drainage basins
 %     FIND                : find indices and values of edges in the flow direction graph
+%     FLIPDIR             : Flip direction of flow
 %     FLOWACC             : flow accumulation (upslope area, contributing area)
 %     FLOWCONVERGENCE     : compute flow convergence of a digital elevation model
 %     FLOWDISTANCE        : flow distance in upstream and downstream direction
@@ -147,6 +149,7 @@
 %     MULTI_NORMALIZE     : create flow direction object
 %     MULTI_WEIGHTS       : create flow direction object
 %     QUANTCARVE          : quantile carving
+%     RANDOMIZE           : randomize multiple flow directions
 %     SAVEOBJ             : create flow direction object
 %     STREAMORDER         : calculates a stream order GRIDobj from FLOWobj
 %     STREAMPOI           : stream points of interest
@@ -164,6 +167,7 @@
 %     STREAMOBJ2CELL      : convert instance of STREAMobj to cell array of stream objects
 %     STREAMOBJ2LATLON    : convert instance of STREAMobj to NaN-separated geographic coordinates
 %     STREAMOBJ2MAPSTRUCT : convert instance of STREAMobj to mapstruct
+%     STREAMOBJ2SHAPE     : Convert STREAMobj to geoshape or mapshape
 %     AGGREGATE           : aggregating values of reaches
 %     CHIPLOT             : CHI analysis for bedrock river analysis
 %     CHITRANSFORM        : Coordinate transformation using the integral approach
@@ -173,6 +177,7 @@
 %     CRSAPP              : interactive smoothing of river long profiles
 %     CRSLIN              : constrained regularized smoothing of the channel length profile
 %     CUMMAXUPSTREAM      : cumulative maximum in upstream direction
+%     CUMSUM              : cumulative sum on stream network
 %     CUMTRAPZ            : Cumulative trapezoidal numerical integration along a stream network
 %     CURVATURE           : curvature or 2nd derivative of a STREAMobj
 %     DENSIFY             : Increase number of vertices in stream network using splines
@@ -190,6 +195,7 @@
 %     INTERP              : interpolate data on STREAMobj (single river only)
 %     INTERSECT           : intersect different instances of STREAMobj 
 %     INTERSECTLOCS       : Derive locations where two STREAMobj start to have a common network
+%     ISGEOGRAPHIC        : Determines if STREAMobj S has a geographic coordinate system
 %     ISNAL               : test whether a vector is a node attribute list of a STREAMobj
 %     ISSUBGRAPH          : Create stream object (STREAMobj)
 %     KLARGESTCONNCOMPS   : retain k largest connected components in an instance of STREAMobj
@@ -214,6 +220,7 @@
 %     PLOTDZSHADED        : plot upstream distance version elevation of a stream network
 %     PLOTSEGMENTGEOMETRY : Plot segment geometry obtained from the function networksegment
 %     PLOTSTREAMORDER     : calculate stream order from STREAMobj
+%     PSITRANSFORM        : Parse Inputs
 %     QUANTCARVE          : quantile carving
 %     RANDLOCS            : Random locations along the stream network
 %     REMOVEEDGEEFFECTS   : remove potential edge effects
@@ -239,6 +246,27 @@
 %     WIDENSTREAM         : level elevations adjacent to the stream network
 %     WMPLOT              : plot stream network in the webmap browser
 %     ZEROBASELEVEL       : set base level to zero
+%
+% DIVIDEobj methods
+%
+%     DIVIDEOBJ           : Create divide object (DIVIDEobj)
+%     DIVIDEOBJ2MAPSTRUCT : obtain divide properties from GRIDobj
+%     ASYMMETRY           : directional asymmetry of divide segments
+%     CLEANEDGES          : Delete divides on the edges of DEM
+%     COORD2IND           : convert x and y coordinates to linear index
+%     DIST2NODE           : network distance to nodes
+%     DIVDIST             : DIVDIST   Assign distance to divide segments
+%     DIVNET              : Create divide object (DIVIDEobj)
+%     DIVORDER            : Assign order to divide segments
+%     GETVALUE            : get grid values adjacent to divides
+%     IND2COORD           : convert linear index to x and y coordinates
+%     JCTANGLE            : angles between divide segments at junctions
+%     JCTCON              : compute junction connectivity
+%     PLOT                : plot the divide network 
+%     PLOTC               : Create colored plot of drainage divide network
+%     REMOVESHORTDIVIDES  : Remove short first-order divides
+%     SHRINK              : Shrink divide network
+%     SORT                : Sort divide segments by network structure.
 % 
 % SWATHobj methods
 % 
@@ -251,6 +279,44 @@
 %     PLOTDZM          : create color-coded distance-elevation plot from SWATHobj and GRIDobj
 %     PROFILES         : obtain profiles from a SWATHobj
 %     TIDY             : remove overlapping points from SWATHobj
+%
+% PPS methods
+%
+%     PPS              : Point patterns on stream networks
+%     AGGREGATE        : Aggregate points in PPS to new point pattern
+%     AS               : Convert PPS object into various data formats 
+%     CLUSTER          : hierarchical clustering of points in PPS
+%     CONVHULL         : convex hull around points in PPS
+%     DENSITY          : nonparametric density estimation on network
+%     ECDF             : Empirical cumulative distribution function of a covariate 
+%     EXTENDEDNETWORK  : extend network to account for duplicate points
+%     FITLOGLINEAR     : fit loglinear model to point pattern
+%     GETMARKS         : extract point marks
+%     GFUN             : G-function (nearest inter-point distance distribution)
+%     HASDUPLICATES    : checks whether there are duplicate points
+%     HISTOGRAM        : histogram of point pattern on stream network
+%     INTENSITY        : calculate intensity (density) of points on the stream network
+%     NETDIST          : Shortest network distance
+%     NPOINTS          : number of points in the point pattern
+%     PLOT             : plot instance of PPS
+%     PLOTC            : plot a colored stream network
+%     PLOTDZ           : plot upstream distance version elevation or covariate of a PPS
+%     PLOTEFFECTS      : Plot of slices through fitted generalized linear regression
+%     PLOTPOINTS       : plot points of PPS
+%     POINTDISTANCES   : inter-point distance
+%     POINTS           : extract a list of points from the point pattern
+%     QUADRATCOUNT     : Quadrat count and chi2 test
+%     RANDOM           : random realisation of a (inhomogeneous) point process
+%     REGULARPOINTS    : Generate non-random points on stream network
+%     REMOVEDUPLICATES : removes duplicate points
+%     REMOVEPOINTS     : Remove points in point pattern
+%     RHOHAT           : nonparametric estimation of point pattern dependence on covariate
+%     ROC              : receiver-operating characteristics of point pattern
+%     SHAPEWRITE       : write point pattern to shapefile
+%     SIMULATE         : simulate point pattern using random thinning
+%     TLENGTH          : total length of the stream network
+%     VORONOI          : nearest neighbor search on a stream network
+%     WMPLOT           : plot instance of PPS in webmap browser
 %
 % TTLEM (TopoToolbox Landscape Evolution Model)
 %

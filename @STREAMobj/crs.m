@@ -81,10 +81,9 @@ function [zs,exitflag,output] = crs(S,DEM,varargin)
 %     techniques. Earth Surface Dynamics, 5, 821-839. 
 %     [DOI: 10.5194/esurf-5-821-2017]
 %
-% See also: STREAMobj/mincosthydrocon, quadprog, profilesimplify,
+% See also: STREAMobj/mincosthydrocon, quadprog, STREAMobj/crsapp, 
 %           STREAMobj/crslin, STREAMobj/quantcarve, STREAMobj/smooth
-%           STREAMobj/crsapp
-% 
+%           
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
 % Date: 25. September, 2017
 

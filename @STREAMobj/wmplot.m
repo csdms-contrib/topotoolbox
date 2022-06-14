@@ -5,6 +5,7 @@ function ht = wmplot(S,varargin)
 % Syntax
 %
 %     h = wmplot(S)
+%     h = wmplot(S,'color',c)
 %
 % Description
 %
@@ -18,51 +19,99 @@ function ht = wmplot(S,varargin)
 % Output arguments
 %
 %     h    handle to wmline object
+%     
+%     Parameter name/value pairs
 %
-% Example
+%     'color'      three element rgb vector or node attribute list
+%     'colormap'   char (default is 'jet')
+%     'nrcolors'   number of colors
+%
+% Example 1
 %
 %     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
 %     FD = FLOWobj(DEM,'preprocess','carve');
 %     S = STREAMobj(FD,'minarea',1000);
 %     wmplot(S)
 %
+% Example 2
+%
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     FD = FLOWobj(DEM,'preprocess','carve');
+%     S = STREAMobj(FD,'minarea',1000);
+%     A = flowacc(FD);
+%     k = ksn(S,DEM,A);
+%     wmplot(S,'color',k)
+%
 % Remark
 %
-%     wmplot will plot the stream network in a new webmap browser. If you  
-%     want to plot the streams into an existent webmap then use following
-%     code
+%     Another way to quickly plot a stream object in a network is:
 %
 %     [lat,lon] = STREAMobj2latlon(S);
-%     h = wmline(lat,lon,'OverlayName','Stream network');
+%     h = wmline(lat,lon,'OverlayName','Stream network','color','k');
 %
-% See also: STREAMobj, STREAMobj/plot
+% See also: STREAMobj, STREAMobj/plot, STREAMobj/STREAMobj2shape, 
+%           STREAMobj/plotc
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 15. June, 2017
+% Date: 18. October, 2019
 
 
-% STREAMobj to lat lon
-switch S.georef.SpatialRef.CoordinateSystemType
-    case 'geographic'
-        [lon,lat] = STREAMobj2XY(S);
-    otherwise
-        [lat,lon] = STREAMobj2latlon(S);
+p = inputParser;
+addParameter(p,'color','k')
+addParameter(p,'colormap','jet')
+addParameter(p,'nrcolors',20)
+parse(p,varargin{:});
+
+
+if ~isnal(S,p.Results.color) && ~isa(p.Results.color,'GRIDobj')
+    % STREAMobj to lat lon
+    switch S.georef.SpatialRef.CoordinateSystemType
+        case 'geographic'
+            [lon,lat] = STREAMobj2XY(S);
+        otherwise
+            [lat,lon] = STREAMobj2latlon(S);
+    end
+    
+    minlat = min(lat);
+    maxlat = max(lat);
+    minlon = min(lon);
+    maxlon = max(lon);
+    
+    % wm = webmap
+%     wmlimits(wm,[minlat maxlat],[minlon maxlon]);
+    
+    h = wmline(lat,lon,'OverlayName','Stream network','Color',p.Results.color);
+    
+    if nargout == 1
+        ht = h;
+    end
+    
+else
+    
+    [GS,val] = STREAMobj2shape(S,'type','geo',...
+        'attributes',{...
+        'val' p.Results.color @mean},...
+        'summarizeby','val','by',p.Results.nrcolors);
+    
+    if ischar(p.Results.colormap)
+        cmapfun = str2func(p.Results.colormap);
+        clr = cmapfun(p.Results.nrcolors);
+    else
+        cmap = p.Results.colormap;
+        clr  = interp1(1:size(cmap,1),cmap,linspace(1,size(cmap,1),p.Results.nrcolors));
+    end
+
+    counter = 0;
+    for r = 1:numel(val)
+        if ~isempty(GS{r})   
+            counter = counter + 1;
+            h{counter} = wmline(GS{r},'color',clr(r,:));
+        end
+    end
+    if nargout == 1
+        ht = h;
+    end
 end
-
-minlat = min(lat);
-maxlat = max(lat);
-minlon = min(lon);
-maxlon = max(lon);
-
-wm = webmap;
-wmlimits(wm,[minlat maxlat],[minlon maxlon]);
-
-h = wmline(lat,lon,'OverlayName','Stream network');
-
-if nargout == 1
-    ht = h;
-end
-
-
+% wmlimits([minlat maxlat],[minlon maxlon]);
 
 

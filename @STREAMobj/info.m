@@ -46,7 +46,7 @@ switch m
     case 'centroid'
         val = mean([S.x S.y]);
     case 'totallength'
-        d   = sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2);
+        d   = distance(S,'node_to_node');%sqrt((S.x(S.ix)-S.x(S.ixc)).^2 + (S.y(S.ix)-S.y(S.ixc)).^2);
         val = sum(d);
     case 'nredges'
         val = numel(S.ix);

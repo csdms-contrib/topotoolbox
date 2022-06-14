@@ -1,6 +1,6 @@
 function OUT = upslopestats(FD,VAR,meth,S)
 
-%UPSLOPESTATS upslope statistics of a variable based on the flow direction matrix
+%UPSLOPESTATS upslope statistics computed in flow directions
 %
 % Syntax
 %
@@ -21,7 +21,7 @@ function OUT = upslopestats(FD,VAR,meth,S)
 %     FD        flow direction object (FLOWobj)
 %     VAR       variable (e.g. slope calculated by gradient8) (GRIDobj)
 %     type      'mean' (default), 'std' standard deviation, 
-%               'var' variance, 'min', 'max', 'sum'    
+%               'var' variance, 'min', 'max', 'sum', 'nanmean'    
 %     S         STREAMobj. Supplying S derived from FD will remove the
 %               channelized part from the flow network. For example, if you
 %               want to calculate the mean upstream hillslope gradient but 
@@ -139,14 +139,14 @@ switch meth
         ix = FD.ix;
         ixc = FD.ixc;
         % minimum imposition
-        for r = 1:numel(ix);
+        for r = 1:numel(ix)
             VAR(ixc(r)) = min(VAR(ix(r)),VAR(ixc(r)));
         end
     case 'max'
         ix = FD.ix;
         ixc = FD.ixc;
         % maximum imposition
-        for r = 1:numel(ix);
+        for r = 1:numel(ix)
             VAR(ixc(r)) = max(VAR(ix(r)),VAR(ixc(r)));
         end
 end

@@ -61,11 +61,15 @@ IX(S.IXgrid) = nalix;
 ix  = FD.ix;
 ixc = FD.ixc;
 
+Z   = I.Z;
+
 for r = numel(ixc):-1:1
-    if ~(I.Z(ixc(r)) && I.Z(ix(r)))
+    if ~(Z(ixc(r)) && Z(ix(r)))
         IX(ix(r)) = IX(ixc(r));
     end
 end
+
+I.Z = Z;
 
 V   = GRIDobj(I,cl);
 if isfloat(V.Z)    

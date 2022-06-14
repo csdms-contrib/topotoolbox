@@ -47,7 +47,7 @@ elseif isa(C,'GRIDobj')
     if isfloat(C.Z)
         C.Z = isnan(C.Z);
     elseif isinteger(C.Z)
-        C.Z = C.Z == 0;
+        C.Z = C.Z ~= 0;
     end
         
     tf = validatealignment(DEM,C);

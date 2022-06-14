@@ -64,6 +64,12 @@ function MS = zonalstats(MS,attributes,varargin)
 %                    polygons in MS in horizontal units of MS.
 %      'perimeter'   true or {false}. True will calculate the perimeter of 
 %                    the polygons in MS in horizontal units of MS.
+%      'bbox'        true or {false}. True will add eight attributes to the
+%                    resulting structure array: lucornerx, lucornery,
+%                    llcornerx, llcornery, ...
+%      'lucorner'    true or {false} calculates the coordinates of the left 
+%                    upper corner of the axis-aligned bounding box of the
+%                    region. Same can be used for llcorner, rucorner, etc.
 %
 % Output arguments
 %
@@ -73,9 +79,9 @@ function MS = zonalstats(MS,attributes,varargin)
 % See also: polygon2GRIDobj
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. July, 2016
+% Date: 4. September, 2020
 
-if nargin == 1;
+if nargin == 1
     a = cellfun(@(x,y) getarea(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.area] = a{:};
     return
@@ -97,34 +103,68 @@ addParameter(p,'overlapping',false)
 addParameter(p,'centroid',false)
 addParameter(p,'area',false)
 addParameter(p,'perimeter',false)
+addParameter(p,'bbox',false);
+addParameter(p,'lucorner',false);
+addParameter(p,'llcorner',false);
+addParameter(p,'rucorner',false);
+addParameter(p,'rlcorner',false);
+
 parse(p,varargin{:});
     
 % convert strings to functions, if necessary
-for r = 1:nrattributes;
+for r = 1:nrattributes
     if ischar(attfun{r}) && ~isempty(attfun{r})
         attfun{r} = str2func(attfun{r});
     elseif isempty(attfun{r})
         % do nothing
     end
     
-    if r > 2;
+    if r > 2
         validatealignment(attgrid{r},attgrid{1});
     end
     
 end
 
-if p.Results.area;
+if p.Results.area
     a = cellfun(@(x,y) getarea(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.area] = a{:};
 end
-if p.Results.centroid;
+if p.Results.centroid
     [xc,yc] = cellfun(@(x,y) getcentroid(x,y),{MS.X},{MS.Y},'UniformOutput',false);
     [MS.xc] = xc{:};
     [MS.yc] = yc{:};
 end
-if p.Results.perimeter;
-    p = cellfun(@(x,y) getperimeter(x,y),{MS.X},{MS.Y},'UniformOutput',false);
-    [MS.perimeter] = p{:};
+if p.Results.perimeter
+    per = cellfun(@(x,y) getperimeter(x,y),{MS.X},{MS.Y},'UniformOutput',false);
+    [MS.perimeter] = per{:};
+end
+
+if p.Results.lucorner  || p.Results.bbox
+    xc = cellfun(@(x) min(x),{MS.X},'UniformOutput',false);
+    yc = cellfun(@(y) max(y),{MS.Y},'UniformOutput',false);
+    [MS.lucornerx] = xc{:};
+    [MS.lucornery] = yc{:};
+end
+
+if p.Results.rucorner  || p.Results.bbox
+    xc = cellfun(@(x) max(x),{MS.X},'UniformOutput',false);
+    yc = cellfun(@(y) max(y),{MS.Y},'UniformOutput',false);
+    [MS.rucornerx] = xc{:};
+    [MS.rucornery] = yc{:};
+end
+    
+if p.Results.llcorner  || p.Results.bbox
+    xc = cellfun(@(x) min(x),{MS.X},'UniformOutput',false);
+    yc = cellfun(@(y) min(y),{MS.Y},'UniformOutput',false);
+    [MS.llcornerx] = xc{:};
+    [MS.llcornery] = yc{:};
+end
+
+if p.Results.rlcorner  || p.Results.bbox
+    xc = cellfun(@(x) max(x),{MS.X},'UniformOutput',false);
+    yc = cellfun(@(y) min(y),{MS.Y},'UniformOutput',false);
+    [MS.rlcornerx] = xc{:};
+    [MS.rlcornery] = yc{:};
 end
 
 if ~p.Results.overlapping
@@ -202,9 +242,12 @@ a = double(polyarea(x(I),y(I)));
 end
 
 function [xc,yc] = getcentroid(x,y)
+
 I = ~isnan(x);
-xc = double(mean(x(I)));
-yc = double(mean(y(I)));
+[xc,yc] = centroid(polyshape(x(I),y(I)));
+
+% xc = double(mean(x(I)));
+% yc = double(mean(y(I)));
 end
 
 function p = getperimeter(x,y)

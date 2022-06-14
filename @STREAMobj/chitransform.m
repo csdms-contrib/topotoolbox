@@ -22,8 +22,24 @@ function c = chitransform(S,A,varargin)
 %
 %     'a0'     reference area (default=1e6)
 %     'mn'     mn-ratio (default=0.45)
+%     'K'      erosional efficiency (node-attribute list or GRIDobj), which
+%              may vary spatially. If 'K' is supplied, then chitransform
+%              returns the time needed for a signal (knickpoint)
+%              propagating upstream from the outlet of S. If K has units
+%              m^(1-2m)/y, then time will have units of y. Note that
+%              calculating the response time requires the assumption that 
+%              n = 1.
 %     'plot'   0 : no plot (default)
 %              1 : chimap
+%     'correctcellsize' {true} or false. If true, than the function will
+%              calculate areas in unit^2. This is required if the output of 
+%              flowacc is used as input. If the units in A are already 
+%              m^2, then set correctcellsize to false.
+%     'tribsonly' [] (default) or STREAMobj
+%              If a STREAMobj St (must be a subset of S) is supplied, then the
+%              function calculates the tributaries in S to St and
+%              calculates chi only for these tributaries.
+%              
 %
 % Output argument
 %
@@ -51,7 +67,7 @@ function c = chitransform(S,A,varargin)
 %     <a href="https://topotoolbox.wordpress.com/2017/08/18/chimaps-in-a-few-lines-of-code-final/">See overview here.</a>
 %     
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 29. December, 2015
+% Date: 21. March, 2021
 
 
 % Parse Inputs
@@ -65,6 +81,7 @@ addParamValue(p,'a0',1e6,@(x) isscalar(x) && isnumeric(x));
 addParamValue(p,'plot',false);
 addParamValue(p,'correctcellsize',true,@(x) isscalar(x));
 addParamValue(p,'K',[],@(x) isempty(x) || isnal(S,x) || isa(x,'GRIDobj'));
+addParamValue(p,'tribsonly',[])
 
 parse(p,S,A,varargin{:});
 
@@ -99,11 +116,26 @@ if ~calcwithk
 else
     % This transformation is only possible if we assume that n in the
     % mn-ratio is one.
-    a = (1./(K.^p.Results.mn)).*((p.Results.a0)./a).^p.Results.mn;
+    a = (1./(K)).*(1./a).^p.Results.mn;
 end
+
+if ~isempty(p.Results.tribsonly)
+    Scopy = S;
+    S = modify(S,'tributaryto2',p.Results.tribsonly);
+    a = nal2nal(S,Scopy,a);
+end
+
+% cumulative trapezoidal integration
 c = cumtrapz(S,a);
 
+if ~isempty(p.Results.tribsonly)
+    c = nal2nal(Scopy,S,c,0);
+    S = Scopy;
+end
+
+% plot if required
 if p.Results.plot
     plotc(S,c)
 end
+
 

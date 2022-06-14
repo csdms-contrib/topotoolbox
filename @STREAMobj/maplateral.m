@@ -6,6 +6,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %
 %     a = maplateral(S,A,dist,aggfun)
 %     [a,mask] = ...     
+%     a = maplateral(...,pn,pv,...)
 %
 % Description
 %
@@ -18,7 +19,11 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %
 %     S       STREAMobj
 %     A       GRIDobj
-%     dist    scalar indicating maximum distance from stream network.
+%     dist    scalar indicating maximum distance from stream network or
+%             two element vector with minimum and maximum distance or
+%             node-attribute list with maximum distance values for each
+%             node in the river network or
+%             two columns of node-attribute lists indicating
 %     aggfun  anonymous aggregation function (e.g. @mean). aggfun can be a
 %             cell array of anonymous functions (e.g. {@min @max}). In this
 %             case, the output a will have as many columns as there are
@@ -31,6 +36,11 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 %     inpaintnans       {true} or false. If true, missing values in the
 %                       resulting nal will be interpolated (see STREAMobj/
 %                       inpaintnans).
+%     flat              {false} or true. If true, than the ends of the
+%                       buffer at channel heads or outlets are flat,
+%                       otherwise they are round.
+%     fillval           fill value if stream pixel has no nearest neighbors
+%                       By default, this is nan.
 %
 % Output arguments
 %
@@ -56,7 +66,7 @@ function [a,mask] = maplateral(S,A,dist,aggfun,varargin)
 % See also: STREAMobj, SWATHobj, STREAMobj/smooth
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 12. June, 2018
+% Date: 23. February, 2021
 
 % Input checking and parsing
 validatealignment(S,A)
@@ -64,6 +74,8 @@ p = inputParser;
 p.FunctionName = 'STREAMobj/maplateral';
 addParamValue(p,'excludestream',true,@(x) isscalar(x));
 addParamValue(p,'inpaintnans',true,@(x) isscalar(x));
+addParamValue(p,'flat',false,@(x) isscalar(x));
+addParamValue(p,'fillval',nan);
 parse(p,varargin{:});
 
 % create mask, if required
@@ -78,12 +90,33 @@ B(S.IXgrid) = true;
 [D,L] = bwdist(B,'e');
 dist  = ceil(dist/S.cellsize);
 
+% Create mask
 if isscalar(dist)
-    dist = [0 dist];
+    I  = D<=dist;
+elseif numel(dist) == 2
+    dist = sort(dist);
+    I  = D<=dist(2) & D>=dist(1);
+elseif isnal(S,dist(:,1))
+    if size(dist,2) == 1
+        W = STREAMobj2GRIDobj(S,dist);
+        I = D <= W.Z(L);
+    else
+        dist = sort(dist,2,'ascend');
+        W1 = STREAMobj2GRIDobj(S,dist(:,1));
+        W2 = STREAMobj2GRIDobj(S,dist(:,2));
+        I  = D <= W2.Z(L) & D >= W1.Z(L);
+    end
+else
+    error('dist must be a scalar, a two-element vector, or a node-attribute list');
 end
 
-% mask
-I  = D<=dist(2) & D>=dist(1);
+% flat tops?
+if p.Results.flat
+    endpoints = streampoi(S,{'channelhead','outlet'},'logical');
+    II = ismember(L,S.IXgrid(endpoints));
+    I(II) = false;
+    I  = (imdilate(I,ones(3)) & II) | I;
+end
 
 if p.Results.excludestream
     I(S.IXgrid) = false;
@@ -102,10 +135,10 @@ L  = L(:);
 if iscell(aggfun)
     a = nan(numel(S.IXgrid),numel(aggfun));
     for r = 1:numel(aggfun)
-        a(:,r)  = accumarray(locb,double(A),size(S.IXgrid),aggfun{r},nan);
+        a(:,r)  = accumarray(locb,double(A),size(S.IXgrid),aggfun{r},p.Results.fillval);
     end
 else
-    a  = accumarray(locb,double(A),size(S.IXgrid),aggfun,nan);
+    a  = accumarray(locb,double(A),size(S.IXgrid),aggfun,p.Results.fillval);
 end
 
 % inpaint nans

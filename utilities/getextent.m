@@ -1,6 +1,6 @@
 function extent = getextent(ax)
 
-% get current axis extent 
+%GETEXTENT get current axis extent 
 %
 % Syntax
 %
@@ -13,17 +13,17 @@ function extent = getextent(ax)
 %
 % Example
 % 
-%     load exampledem
-%     imageschs(X,Y,dem);
+%     DEM = GRIDobj('srtm_bigtujunga30m_utm11.tif');
+%     imageschs(DEM);
 %     % execute til here and zoom to a desired level using the zoom tool
 %     e = getextent;
-%     imageschs(X,Y,dem,gradient8(dem))
+%     imageschs(DEM,gradient8(DEM))
 %     setextent(e)
 %
-% See also: IMAGESCHS, SETEXTENT
+% See also: IMAGESCHS, SETEXTENT, PADEXTENT
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]unibas.ch)
-% Date: 11. April, 2011
+% Date: 23. January, 2020
 
 if nargin == 0
     ax = gca;

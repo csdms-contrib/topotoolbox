@@ -37,7 +37,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %     MS = STREAMobj2mapstruct(S,'seglength',length,...
 %                        'attributes',{'fieldname1' var1 aggfunction1 ...
 %                                      'fieldname2' var2 aggfunction2})
-%     then
+%
 %     the streamnetwork is subdivided in reaches with approximate length in
 %     map units defined by the parameter value pair 'seglength'-length. In
 %     addition, a number of additional variables (instance of GRIDobjs or
@@ -54,8 +54,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %
 %     The additional output arguments x and y are nan-separated vectors
 %     that can be used to plot the line features. Note that the order of x
-%     and y are different than if calculated from the function
-%     STREAMobj2XY. 
+%     and y is different from the output of STREAMobj2XY. 
 %
 % Input arguments
 %
@@ -64,7 +63,7 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %
 % Parameter name/value pairs
 %
-%     'seglength'   approximate segment length
+%     'seglength'   approximate segment length (scalar, map units)
 %     'attributes'  1 x n*3 cell array where n is the number of attributes,
 %                   and elements refer repeatively to
 %                   {'fieldname' var aggfunction ...}
@@ -83,7 +82,10 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %                   will not be a gain in speed as there is a significant
 %                   computational overhead to split the network. Running in 
 %                   may be more efficient if network is very large with 
-%                   numerous connected components.                    
+%                   numerous connected components.   
+%      'latlon'     {false} or true. If true, the function will attempt to
+%                   transform coordinates to geographic coordinates. This
+%                   works only if S contains a valid projection. 
 %     
 % Output arguments
 %
@@ -104,22 +106,21 @@ function [GS,x,y] = STREAMobj2mapstruct(S,varargin)
 %
 %     % then export MS as shapefile using shapewrite
 %     
-%
-%
-% See also: shapewrite
-%
+% See also: shapewrite, STREAMobj2XY
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 23. April, 2013
+% Date: 27. September, 2021
 
 
-if nargin == 1;
+
+
+if nargin == 1
     type = 'strahler';
-elseif nargin == 2;
+elseif nargin == 2
     type = validatestring(varargin{1},{'strahler','shreve'},'STREAMobj/streamorder','type',2);
 end
 
-if nargin <= 2;
+if nargin <= 2
     % get streamorder
     s = streamorder(S,type);
     % get outlets
@@ -192,9 +193,11 @@ else
     p = inputParser;
     p.FunctionName = 'STREAMobj2mapstruct';
     addRequired(p,'S',@(x) isa(x,'STREAMobj'));
-    addParamValue(p,'seglength',S.cellsize*10,@(x) isscalar(x) && x>=S.cellsize*3);
-    addParamValue(p,'attributes',{},@(x) iscell(x)); 
-    addParamValue(p,'parallel',false)
+    addParameter(p,'seglength',S.cellsize*10,@(x) isscalar(x) && x>=S.cellsize*3);
+    addParameter(p,'attributes',{},@(x) iscell(x)); 
+    addParameter(p,'checkattributes',true,@(x) isscalar(x))
+    addParameter(p,'parallel',false)
+    addParameter(p,'latlon',false)
     parse(p,S,varargin{:});
     
     % check the attributes
@@ -202,6 +205,12 @@ else
     nrattributes = numel(attributes)/3;
     runinpar     = p.Results.parallel;
     seglength    = p.Results.seglength;
+    
+    % make valid and unique field names if required
+    if p.Results.checkattributes
+        attributes(1:3:end) = matlab.lang.makeValidName(attributes(1:3:end));
+        attributes(1:3:end) = matlab.lang.makeUniqueStrings(attributes(1:3:end));
+    end
     
     % convert strings to functions, if necessary
     for r = 1:nrattributes
@@ -233,8 +242,8 @@ else
         
         % Derive a cell array of attributes
         CATT = cell(numel(CS),nrattributes*3);
-        for r = 1:numel(CS);
-            for r2 = 1:nrattributes;
+        for r = 1:numel(CS)
+            for r2 = 1:nrattributes
                 CATT{r,(r2-1)*3 + 1} = attributes{(r2-1)*3 + 1}; 
                 CATT{r,(r2-1)*3 + 3} = attributes{(r2-1)*3 + 3};               
                 CATT{r,(r2-1)*3 + 2} = attributes{(r2-1)*3 + 2}(locS{r});
@@ -258,7 +267,7 @@ else
         return
         
     end
-    %% Parallel computing end here %%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Parallel computing ends here %%%%%%%%%%%%%%%%%%%%%%%%
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
             
     
@@ -280,7 +289,7 @@ else
     x  = insertrows(x,x(ind),ind);
     y  = insertrows(y,y(ind),ind);
     confluences = insertrows(confluences,0,ind);
-    for r = 1:numel(attr);
+    for r = 1:numel(attr)
         attr{r} = insertrows(attr{r},attr{r}(ind),ind);
     end
     
@@ -288,7 +297,7 @@ else
     ind = find(confluences == 1);
     x  = insertrows(x,nan,ind);
     y  = insertrows(y,nan,ind);
-    for r = 1:numel(attr);
+    for r = 1:numel(attr)
         attr{r} = insertrows(attr{r},nan,ind);
     end
     
@@ -297,10 +306,10 @@ else
     % calculate the distance within each individual segment
     sep = isnan(x);
     d  = zeros(size(x));
-    for r = 2:numel(d);
-        if sep(r-1);
+    for r = 2:numel(d)
+        if sep(r-1)
             d(r) = 0;
-        elseif sep(r);
+        elseif sep(r)
             d(r) = nan;
         else
             d(r) = d(r-1)+sqrt((x(r)-x(r-1)).^2 + (y(r)-y(r-1)).^2);
@@ -314,7 +323,7 @@ else
     nrsep = numel(ixsep);
     ixsep = [0;ixsep];
     newsep   = zeros(size(d));
-    for r = 1:nrsep;
+    for r = 1:nrsep
         dd = d(ixsep(r)+1 : ixsep(r+1)-1);
         ddmax = max(dd);
         nrnewsegs = max(round(ddmax/p.Results.seglength),1);
@@ -332,7 +341,7 @@ else
     x  = insertrows(x,x(ind),ind);
     y  = insertrows(y,y(ind),ind);
     newsep = insertrows(newsep,0,ind);
-    for r = 1:numel(attr);
+    for r = 1:numel(attr)
         attr{r} = insertrows(attr{r},attr{r}(ind),ind);
     end
     
@@ -340,7 +349,7 @@ else
     ind = find(newsep > 0);
     x  = insertrows(x,nan,ind);
     y  = insertrows(y,nan,ind);
-    for r = 1:numel(attr);
+    for r = 1:numel(attr)
         attr{r} = insertrows(attr{r},nan,ind);
     end
     
@@ -353,8 +362,6 @@ else
     cc  = [attributes(1:3:end);
            repmat({cell(nrlines,1)},1,nrattributes)];
     
-    
-
     GS = struct('Geometry','Line',...
                 'X',cell(nrlines,1),...
                 'Y',cell(nrlines,1),...    
@@ -364,11 +371,11 @@ else
     IXe = ix-1;
     
     
-    for r = 1:nrlines;
+    for r = 1:nrlines
         GS(r).X = x(IXs(r):IXe(r));
         GS(r).Y = y(IXs(r):IXe(r));
         
-        for r2 = 1:nrattributes;
+        for r2 = 1:nrattributes
             GS(r).(attributes{((r2-1)*3)+1}) = attributes{((r2-1)*3)+3}(attr{r2}(IXs(r):IXe(r)-1));
         end
         
@@ -376,6 +383,14 @@ else
     
 end
     
+% Convert to lat lon if requested
+if exist('p', 'var')
+if p.Results.latlon
+    for r = 1:numel(GS)
+        [GS(r).Y,GS(r).X] = minvtran(S.georef.mstruct,GS(r).X,GS(r).Y);
+    end
+end
+end
 
 if nargout>1
     x = [GS.X]';

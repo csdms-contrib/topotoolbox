@@ -55,9 +55,17 @@ if nargin == 2
     writelogical = true;
     writeclass = @logical;
 else
-    P = GRIDobj(DEM,'single');
+    % check the class of the field
+    cl = class(MS(1).(field));
+    P  = GRIDobj(DEM,cl);
     writelogical = false;
-    writeclass = @single;
+    switch cl
+        case {'double','single'}
+            P = P*nan(1,cl);
+        case 'logical'
+            writelogical = true;
+    end 
+    writeclass = @(x) cast(x,cl);
 end
 
 % get DEM coordinates

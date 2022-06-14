@@ -1,4 +1,4 @@
-function z = inpaintnans(S,DEM,extrap)
+function z = inpaintnans(S,DEM,varargin)
 
 %INPAINTNANS inpaint missing values (nans) in a node attribute list
 %
@@ -6,7 +6,9 @@ function z = inpaintnans(S,DEM,extrap)
 %
 %     a = inpaintnans(S,A)
 %     a = inpaintnans(S,an)
-%     a = inpaintnans(...,extrap)
+%     a = inpaintnans(S,an,extrap)
+%     a = inpaintnans(S,A,pn,pv,...)
+%     a = inpaintnans(S,an,pn,pv,...)
 %
 % Description
 %
@@ -20,6 +22,14 @@ function z = inpaintnans(S,DEM,extrap)
 %            not be spatially aligned)
 %     an     node attribute list with missing values
 %     extrap true or false. 
+%
+%     Parameter name/value pairs
+%
+%     'distance'  Use a user-specified distance measured from the outlets
+%                 (e.g. chitransform)
+%     'extrapolation'  {true} or false
+%     'maxgapsize' maximum length of stream reaches to be inpainted.
+%                 Default is inf
 %
 % Output arguments
 %  
@@ -50,7 +60,28 @@ function z = inpaintnans(S,DEM,extrap)
 % http://blogs.mathworks.com/steve/2015/06/17/region-filling-and-laplaces-equation/
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2015
+% Date: 18. February, 2021
+
+if nargin > 3
+    p = inputParser;
+    p.FunctionName = 'STREAMobj/inpaintnans';
+    addParamValue(p,'extrapolation',true,@(x) isscalar(x));
+    addParamValue(p,'distance',S.distance);
+    addParamValue(p,'maxgapsize',inf,@(x) validateattributes(x,'numeric',{'>',S.cellsize}));
+    parse(p,varargin{:});
+    
+    extrap = p.Results.extrapolation;
+    d      = p.Results.distance;
+    maxgapsize = p.Results.maxgapsize;
+else
+    if nargin == 2
+        extrap = false;
+    else
+        extrap = varargin{1};
+    end
+    d  = S.distance;
+    maxgapsize = inf;
+end
 
 % get node attribute list with elevation values
 if isa(DEM,'GRIDobj')
@@ -66,11 +97,7 @@ else
     error('Imcompatible format of second input argument')
 end
 
-if nargin == 2;
-    extrap = false;
-end
-
-z = double(z(:));
+z    = double(z(:));
 inan = isnan(z);
 
 if ~any(inan)
@@ -78,7 +105,7 @@ if ~any(inan)
 end
 
 % upstream distance
-d  = S.distance;
+
 % nr of nodes
 nr = numel(S.IXgrid);
 
@@ -95,6 +122,7 @@ A2 = sparse(double(S.ixc(inan(S.ixc))),double(S.ix(inan(S.ixc))),...
 s = 1./(sum(spones(A2),2));
 s(~inan) = 0;
 A2 = spdiags(s,0,nr,nr)*A2;
+
 
 % add A and A2
 A = A+A2;
@@ -113,4 +141,24 @@ if ~extrap
     z(I) = nan;
 end
 z = A\z;
+
+if ~isinf(maxgapsize)
+    ch = streampoi(S,'channelhead','logical');
+    seed = ch | ~inan;
+    ch = ch & inan;
+    dd   = netdist(S,seed,'dir','down');
+    
+    ix = S.ix;
+    ixc = S.ixc;
+    for r = numel(ix):-1:1
+        if dd(ix(r)) == 0 && ~ch(ix(r))
+            dd(ix(r)) = 0;
+        else
+            dd(ix(r)) = max(dd(ixc(r)),dd(ix(r)));
+        end
+    end
+    
+    z(dd >= maxgapsize) = nan;
+    
+end
 
