@@ -1,142 +1,163 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,IE=9,chrome=1"><meta name="generator" content="MATLAB 2020b"><title>TopoToolbox functions</title><style type="text/css">.rtcContent { padding: 30px; } .S0 { margin: 3px 10px 5px 4px; padding: 0px; line-height: 28.8px; min-height: 0px; white-space: pre-wrap; color: rgb(213, 80, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 24px; font-weight: 400; text-align: left;  }
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,IE=9,chrome=1"><meta name="generator" content="MATLAB 2021b"><title>TopoToolbox functions</title><style type="text/css">.rtcContent { padding: 30px; } .S0 { margin: 3px 10px 5px 4px; padding: 0px; line-height: 28.8px; min-height: 0px; white-space: pre-wrap; color: rgb(213, 80, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 24px; font-weight: 400; text-align: left;  }
 .S1 { margin: 2px 10px 9px 4px; padding: 0px; line-height: 21px; min-height: 0px; white-space: pre-wrap; color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 14px; font-weight: 400; text-align: left;  }
 .S2 { margin: 3px 10px 5px 4px; padding: 0px; line-height: 20px; min-height: 0px; white-space: pre-wrap; color: rgb(60, 60, 60); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 20px; font-weight: 700; text-align: left;  }
 .CodeBlock { background-color: #F7F7F7; margin: 10px 0 10px 0;}
 .S3 { border-left: 1px solid rgb(233, 233, 233); border-right: 1px solid rgb(233, 233, 233); border-top: 1px solid rgb(233, 233, 233); border-bottom: 1px solid rgb(233, 233, 233); border-radius: 4px 4px 0px 0px; padding: 6px 45px 4px 13px; line-height: 17.234px; min-height: 18px; white-space: nowrap; color: rgb(0, 0, 0); font-family: Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 14px;  }
 .S4 { color: rgb(64, 64, 64); padding: 10px 0px 6px 17px; background: rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box; font-family: Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 14px; overflow-x: hidden; line-height: 17.234px;  }
-.embeddedOutputsErrorElement {min-height: 18px; max-height: 250px; overflow: auto;}
+/* Styling that is common to warnings and errors is in diagnosticOutput.css */.embeddedOutputsErrorElement {    min-height: 18px;    max-height: 550px;}
+.embeddedOutputsErrorElement .diagnosticMessage-errorType {    overflow: auto;}
 .embeddedOutputsErrorElement.inlineElement {}
 .embeddedOutputsErrorElement.rightPaneElement {}
-.embeddedOutputsWarningElement{min-height: 18px; max-height: 250px; overflow: auto;}
+/* Styling that is common to warnings and errors is in diagnosticOutput.css */.embeddedOutputsWarningElement {    min-height: 18px;    max-height: 550px;}
+.embeddedOutputsWarningElement .diagnosticMessage-warningType {    overflow: auto;}
 .embeddedOutputsWarningElement.inlineElement {}
 .embeddedOutputsWarningElement.rightPaneElement {}
-.diagnosticMessage-wrapper {font-family: Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 12px;}
-.diagnosticMessage-wrapper.diagnosticMessage-warningType {color: rgb(255,100,0);}
-.diagnosticMessage-wrapper.diagnosticMessage-warningType a {color: rgb(255,100,0); text-decoration: underline;}
-.diagnosticMessage-wrapper.diagnosticMessage-errorType {color: rgb(230,0,0);}
-.diagnosticMessage-wrapper.diagnosticMessage-errorType a {color: rgb(230,0,0); text-decoration: underline;}
-.diagnosticMessage-wrapper .diagnosticMessage-messagePart,.diagnosticMessage-wrapper .diagnosticMessage-causePart {white-space: pre-wrap;}
-.diagnosticMessage-wrapper .diagnosticMessage-stackPart {white-space: pre;}
-.embeddedOutputsTextElement,.embeddedOutputsVariableStringElement {white-space: pre; word-wrap: initial; min-height: 18px; max-height: 250px; overflow: auto;}
-.textElement,.rtcDataTipElement .textElement {padding-top: 3px;}
+/* Copyright 2015-2019 The MathWorks, Inc. *//* In this file, styles are not scoped to rtcContainer since they could be in the Dojo Tooltip */.diagnosticMessage-wrapper {    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;    font-size: 12px;}
+.diagnosticMessage-wrapper.diagnosticMessage-warningType {    color: rgb(255,100,0);}
+.diagnosticMessage-wrapper.diagnosticMessage-warningType a {    color: rgb(255,100,0);    text-decoration: underline;}
+.diagnosticMessage-wrapper.diagnosticMessage-errorType {    color: rgb(230,0,0);}
+.diagnosticMessage-wrapper.diagnosticMessage-errorType a {    color: rgb(230,0,0);    text-decoration: underline;}
+.diagnosticMessage-wrapper .diagnosticMessage-messagePart,.diagnosticMessage-wrapper .diagnosticMessage-causePart {    white-space: pre-wrap;}
+.diagnosticMessage-wrapper .diagnosticMessage-stackPart {    white-space: pre;}
+.embeddedOutputsTextElement,.embeddedOutputsVariableStringElement {    white-space: pre;    word-wrap:  initial;    min-height: 18px;    max-height: 550px;}
+.embeddedOutputsTextElement .textElement,.embeddedOutputsVariableStringElement .textElement {    overflow: auto;}
+.textElement,.rtcDataTipElement .textElement {    padding-top: 3px;}
 .embeddedOutputsTextElement.inlineElement,.embeddedOutputsVariableStringElement.inlineElement {}
 .inlineElement .textElement {}
-.embeddedOutputsTextElement.rightPaneElement,.embeddedOutputsVariableStringElement.rightPaneElement {min-height: 16px;}
-.rightPaneElement .textElement {padding-top: 2px; padding-left: 9px;}
-.S5 { margin: 10px 10px 9px 4px; padding: 0px; line-height: 21px; min-height: 0px; white-space: pre-wrap; color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 14px; font-weight: 400; text-align: left;  }
-.S6 { border-left: 1px solid rgb(233, 233, 233); border-right: 1px solid rgb(233, 233, 233); border-top: 1px solid rgb(233, 233, 233); border-bottom: 1px solid rgb(233, 233, 233); border-radius: 4px; padding: 6px 45px 4px 13px; line-height: 17.234px; min-height: 18px; white-space: nowrap; color: rgb(0, 0, 0); font-family: Menlo, Monaco, Consolas, "Courier New", monospace; font-size: 14px;  }</style></head><body><div class = rtcContent><h1  class = 'S0'><span>TopoToolbox functions</span></h1><div  class = 'S1'><span>TopoToolbox contains numerous functions that are associated with four main classes:</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>GRIDobj</span><span> stores a gridded digital elevation model together with its georeferencing. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>FLOWobj</span><span> contains local flow directions derived from the GRIDobj. FLOWobj are thus similar to flow direction grids as used in GIS. However, TopoToolbox stores flow directions in a topologically sorted list of linear indices which departs from the gridded representation. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>STREAMobj</span><span> contains the geometric representation of the stream network. STREAMobj are derived from FLOWobj and also contain topologically sorted lists of indices that enable efficient computations and modifications of stream networks.</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>SWATHobj</span><span> combines a set of tools for swath mapping.</span></div><div  class = 'S1'><span>Following functions are available for each class</span></div><h2  class = 'S2'><span>GRIDobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">GRIDobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="601F2E7F" data-testid="output_0" data-width="1128" data-height="1069" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">GRIDOBJ           : Create instance of a GRIDobj
-GRIDOBJ2ASCII     : write/export GRIDobj to ESRI ArcGIS ASCII file
-GRIDOBJ2GEOTIFF   : Exports an instance of GRIDobj to a geotiff file
-GRIDOBJ2IM        : GRIDOBJ2IM Create image from GRIDobj
-GRIDOBJ2MAT       : convert GRIDobj to matrix and coordinate vectors
-GRIDOBJ2PM        : combine several GRIDobj into a predictor matrix
-GRIDOBJ2POLYGON   : Conversion from drainage basin grid to polygon or polyline
-ACV               : Anisotropic coefficient of variation (ACV) 
-AGGREGATE         : resampling a GRIDobj using aggregation
-ARCSLOPE          : mean gradient from a digital elevation model sensu ArcGIS
-ASPECT            : angle of exposition from a digital elevation model (GRIDobj)
-CASTSHADOW        : cast shadow
-CELLAREA          : calculate cell areas of a GRIDobj in geographic coordinate system
-CONTOUR           : contour plot of an instance of GRIDobj
-COORD2IND         : convert x and y coordinates to linear index
-COORD2SUB         : convert x and y coordinates to subscripts into a GRIDobj
-CREATEMASK        : create a binary mask using polygon mapping
-CROP              : crop an instance of GRIDobj with axis-aligned minimum bounding box
-CURVATURE         : 8-connected neighborhood curvature of a digital elevation model 
-DEMAREA           : Calculate the corrected surface area of a DEM
-DEMPROFILE        : get profile along path
-DILATE            : morphological dilation
-DIST2CURVE        : labels pixels in a GRIDobj by their directed distance to a curved line
-DIST2LINE         : labels pixels in a GRIDobj by their distance to a straight line
-DISTANCE          : distance transform
-ELEVATEMINIMA     : elevate regional minima in a DEM to their lowest neighbor
-ERODE             : morphological erosion
-EXCESSTOPOGRAPHY  : reconstruct surface with threshold-slope surface
-FILLSINKS         : fill/remove pits, sinks or topographic depressions
-FILTER            : 2D-filtering of DEMs with different kernels 
-FIND              : Find indices of nonzero elements in GRIDobj
-FINDCOORD         : Find coordinates of nonzero elements in GRIDobj
-GETCOORDINATES    : get coordinate vectors of an instance of GRIDobj
-GETEXTENT         : return extent of a GRIDobj
-GETOUTLINE        : get or plot extent of GRIDobj
-GRADIENT8         : 8-connected neighborhood gradient of a digital elevation model
-GRIDDEDCONTOUR    : plot contours on grid
-HILLSHADE         : create hillshading from a digital elevation model (GRIDobj)
-HYPSCURVE         : plot hypsometric curve of a digital elevation model
-IDENTIFYFLATS     : identify flat terrain in a digital elevation model
-IMAGESC           : Scale data in GRIDobj and display as image object
-IMAGESCHS         : plot hillshade image with overlay
-IND2COORD         : convert linear index to x and y coordinates
-INFO              : detailed information on GRIDobj instance
-INPAINTNANS       : interpolate missing values in a grid (GRIDobj)
-INTERP            : interpolate to query locations
-INTERP2GRIDOBJ    : Interpolate scattered data to GRIDobj
-ISNAN             : returns array elements that are NaNs as logical grid
-KSDENSITY         : kernel density estimator for GRIDobj
-LINE2GRIDOBJ      : convert line to a grid
-LOCALTOPOGRAPHY   : Local topography
-MEASURE           : take interactive measurements along a polyline
-MINMAXNORM        : min-max normalization with optional percent clipping
-MPOWER            : overloaded power for GRIDobj
-MRDIVIDE          : overloaded right division for GRIDobj
-MTIMES            : overloaded multiplication for GRIDobj
-PAD               : add or remove a border of pixels around a GRIDobj
-POLYGON2GRIDOBJ   : convert polygon to a grid
-POSTPROCFLATS     : postprocess flat terrain for visualization purpose
-PRCCLIP           : percentile clipping
-PROJECTGRIDOBJ    : reprojects a GRIDobj
-RECLABEL          : labels GRIDobj by rectangular fields
-RECLASSIFY        : generate univariate class intervals for an instance of GRIDobj
-REPROJECT2UTM     : Reproject DEM with WGS84 coordinate system to UTM-WGS84 
-RESAMPLE          : change spatial resolution of a GRIDobj
-ROUGHNESS         : terrain ruggedness, position and roughness indices of DEMs
-SHUFFLELABEL      : shufflelabel randomly relabels a label matrix
-SNAP2STREAM       : snap gauges or pour points to stream raster
-SUB2COORD         : convert subscripts to x and y coordinates
-SURF              : surface plot for GRIDobj
-TANAKACONTOUR     : Relief depiction using Tanaka contours
-TOPOSHIELDING     : topographic shielding from cosmic rays
-VALIDATEALIGNMENT : validates whether instances of GRIDobj are spatially aligned
-ZSCORE            : standardized z-scores for GRIDobj</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>FLOWobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">FLOWobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement" uid="AFD640AE" data-testid="output_1" data-width="1128" data-height="464" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 475px;"><div class="textElement">FLOWOBJ             : create flow direction object
+.embeddedOutputsTextElement.rightPaneElement,.embeddedOutputsVariableStringElement.rightPaneElement {    min-height: 16px;}
+.rightPaneElement .textElement {    padding-top: 2px;    padding-left: 9px;}
+.S5 { margin: 10px 10px 9px 4px; padding: 0px; line-height: 21px; min-height: 0px; white-space: pre-wrap; color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-size: 14px; font-weight: 400; text-align: left;  }</style></head><body><div class = rtcContent><h1  class = 'S0'><span>TopoToolbox functions</span></h1><div  class = 'S1'><span>TopoToolbox contains numerous functions that are associated with four main classes:</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>GRIDobj</span><span> stores a gridded digital elevation model together with its georeferencing. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>FLOWobj</span><span> contains local flow directions derived from the GRIDobj. FLOWobj are thus similar to flow direction grids as used in GIS. However, TopoToolbox stores flow directions in a topologically sorted list of linear indices which departs from the gridded representation. </span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>STREAMobj</span><span> contains the geometric representation of the stream network. STREAMobj are derived from FLOWobj and also contain topologically sorted lists of indices that enable efficient computations and modifications of stream networks.</span></div><div  class = 'S1'><span>The class </span><span style=' font-weight: bold;'>SWATHobj</span><span> combines a set of tools for swath mapping.</span></div><div  class = 'S1'><span>Following functions are available for each class</span></div><h2  class = 'S2'><span>GRIDobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre"><span >showmethods </span><span style="color: rgb(170, 4, 249);">GRIDobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="35AAD0B0" data-scroll-top="null" data-scroll-left="null" data-testid="output_0" style="width: 860px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;"><div class="textElement eoOutputContent" data-width="830" data-height="1198" data-hashorizontaloverflow="false" style="max-height: 261px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;">GRIDOBJ            : Create instance of a GRIDobj
+GRIDOBJ2ASCII      : write/export GRIDobj to ESRI ArcGIS ASCII file
+GRIDOBJ2GEOTIFF    : Exports an instance of GRIDobj to a geotiff file
+GRIDOBJ2IM         : GRIDOBJ2IM Create image from GRIDobj
+GRIDOBJ2MAT        : convert GRIDobj to matrix and coordinate vectors
+GRIDOBJ2PM         : combine several GRIDobj into a predictor matrix
+GRIDOBJ2POLYGON    : Conversion from drainage basin grid to polygon or polyline
+ACV                : Anisotropic coefficient of variation (ACV) 
+AGGREGATE          : resampling a GRIDobj using aggregation
+ARCSLOPE           : mean gradient from a digital elevation model sensu ArcGIS
+ASPECT             : angle of exposition from a digital elevation model (GRIDobj)
+CASTSHADOW         : cast shadow
+CELLAREA           : calculate cell areas of a GRIDobj in geographic coordinate system
+CLIP               : clip a GRIDobj with a polygon or another GRIDobj
+CONTOUR            : contour plot of an instance of GRIDobj
+COORD2IND          : convert x and y coordinates to linear index
+COORD2SUB          : convert x and y coordinates to subscripts into a GRIDobj
+CREATEMASK         : create a binary mask using polygon mapping
+CROP               : crop an instance of GRIDobj with axis-aligned minimum bounding box
+CURVATURE          : 8-connected neighborhood curvature of a digital elevation model 
+DEMAREA            : Calculate the corrected surface area of a DEM
+DEMPROFILE         : get profile along path
+DIFFUSION          : Solve the diffusion equation
+DILATE             : morphological dilation
+DIST2CURVE         : labels pixels in a GRIDobj by their directed distance to a curved line
+DIST2LINE          : labels pixels in a GRIDobj by their distance to a straight line
+DISTANCE           : distance transform
+ELEVATEMINIMA      : elevate regional minima in a DEM to their lowest neighbor
+ERODE              : morphological erosion
+EXCESSTOPOGRAPHY   : reconstruct surface with threshold-slope surface
+FILLSINKS          : fill/remove pits, sinks or topographic depressions
+FILTER             : 2D-filtering of DEMs with different kernels 
+FIND               : Find indices of nonzero elements in GRIDobj
+FINDCOORD          : Find coordinates of nonzero elements in GRIDobj
+GETCOORDINATES     : get coordinate vectors of an instance of GRIDobj
+GETEXTENT          : return extent of a GRIDobj
+GETOUTLINE         : get or plot extent of GRIDobj
+GRADIENT8          : 8-connected neighborhood gradient of a digital elevation model
+GRIDDEDCONTOUR     : plot contours on grid
+HILLSHADE          : create hillshading from a digital elevation model (GRIDobj)
+HISTOGRAM          : Plot frequency distribution of values in GRIDobj
+HYPSCURVE          : plot hypsometric curve of a digital elevation model
+IDENTIFYFLATS      : identify flat terrain in a digital elevation model
+IMAGESC            : Scale data in GRIDobj and display as image object
+IMAGESCHS          : plot hillshade image with overlay
+IND2COORD          : convert linear index to x and y coordinates
+INFO               : detailed information on GRIDobj instance
+INPAINTNANS        : interpolate missing values in a grid (GRIDobj)
+INPAINTNANSORDFILT : DEM inpainting using 2D order-statistics filtering
+INTERP             : interpolate to query locations
+INTERP2GRIDOBJ     : Interpolate scattered data to GRIDobj
+ISGEOGRAPHIC       : Determines if grid has a geographic coordinate system
+ISNAN              : returns array elements that are NaNs as logical grid
+KSDENSITY          : kernel density estimator for GRIDobj
+LATLON             : returns grid lines of latitudes and longitudes
+LINE2GRIDOBJ       : convert line to a grid
+LOCALTOPOGRAPHY    : Local topography
+MEASURE            : take interactive measurements along a polyline
+MINMAXNORM         : min-max normalization with optional percent clipping
+MPOWER             : overloaded power for GRIDobj
+MRDIVIDE           : overloaded right division for GRIDobj
+MTIMES             : overloaded multiplication for GRIDobj
+PAD                : add or remove a border of pixels around a GRIDobj
+POLYGON2GRIDOBJ    : convert polygon to a grid
+POSTPROCFLATS      : postprocess flat terrain for visualization purpose
+PRCCLIP            : percentile clipping
+PROJECT            : transforms a GRIDobj between projected coordinate systems
+PROMINENCE         : Calculate the prominence of mountain peaks
+RAND               : Compute a GRIDobj with random numbers
+RECLABEL           : labels GRIDobj by rectangular fields
+RECLASSIFY         : generate univariate class intervals for an instance of GRIDobj
+REPROJECT2UTM      : Reproject DEM with WGS84 coordinate system to UTM-WGS84 
+RESAMPLE           : change spatial resolution of a GRIDobj
+ROUGHNESS          : terrain ruggedness, position and roughness indices of DEMs
+SETGEOGRAPHIC      : Set a GRIDobj to be referenced in a geographic coordinate system
+SHUFFLELABEL       : shufflelabel randomly relabels a label matrix
+SNAP2STREAM        : snap gauges or pour points to stream raster
+SUB2COORD          : convert subscripts to x and y coordinates
+SURF               : surface plot for GRIDobj
+TANAKACONTOUR      : Relief depiction using Tanaka contours
+TOPOSHIELDING      : topographic shielding from cosmic rays
+VALIDATEALIGNMENT  : validates whether instances of GRIDobj are spatially aligned
+ZSCORE             : standardized z-scores for GRIDobj</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>FLOWobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre"><span >showmethods </span><span style="color: rgb(170, 4, 249);">FLOWobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="5A6CD227" data-scroll-top="null" data-scroll-left="null" data-testid="output_1" style="width: 860px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;"><div class="textElement eoOutputContent" data-width="830" data-height="550" data-hashorizontaloverflow="false" style="max-height: 261px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;">FLOWOBJ             : create flow direction object
 FLOWOBJ2GRIDOBJ     : create ESRI ArcGIS flow direction grid from FLOWobj
 FLOWOBJ2M           : convert instance of FLOWobj to flow direction matrix 
 FLOWOBJ2CELL        : return cell array of FLOWobjs for individual drainage basins
-FLOWOBJ2GRADIENT    : gradient along flow direction
 CROP                : crop an instance of FLOWobj
+DBASYMMETRY         : Drainage basin asymmetry
 DBENTROPY           : entropy of drainage basin delineation
 DEPENDENCEMAP       : upslope area for specific locations in a DEM
 DRAINAGEBASINS      : drainage basin delineation/catchments
 DRAINAGEBASINSTATS  : zonal statistics on drainage basins
 FIND                : find indices and values of edges in the flow direction graph
+FLIPDIR             : Flip direction of flow
 FLOWACC             : flow accumulation (upslope area, contributing area)
 FLOWCONVERGENCE     : compute flow convergence of a digital elevation model
 FLOWDISTANCE        : flow distance in upstream and downstream direction
-FLOWPATHAPP         : Map, visualize and export flowpaths that start at manually set channelheads
 FLOWPATHEXTRACT     : extract linear indices of a single flowpath in a DEM
+FLOWVEC             : velocity vectors from FLOWobj
+GRADIENT            : gradient along flow direction
 IMPOSEMIN           : minima imposition (carving) along drainage network
 IND2COORD           : convert linear index to x and y coordinates
 INFLUENCEMAP        : downslope area for specific locations in a digital elevation model
+ISGEOGRAPHIC        : Determines if FLOWobj has a geographic coordinate system
 ISMULTI             : check if FD is multi or single flow direction
 MAPFROMNAL          : map values from node-attribute list to nearest upstream grid
 MULTI2SINGLE        : converts multiple to single flow direction
 MULTI_NORMALIZE     : create flow direction object
 MULTI_WEIGHTS       : create flow direction object
+PLOTDBFRINGE        : Plot semitransparent fringe around each drainage basin
 QUANTCARVE          : quantile carving
+RANDOMIZE           : randomize multiple flow directions
 SAVEOBJ             : create flow direction object
 STREAMORDER         : calculates a stream order GRIDobj from FLOWobj
 STREAMPOI           : stream points of interest
+TFACTOR             : Transverse topographic symmetry (T-)factor
 UPDATETOPOSORT      : update topological sorting
-UPSLOPESTATS        : upslope statistics of a variable based on the flow direction matrix
+UPSLOPESTATS        : upslope statistics computed in flow directions
 VALIDATEALIGNMENT   : validates whether instances of FLOWobj and GRIDobj are spatially aligned
-VERTDISTANCE2STREAM : vertical distance to streams</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>STREAMobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">STREAMobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="E1D1C4E3" data-testid="output_2" data-width="1128" data-height="1126" data-hashorizontaloverflow="false" style="width: 1158px; max-height: 261px;"><div class="textElement">STREAMOBJ           : Create stream object (STREAMobj)
+VERTDISTANCE2STREAM : vertical distance to streams </div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>STREAMobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre"><span >showmethods </span><span style="color: rgb(170, 4, 249);">STREAMobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="F01BE2CE" data-scroll-top="null" data-scroll-left="null" data-testid="output_2" style="width: 860px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;"><div class="textElement eoOutputContent" data-width="830" data-height="1429" data-hashorizontaloverflow="false" style="max-height: 261px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;">STREAMOBJ           : Create stream object (STREAMobj)
 STREAMOBJ2GRIDOBJ   : convert an instance of STREAMobj to an instance of GRIDobj
 STREAMOBJ2SWATHOBJ  : Create swath profile (SWATHobj) from stream network
 STREAMOBJ2XY        : convert instance of STREAMobj to NaN-separated X and Y coordinates
 STREAMOBJ2CELL      : convert instance of STREAMobj to cell array of stream objects
+STREAMOBJ2KML       : Convert STREAMobj to kml (Google Earth)
 STREAMOBJ2LATLON    : convert instance of STREAMobj to NaN-separated geographic coordinates
 STREAMOBJ2MAPSTRUCT : convert instance of STREAMobj to mapstruct
+STREAMOBJ2SHAPE     : Convert STREAMobj to geoshape or mapshape
 AGGREGATE           : aggregating values of reaches
+BINARIZE            : Make a stream network a strictly binary tree
+CHIERROR            : Analytical/numerical evaluation of chi error
 CHIPLOT             : CHI analysis for bedrock river analysis
 CHITRANSFORM        : Coordinate transformation using the integral approach
 CLEAN               : Create stream object (STREAMobj)
@@ -145,12 +166,17 @@ CRS                 : constrained regularized smoothing of the channel length pr
 CRSAPP              : interactive smoothing of river long profiles
 CRSLIN              : constrained regularized smoothing of the channel length profile
 CUMMAXUPSTREAM      : cumulative maximum in upstream direction
+CUMSUM              : cumulative sum on stream network
 CUMTRAPZ            : Cumulative trapezoidal numerical integration along a stream network
 CURVATURE           : curvature or 2nd derivative of a STREAMobj
 DENSIFY             : Increase number of vertices in stream network using splines
+DIFF                : Differences between adjacent pixels in a stream network
 DISTANCE            : return node attribute list with distances along the stream network
 DRAINAGEDENSITY     : drainage density of a stream network
+EXTEND2DIVIDE       : Grow STREAMobj upstream to extend to the divide
 EXTRACTCONNCOMPS    : interactive stream network selection
+FASTSCAPE           :  Simulation of the stream power incision model
+GETLOCATION         : Get locations along a stream network
 GETNAL              : get node-attribute list
 GETVALUE            : retrieve value from node-attribute list
 GRADIENT            : along-stream gradient
@@ -159,21 +185,30 @@ IDENTIFYFLATS       : identify flat sections in a river profile
 IMPOSEMIN           : minima imposition (carving) along stream network
 INFO                : meta information about STREAMobj
 INPAINTNANS         : inpaint missing values (nans) in a node attribute list
+INTERP              : interpolate data on STREAMobj (single river only)
+INTERPSMOOTH        : Interpolate and smooth values measured along a stream network
 INTERSECT           : intersect different instances of STREAMobj 
 INTERSECTLOCS       : Derive locations where two STREAMobj start to have a common network
+ISEMPTY             : Determine whether a STREAMobj is empty
+ISEQUAL             : Determine whether two STREAMobjs are equal
+ISGEOGRAPHIC        : Determines if STREAMobj has a geographic coordinate system
 ISNAL               : test whether a vector is a node attribute list of a STREAMobj
 ISSUBGRAPH          : Create stream object (STREAMobj)
+ISTRUNK             : Determines whether STREAMobj consists of trunk streams
 KLARGESTCONNCOMPS   : retain k largest connected components in an instance of STREAMobj
 KNICKPOINTFINDER    : find knickpoints in river profiles
 KSN                 : normalized steepness index
 LABELREACH          : create node-attribute list with labelled reaches
+LOESSKSN            : Loess-smoothed river steepness
 MAPLATERAL          : map values of regions adjacent to streams to stream network
 MCHI                : gradient of stream profile in chi space (M_chi)
 MEANUPSTREAM        : mean (weighted) upstream  values
 MINCOSTHYDROCON     : minimum cost hydrological conditioning
 MNOPTIM             : Bayesian optimization of the mn ratio
+MNOPTIMVAR          : optimize the mn ratio using minimum variance method
 MODIFY              : modify instance of STREAMobj to meet user-defined criteria
-NAL2NAL             : 
+NAL2NAL             : map one node-attribute list to another 
+NETDIST             : distance transform on a stream network
 NETWORKSEGMENT      : Identify river segments and compute segment geometry
 ORIENTATION         : stream orientation
 PLOT                : plot instance of STREAMobj
@@ -184,6 +219,7 @@ PLOTDZ              : plot upstream distance version elevation of a stream netwo
 PLOTDZSHADED        : plot upstream distance version elevation of a stream network
 PLOTSEGMENTGEOMETRY : Plot segment geometry obtained from the function networksegment
 PLOTSTREAMORDER     : calculate stream order from STREAMobj
+PSITRANSFORM        : Psi-transformation of river network elevations
 QUANTCARVE          : quantile carving
 RANDLOCS            : Random locations along the stream network
 REMOVEEDGEEFFECTS   : remove potential edge effects
@@ -196,17 +232,77 @@ SLOPEAREA           : slope-area relation of a stream network
 SMOOTH              : smoothing of node-attribute lists
 SNAP2STREAM         : snap locations to nearest stream location
 SPLIT               : split drainage network at predefined locations
+STACKEDPLOTDZ       : plot several stacked variables along the stream networks
 STREAMORDER         : calculate Strahler Stream Order from STREAMobj
 STREAMPOI           : stream points of interest
 STREAMPROJ          : project stream elevations based on slope-area scaling
 SUBGRAPH            : Create stream object (STREAMobj)
 TRANSFORMCOORDS     : transform coordinates of stream network
+TRIBDIR             : direction of inflow of tributary
 TRUNK               : extract trunk stream (longest stream) 
 UNION               : merge different instances of STREAMobj into a new instance
 VALIDATEALIGNMENT   : is an instance of STREAMobj is spatially aligned with another object of TopoToolbox
 WIDENSTREAM         : level elevations adjacent to the stream network
 WMPLOT              : plot stream network in the webmap browser
-ZEROBASELEVEL       : set base level to zero</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>DIVIDEobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper"><div  class = 'S6'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">DIVIDEobj</span></span></div></div></div><h2  class = 'S2'><span>PPSobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper"><div  class = 'S6'><span style="white-space: pre;"><span>showmethods </span><span style="color: rgb(170, 4, 249);">PPS</span></span></div></div></div><div  class = 'S1'></div></div>
+ZEROBASELEVEL       : set base level to zero</div></div></div></div></div><div  class = 'S5'><span></span></div><h2  class = 'S2'><span>DIVIDEobj functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre"><span >showmethods </span><span style="color: rgb(170, 4, 249);">DIVIDEobj</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement" uid="8CA7656A" data-scroll-top="null" data-scroll-left="null" data-testid="output_3" style="width: 860px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;"><div class="textElement eoOutputContent" data-width="830" data-height="262" data-hashorizontaloverflow="false" style="max-height: 273px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;">DIVIDEOBJ           : Create divide object (DIVIDEobj)
+DIVIDEOBJ2MAPSTRUCT : obtain divide properties from GRIDobj
+ASYMMETRY           : ASYMMETRY   directional asymmetry of divide segments
+CLEANEDGES          :   Delete divides on the edges of DEM
+COORD2IND           : convert x and y coordinates to linear index
+DIST2NODE           : network distance to nodes
+DIVDIST             : DIVDIST   Assign distance to divide segments
+DIVNET              : Create divide object (DIVIDEobj)
+DIVORDER            :   Assign order to divide segments
+GETVALUE            :    get grid values adjacent to divides
+IND2COORD           : convert linear index to x and y coordinates
+JCTANGLE            :   angles between divide segments at junctions
+JCTCON              :        compute junction connectivity
+PLOT                :    plot the divide network 
+PLOTC               :   Create colored plot of drainage divide network
+REMOVESHORTDIVIDES  : Remove short first-order divides
+SHRINK              :   Shrink divide network
+SORT                :   Sort divide segments by network structure.</div></div></div></div></div><h2  class = 'S2'><span>PPS functions</span></h2><div class="CodeBlock"><div class="inlineWrapper outputs"><div  class = 'S3'><span style="white-space: pre"><span >showmethods </span><span style="color: rgb(170, 4, 249);">PPS</span></span></div><div  class = 'S4'><div class="inlineElement eoOutputWrapper embeddedOutputsTextElement scrollableOutput" uid="164898AA" data-scroll-top="null" data-scroll-left="null" data-testid="output_4" style="width: 860px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;"><div class="textElement eoOutputContent" data-width="830" data-height="608" data-hashorizontaloverflow="false" style="max-height: 261px; white-space: pre; font-style: normal; color: rgb(64, 64, 64); font-size: 12px;">KFUN                      : K-function of a point pattern on a stream network
+PPS                       : Point patterns on stream networks
+AGGREGATE                 : Aggregate points in PPS to new point pattern
+AS                        : Convert PPS object into various data formats 
+BAYESLOGLINEAR            : Bayesian analysis of a loglinear point process model 
+CLUSTER                   : Hierarchical clustering of points in PPS
+CONVHULL                  : Convex hull around points in PPS
+DENSITY                   : nonparametric density estimation on network
+DIAMETER                  : Returns the maximum possible distance in a stream network
+ECDF                      : Empirical cumulative distribution function of a covariate 
+EXTENDEDNETWORK           : Extend network to account for duplicate points
+EXTRACTVALUESAROUNDPOINTS : Extract values around points 
+FITLOGLINEAR              : fit loglinear model to point pattern
+GENERATEPOINTS            : Generate non-random points on stream network
+GETMARKS                  : Extract point marks
+GFUN                      : G-function (nearest inter-point distance distribution)
+HASDUPLICATES             : checks whether there are duplicate points
+HISTOGRAM                 : histogram of point pattern on stream network
+IDW                       : Inverse distance weighted interpolation on stream networks
+INTENSITY                 : calculate intensity (density) of points on the stream network
+JITTER                    : Move points in PPS object randomly
+MODIFY                    : modify instance of PPS to meet user-defined criteria
+NETDIST                   : Shortest network distance
+NPOINTS                   : number of points in the point pattern
+PLOT                      : plot instance of PPS
+PLOTC                     : plot a colored stream network
+PLOTDZ                    : plot upstream distance version elevation or covariate of a PPS
+PLOTEFFECTS               : Plot of slices through fitted generalized linear regression
+PLOTPOINTS                : plot points of PPS
+POINTDISTANCES            : inter-point distance
+POINTS                    : extract a list of points from the point pattern
+QUADRATCOUNT              : Quadrat count and chi2 test
+RANDOM                    : random realisation of a (inhomogeneous) point process
+REMOVEDUPLICATES          : removes duplicate points
+REMOVEPOINTS              : Remove points in point pattern
+RHOHAT                    : nonparametric estimation of point pattern dependence on covariate
+ROC                       : receiver-operating characteristics of point pattern
+SHAPEWRITE                : write point pattern to shapefile
+SIMULATE                  : simulate point pattern using random thinning
+TLENGTH                   : total length of the stream network
+VORONOI                   : nearest neighbor search on a stream network
+WMPLOT                    : plot instance of PPS in webmap browswer</div></div></div></div></div><div  class = 'S1'></div>
 <br>
 <!-- 
 ##### SOURCE BEGIN #####
@@ -248,10 +344,11 @@ showmethods STREAMobj
 %% DIVIDEobj functions
 
 showmethods DIVIDEobj
-%% PPSobj functions
+%% PPS functions
 
 showmethods PPS
 %% 
 %
 ##### SOURCE END #####
---></body></html>
+-->
+</div></body></html>
