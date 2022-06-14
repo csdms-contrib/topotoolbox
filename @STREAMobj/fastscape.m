@@ -45,6 +45,12 @@ function z = fastscape(S,z,a,varargin)
 %     dt          time step length [y] (default is 1000)
 %     plot        true or false (default is true)
 %     ploteach    plot each time step (default is 10)
+%     plotchi     {false} or true. If true, the plot will show the
+%                 chi-transformed profile.
+%     gifname     By default empty, but if filename is provided, a gif file
+%                 will be written to the disk. 
+%     gifopts     Structure array with gif options for the function gif
+%                 (see help gif)
 %
 % Example
 %
@@ -101,12 +107,22 @@ function z = fastscape(S,z,a,varargin)
 %     Hergarten, S., 2002. Self organised criticality in Earth Systems. 
 %     Springer, Heidelberg.
 %
-% See also: STREAMobj
+%     Campforts, B., Schwanghart, W., Govers, G. (2017): Accurate 
+%     simulation of transient landscape evolution by eliminating numerical 
+%     diffusion: the TTLEM 1.0 model. Earth Surface Dynamics, 5, 47-66. 
+%     [DOI: 10.5194/esurf-5-47-2017]
+%
+% See also: STREAMobj, gif
 %
 % Authors: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de) and
 %          Benjamin Campforts.
 % Date: 28. April, 2022
 
+
+gifopts.DelayTime = 1/15;
+gifopts.LoopCount = inf;
+gifopts.frame     = gcf;
+gifopts.overwrite = false;
 
 %% Input parsing
 p = inputParser;
@@ -125,6 +141,9 @@ addParameter(p,'bc',[])
 addParameter(p,'bctype','rate')
 addParameter(p,'plot',true)
 addParameter(p,'ploteach',10)
+addParameter(p,'plotchi',0)
+addParameter(p,'gifname','')
+addParameter(p,'gifopts',gifopts)
 parse(p,S,z,a,varargin{:})
 
 % STREAMobj
@@ -150,6 +169,11 @@ dte   = p.Results.dt;
 % Plot?
 plotit   = p.Results.plot;
 ploteach = p.Results.ploteach;
+plotchi  = p.Results.plotchi;
+% Write gif
+writegif = p.Results.gifname;
+gifopts  = p.Results.gifopts;
+
 
 %FASTSCAPE1D 1D implementation of Braun and Willett 2013 implicit scheme
 ix  = S.ix;
@@ -158,6 +182,7 @@ d   = S.distance;
 dx_ixcix = d(ix)-d(ixc);
 
 % Calculate K*A^m
+ar     = a;
 a      = k.*(a.^m);
 
 % calculate timesteps
@@ -202,8 +227,20 @@ else
 end
 
 if plotit
-    hh = plotdz(S,z,'color','r');
+    if plotchi == 0
+        d  = S.distance;
+    elseif plotchi == 1
+        d  = chitransform(S,ar,"mn",m/n);
+    end
+    hh = plotdz(S,z,'color','r','distance',d); 
     hold on
+    if plotchi
+        xlabel('\chi [m]')
+    end
+
+    if ~isempty(writegif)
+        gif(writegif,gifopts)
+    end
 end
 
 t = 0;
@@ -231,7 +268,10 @@ if n == 1
                 delete(h(1))
                 h(1:9) = h(2:10);
             end            
-            h(plotcounter) = plotdz(S,z,'color','k');
+            h(plotcounter) = plotdz(S,z,'color','k','distance',d);
+            if plotchi
+                xlabel('\chi [m]')
+            end
             if plotcounter > 2
                 for rr = 1:plotcounter
                     h(rr).Color = [0 0 0 rr/(plotcounter*2)];
@@ -244,6 +284,10 @@ if n == 1
             end
 
             drawnow
+            if ~isempty(writegif)
+                gif
+            end
+
         end
     end
     
@@ -287,7 +331,12 @@ elseif n ~= 1
                 delete(h(1))
                 h(1:9) = h(2:10);
             end            
-            h(plotcounter) = plotdz(S,z,'color','k');
+            h(plotcounter) = plotdz(S,z,'color','k','distance',d);
+            if plotchi
+                xlabel('\chi [m]')
+            end
+
+
             if plotcounter > 2
                 for rr = 1:plotcounter
                     h(rr).Color = [0 0 0 rr/(plotcounter*2)];
@@ -300,6 +349,9 @@ elseif n ~= 1
             end
 
             drawnow
+            if ~isempty(writegif)
+                gif
+            end
         end
     end
 end

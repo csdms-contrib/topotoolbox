@@ -26,6 +26,8 @@ function h = plotdz(S,DEM,varargin)
 %     vector with linear indices of locations into the DEM. The cells
 %     referenced by ix must be part of the stream network. Use snap2stream
 %     to adjust locations. Annotation is achieved with vertical arrows.
+%     Note that simple points to be plotted on the stream network is easier
+%     using PPS/plotdz.
 %
 %     'annotationtext': cell array of strings
 %     if annotated, a cell array of strings can be added to the vertical 
@@ -48,7 +50,7 @@ function h = plotdz(S,DEM,varargin)
 %     'color': {'b'}
 %     line colors as provided to plot. Alternatively, you can supply a node
 %     attribute list (nal). The line will then have varying colors based on 
-%     nal and h will be a surface object.
+%     nal and h will be a surface object if 'colormethod' is 'surface'.
 %
 %     if 'color' is a node attribute list, then following parameter
 %     name/values apply
@@ -91,10 +93,10 @@ function h = plotdz(S,DEM,varargin)
 %     g = gradient(S,z);
 %     plotdz(S,DEM,'color',g)
 %
-% See also: STREAMobj, STREAMobj/plot, STREAMobj/smooth
+% See also: STREAMobj, STREAMobj/plot, STREAMobj/smooth, PPS/plotdz
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 18. August, 2017
+% Date: 14. June, 2022
 
 nrnodes = numel(S.x);
 ax      = gca;
@@ -146,11 +148,6 @@ elseif isnal(S,DEM)
     zz = DEM;
 else
     error('Imcompatible format of second input argument')
-end
-
-
-if isa(DEM,'GRIDobj')
-    validatealignment(S,DEM);
 end
 
 % get dynamic properties of S
@@ -233,7 +230,7 @@ else
             minc  = min(+p.Results.color);
             maxc  = max(+p.Results.color);
             
-            cmap    = colormap(p.Results.colormap)*255;
+            cmap    = colormap(ax,p.Results.colormap)*255;
             cmapix  = linspace(minc,maxc,size(cmap,1));
             
             col   = interp1(cmapix,cmap,+p.Results.color);
@@ -262,7 +259,7 @@ else
             dummy = z*0;
             c     = nan(size(order));
             c(I)  = +p.Results.color(order(I));
-            colormap(p.Results.colormap)
+            colormap(ax,p.Results.colormap)
             ht = surface([d d],[z z],[dummy dummy],[c c],...
                 'facecolor','none',...
                 'edgecolor','flat',...

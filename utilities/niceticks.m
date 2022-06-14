@@ -43,6 +43,7 @@ addParameter(p,'degree',false)
 addParameter(p,'twoticks',true)
 addParameter(p,'precision',0)
 addParameter(p,'exponent',0)
+addParameter(p,'rotateylabel',true)
 parse(p,varargin{:})
 
 prec = ['% .' num2str(p.Results.precision) 'f'];
@@ -93,7 +94,7 @@ ax.XAxis.Exponent = p.Results.exponent;
 ax.YAxis.Exponent = p.Results.exponent;
 
 % rotate tick labels if matlab 2014b or newer available
-if ~verLessThan('matlab','8.4')
+if ~verLessThan('matlab','8.4') && p.Results.rotateylabel
     set(ax,'YTickLabelRotation',90);
 end
 

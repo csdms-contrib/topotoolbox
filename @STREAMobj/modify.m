@@ -173,7 +173,7 @@ addParamValue(p,'rmconncomps',[],@(x) isnumeric(x) && x>0 && isscalar(x));
 addParamValue(p,'rmconncomps_ch',[],@(x) isnumeric(x) && x>=0 && isscalar(x));
 addParamValue(p,'rmupstreamtoch',[],@(x) isa(x,'STREAMobj'));
 addParamValue(p,'fromch2IX',[]);
-addParamValue(p,'rmnodes',[],@(x) isa(x,'STREAMobj'));
+addParamValue(p,'rmnodes',[]);
 addParamValue(p,'clip',[],@(x) (isnumeric(x) && size(x,2)==2 && size(x,1)>2) || isa(x,'GRIDobj'));
 addParamValue(p,'nal',[],@(x) isnal(S,x));
 
@@ -294,7 +294,7 @@ elseif ~isempty(p.Results.downstreamto)
 %         end
     end
     
-    I = false(size(S.x));
+    
     I = II;
     for r = 1:numel(S.ix)
         I(S.ixc(r)) = II(S.ix(r)) || I(S.ix(r)) || I(S.ixc(r));
@@ -378,8 +378,13 @@ elseif ~isempty(p.Results.rmconncomps_ch)
     I = ismember(cc,md);
     
 elseif ~isempty(p.Results.rmnodes)
-    I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
-    
+    % check if empty S is supplied
+    if isempty(p.Results.rmnodes.IXgrid)
+        I = getnal(S) == 0;
+    else
+        I = ~ismember(S.IXgrid,p.Results.rmnodes.IXgrid);
+    end
+
 elseif ~isempty(p.Results.nal)
     I = p.Results.nal;
 
@@ -397,7 +402,7 @@ elseif ~isempty(p.Results.clip)
 
 elseif ~isempty(p.Results.interactive)
 %% interactive    
-    figure
+%     figure
     plot(S,'k'); axis equal
     ax = gca;
     % expand axes
@@ -461,14 +466,25 @@ elseif ~isempty(p.Results.interactive)
             switch meth
                 case 'polyselect'
                     title('create a polygon and double-click to finalize')
+                    try
+                    hp = drawpolygon;
+                    pos = hp.Position;
+                    catch
                     hp = impoly;
                     pos = wait(hp);
+                    end
                     pos(end+1,:) = pos(1,:);
                 case 'ellipseselect'
                     title('create a ellipse and double-click to finalize')
+                    try
+                    hp = drawellipse;
+                    pos = hp.Vertices;
+                    catch
                     hp = imellipse;
-                    wait(hp);
+                    pos = wait(hp);
                     pos = getVertices(hp);
+                    end
+                    
                     pos(end+1,:) = pos(1,:);
                 case 'rectselect'
                     title('create a rectangle and double-click to finalize')

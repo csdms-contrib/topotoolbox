@@ -67,7 +67,7 @@ function [MS,x,y] = GRIDobj2polygon(DB,varargin)
 % See also: bwboundaries, bwtraceboundary, regionprops
 %
 % Author: Wolfgang Schwanghart (w.schwanghart[at]geo.uni-potsdam.de)
-% Date: 17. August, 2017
+% Date: 14. June, 2022
 
 
 
@@ -96,7 +96,7 @@ holes = p.Results.holes;
 waitb = p.Results.waitbar;
 
 % check underlying class of the grid
-if isfloat(DB.Z);
+if isfloat(DB.Z)
     writevalue = true;
     DB2 = GRIDobj(DB,'uint32');
     I   = ~(isnan(DB.Z) | DB.Z == 0);
@@ -107,7 +107,11 @@ else
 end
 
 % identify regions and number of regions
-STATS = regionprops(uint32(DB.Z),'Area','PixelIdxList');
+if islogical(DB.Z)
+    STATS = regionprops(DB.Z,'Area','PixelIdxList');
+else
+    STATS = regionprops(uint32(DB.Z),'Area','PixelIdxList');
+end
 ndb = numel(STATS);  
 
 % go through all regions
